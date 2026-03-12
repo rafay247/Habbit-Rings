@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Habit Rings — Premium Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+            <button id="reminder-toggle" class="chip chip-outline">
+              🔔 Auto Reminders: <span data-state>On</span>
+            </button>
+            <button id="theme-toggle" class="chip chip-outline">
+              🌗 Theme: <span data-theme-label>Dark</span>
+            </button>
+          </div>
+        </div>
+        <div class="header-secondary">
+          <div class="rings">
+            <div class="ring" data-ring="consistency">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle
+                  class="ring-fg"
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  stroke-dasharray="0 314"
+                />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">Consistency</span>
+                <span class="ring-value" id="consistency-score">0%</span>
+              </div>
+            </div>
+            <div class="ring" data-ring="streak">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle
+                  class="ring-fg"
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  stroke-dasharray="0 314"
+                />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">Longest Streak</span>
+                <span class="ring-value" id="longest-streak">0 days</span>
+              </div>
+            </div>
+            <div class="ring" data-ring="year">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle
+                  class="ring-fg"
+                  cx="60"
+                  cy="60"
+                  r="50"
+                  stroke-dasharray="0 314"
+                />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">365d Completion</span>
+                <span class="ring-value" id="year-completion">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section class="grid-lhs">
+          <section class="card glass card-today">
+            <header class="card-header">
+              <div>
+                <h2>Today&rsquo;s Habits</h2>
+                <p>Tap the checkboxes to log today&mdash;no dropdowns.</p>
+              </div>
+              <input
+                type="date"
+                id="date-picker"
+                class="date-picker"
+                aria-label="Select day"
+              />
+            </header>
+
+            <div id="habit-list" class="habit-list"></div>
+
+            <footer class="card-footer">
+              <button id="add-habit" class="btn btn-ghost">+ New Habit</button>
+              <button id="reset-today" class="btn btn-soft">
+                Clear today
+              </button>
+            </footer>
+          </section>
+
+          <section class="card glass card-utilities">
+            <header class="card-header">
+              <div>
+                <h2>Reminders & Backup</h2>
+                <p>Stay on track daily and keep your data safe.</p>
+              </div>
+            </header>
+
+            <div class="utilities-section">
+              <div class="utilities-column">
+                <h3 class="utilities-title">
+                  Daily Reminders
+                  <span class="pill small">📅 Auto daily check‑ins</span>
+                </h3>
+                <p class="card-copy">
+                  Configure a default reminder time. If a habit is still unchecked
+                  after that time, a subtle banner appears to nudge you.
+                </p>
+                <div class="reminder-row">
+                  <label for="reminder-time">Reminder time</label>
+                  <input type="time" id="reminder-time" />
+                </div>
+                <div
+                  id="reminder-banner"
+                  class="reminder-banner"
+                  aria-live="polite"
+                >
+                  <span>🔔 You have unchecked habits for today.</span>
+                  <button class="btn btn-ghost btn-small" id="jump-to-today">
+                    Review now
+                  </button>
+                </div>
+              </div>
+
+              <div class="utilities-column">
+                <h3 class="utilities-title">
+                  Data & Backup
+                  <span class="pill small">💾 Local & file backup</span>
+                </h3>
+                <p class="card-copy">
+                  All habits and check‑ins are stored locally in your browser.
+                  You can also download a backup file and restore it later.
+                </p>
+                <div class="utilities-actions">
+                  <button id="backup-download" class="btn btn-soft">
+                    Download backup
+                  </button>
+                  <button id="backup-restore" class="btn btn-ghost">
+                    Restore from file
+                  </button>
+                  <input
+                    type="file"
+                    id="backup-file-input"
+                    accept="application/json"
+                    style="display: none"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </section>
+
+        <section class="grid-rhs">
+          <section class="card glass card-heatmap">
+            <header class="card-header">
+              <div class="card-header-main">
+                <h2>GitHub‑Style Heatmap</h2>
+                <span class="pill small">🔥 Streak tracker</span>
+              </div>
+              <div class="year-switcher">
+                <button
+                  id="prev-year"
+                  class="icon-btn"
+                  aria-label="Previous year"
+                >
+                  ‹
+                </button>
+                <span id="heatmap-year" class="year-label"></span>
+                <button id="next-year" class="icon-btn" aria-label="Next year">
+                  ›
+                </button>
+              </div>
+            </header>
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <div class="legend-squares">
+                <span class="legend-square level-0"></span>
+                <span class="legend-square level-1"></span>
+                <span class="legend-square level-2"></span>
+                <span class="legend-square level-3"></span>
+                <span class="legend-square level-4"></span>
+              </div>
+              <span>More</span>
+            </div>
+            <div id="heatmap" class="heatmap"></div>
+          </section>
+
+          <section class="card glass card-kpi">
+            <header class="card-header">
+              <h2>Key Metrics</h2>
+            </header>
+            <div class="kpi-grid">
+              <div class="kpi">
+                <span class="kpi-label">Best Habit</span>
+                <span class="kpi-value" id="best-habit-name">–</span>
+                <span class="kpi-sub" id="best-habit-score">0% consistency</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Worst Habit</span>
+                <span class="kpi-value" id="worst-habit-name">–</span>
+                <span class="kpi-sub" id="worst-habit-score">
+                  0% consistency
+                </span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Active Habits</span>
+                <span class="kpi-value" id="active-habits">0</span>
+                <span class="kpi-sub">Tracked this year</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">Total Check‑ins</span>
+                <span class="kpi-value" id="total-checkins">0</span>
+                <span class="kpi-sub">Last 365 days</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">This Week</span>
+                <span class="kpi-value" id="week-progress">0%</span>
+                <span class="kpi-sub">Last 7 days</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-label">This Month</span>
+                <span class="kpi-value" id="month-progress">0%</span>
+                <span class="kpi-sub">Last 30 days</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card glass card-categories">
+            <header class="card-header">
+              <h2>Category Performance</h2>
+              <span class="pill small">📊 Last 365 days</span>
+            </header>
+            <div id="category-chart" class="category-chart"></div>
+          </section>
+
+          <section class="card glass card-notes">
+            <header class="card-header">
+              <div>
+                <h2>Notes & Tasks</h2>
+                <p>Capture quick reminders tied to your habits.</p>
+              </div>
+            </header>
+            <div class="notes-input-wrap">
+              <textarea
+                id="notes-input"
+                class="notes-input"
+                rows="2"
+                placeholder="Add a note or task for yourself…"
+              ></textarea>
+              <button id="notes-add" class="btn btn-primary btn-small">
+                Add
+              </button>
+            </div>
+            <div id="notes-list" class="notes-list"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <template id="habit-row-template">
+      <div class="habit-row">
+        <div class="habit-main">
+          <input type="checkbox" class="habit-checkbox" />
+          <div class="habit-text">
+            <div class="habit-name"></div>
+            <div class="habit-meta">
+              <span class="pill habit-category"></span>
+              <span class="habit-streak"></span>
+              <span class="habit-goal-badge" hidden>✓ Goal met</span>
+            </div>
+            <div class="habit-description"></div>
+            <div class="habit-week-strip"></div>
+            <div class="habit-progress">
+              <div class="habit-progress-track">
+                <div class="habit-progress-fill"></div>
+              </div>
+              <span class="habit-progress-label"></span>
+            </div>
+          </div>
+        </div>
+        <button class="icon-btn ghost habit-edit" title="Edit habit">⋯</button>
+      </div>
+    </template>
+
+    <dialog id="habit-dialog" class="habit-dialog">
+      <form method="dialog" class="habit-dialog-body">
+        <h3 id="habit-dialog-title">New Habit</h3>
+        <label class="field">
+          <span>Name</span>
+          <input
+            id="habit-name-input"
+            type="text"
+            required
+            maxlength="60"
+            placeholder="e.g. Morning run"
+          />
+        </label>
+        <label class="field">
+          <span>Category</span>
+          <input
+            id="habit-category-input"
+            type="text"
+            list="habit-category-suggestions"
+            placeholder="e.g. Health, Mind, Work…"
+          />
+        </label>
+        <label class="field">
+          <span>Description (optional)</span>
+          <textarea
+            id="habit-description-input"
+            rows="2"
+            maxlength="140"
+            placeholder="Short description or intention for this habit"
+          ></textarea>
+        </label>
+        <label class="field">
+          <span>Minimum times per week</span>
+          <input
+            id="habit-target-input"
+            type="number"
+            min="1"
+            max="7"
+            step="1"
+            value="3"
+          />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel" class="btn btn-ghost" type="button">
+            Cancel
+          </button>
+          <button id="delete-habit" class="btn btn-ghost danger" type="button">
+            Delete
+          </button>
+          <button id="save-habit" class="btn btn-primary" type="submit">
+            Save
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <datalist id="habit-category-suggestions"></datalist>
+
+    <script src="script.js"></script>
+  </body>
+</html>
+
