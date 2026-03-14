@@ -1021,6 +1021,7 @@ function initEvents() {
         }
         state.habits = parsed.habits;
         state.checkins = parsed.checkins || {};
+        state.notes = Array.isArray(parsed.notes) ? parsed.notes : [];
         state.reminderTime = parsed.reminderTime || DEFAULT_REMINDER_TIME;
         state.remindersEnabled =
           parsed.remindersEnabled === undefined
@@ -1030,6 +1031,7 @@ function initEvents() {
         renderTodayLabel();
         renderHabitsForSelectedDate();
         renderAnalytics();
+        renderNotes();
         initReminders();
       } catch (err) {
         console.error("Failed to restore backup", err);
@@ -1058,6 +1060,14 @@ function initEvents() {
 
 function init() {
   cacheEls();
+  // Re-sync notes from localStorage on load so they never appear missing after refresh
+  try {
+    const fresh = loadState();
+    if (Array.isArray(fresh.notes)) state.notes = fresh.notes;
+  } catch (e) {
+    console.error("Re-load notes failed", e);
+  }
+
   ui.selectedDate = todayISO();
   ui.heatmapYear = new Date().getFullYear();
 
@@ -1078,9 +1088,30 @@ function init() {
   try {
     renderMatrix();
     renderNotes();
+    // Defer notes render so DOM is fully ready (fixes notes disappearing on refresh)
+    requestAnimationFrame(() => {
+      if (els.notesList) renderNotes();
+    });
   } catch (e) {
     console.error("renderMatrix/renderNotes failed", e);
   }
+
+  startDayChangeRefresh();
+}
+
+let dayChangeCheckInterval = null;
+
+function startDayChangeRefresh() {
+  let lastDate = todayISO();
+  function checkDayChange() {
+    const now = todayISO();
+    if (now !== lastDate) {
+      lastDate = now;
+      location.reload();
+    }
+  }
+  if (dayChangeCheckInterval) clearInterval(dayChangeCheckInterval);
+  dayChangeCheckInterval = setInterval(checkDayChange, 60 * 1000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
