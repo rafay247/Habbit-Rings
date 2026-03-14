@@ -137,6 +137,82 @@ body[data-theme="light"] .glass {
   color: var(--text-muted);
 }
 
+.header-quote {
+  width: 100%;
+  padding: 14px 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(10, 132, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 4px solid var(--accent);
+  box-shadow:
+    0 1px 0 var(--border-subtle),
+    0 0 20px rgba(10, 132, 255, 0.06);
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+}
+
+.header-quote span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+.header-quote span::before {
+  content: "\201C";
+  font-style: normal;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0.7;
+  margin-right: 2px;
+}
+
+.header-quote cite {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.header-quote cite::before {
+  content: "— ";
+}
+
+.header-quote cite:empty::before {
+  content: none;
+}
+
+body[data-theme="light"] .header-quote {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(10, 132, 255, 0.08) 50%,
+    rgba(248, 250, 252, 0.9) 100%
+  );
+  border: 1px solid rgba(10, 132, 255, 0.2);
+  border-left-color: var(--accent);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.06),
+    0 0 24px rgba(10, 132, 255, 0.08);
+}
+
 .chip {
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-subtle);
@@ -1118,6 +1194,15 @@ body[data-theme="light"] .habit-dialog {
     font-size: 12px;
   }
 
+  .header-quote {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+
+  .header-quote cite {
+    font-size: 11px;
+  }
+
   .rings {
     gap: 4px;
   }
@@ -1178,6 +1263,15 @@ body[data-theme="light"] .habit-dialog {
     justify-content: space-between;
   }
 
+  .header-quote {
+    font-size: 11px;
+    padding: 5px 0;
+  }
+
+  .header-quote cite {
+    font-size: 10px;
+  }
+
   .rings {
     flex-direction: row;
     overflow-x: auto;
@@ -1221,6 +1315,15 @@ body[data-theme="light"] .habit-dialog {
 @media (max-width: 400px) {
   .app-shell {
     padding-inline: 4px;
+  }
+
+  .header-quote {
+    font-size: 10px;
+    padding: 4px 0;
+  }
+
+  .header-quote cite {
+    font-size: 10px;
   }
 
   .today-label {
