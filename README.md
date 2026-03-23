@@ -6,6 +6,7 @@ Single‑page habit tracker built with **HTML, CSS, and vanilla JavaScript**.
 
 - **Real daily checkboxes**: Tap to log each habit per day (no dropdowns).
 - **Local 365‑day history**: All check‑ins are stored in `localStorage`.
+- **Reliability mirror**: Data is also mirrored to **IndexedDB** and recovered on startup if needed.
 - **GitHub‑style heatmap**: Visual calendar with intensity based on how many habits you complete.
 - **Streak analytics**: Per‑habit streaks plus **longest streak ever**.
 - **Consistency scores**: Overall and per‑habit consistency over the last 365 days.
@@ -22,4 +23,13 @@ Single‑page habit tracker built with **HTML, CSS, and vanilla JavaScript**.
 3. Change the **date picker** to review or edit past days.
 4. Use the **Daily Reminders** card to set your preferred reminder time.
 
+## Data & persistence (local-only)
+
+- **Same browser, same device:** Your habits live in `localStorage` and survive normal restarts.
+- **Phone + computer:** Data is **not shared automatically** (no cloud/backend in this version).
+- Use the built-in **Download backup** / **Restore from file** to move your data manually between devices.
+
+## Manual backup
+
+Use **Download backup** / **Restore from file** anytime — works even without any cloud setup.
 

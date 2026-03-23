@@ -1,5 +1,118 @@
 const STORAGE_KEY = "habit-rings-data-v1";
+const DATA_VERSION_KEY = "habit-rings-data-version";
 const DEFAULT_REMINDER_TIME = "20:00";
+const IDB_NAME = "habit-rings-db";
+const IDB_STORE = "kv";
+const IDB_STATE_KEY = "state";
+const AUTO_BACKUP_ENABLED_KEY = "habit-rings-auto-backup-enabled";
+const AUTO_BACKUP_LAST_DATE_KEY = "habit-rings-auto-backup-last-date";
+
+function openPersistenceDb() {
+  return new Promise((resolve, reject) => {
+    if (!("indexedDB" in window)) {
+      resolve(null);
+      return;
+    }
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveStateToIndexedDb(stateObj) {
+  try {
+    const db = await openPersistenceDb();
+    if (!db) return;
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      tx.objectStore(IDB_STORE).put(JSON.stringify(stateObj), IDB_STATE_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  } catch (e) {
+    console.error("IndexedDB save failed", e);
+  }
+}
+
+async function loadStateFromIndexedDb() {
+  try {
+    const db = await openPersistenceDb();
+    if (!db) return null;
+    const raw = await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readonly");
+      const req = tx.objectStore(IDB_STORE).get(IDB_STATE_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+    db.close();
+    if (!raw) return null;
+    return normalizeParsedState(JSON.parse(raw));
+  } catch (e) {
+    console.error("IndexedDB load failed", e);
+    return null;
+  }
+}
+
+function defaultState() {
+  return {
+    habits: [
+      {
+        id: "h1",
+        name: "Move 30 min",
+        category: "Health",
+        targetPerWeek: 3,
+        subtasks: [],
+        createdAt: todayISO()
+      },
+      {
+        id: "h2",
+        name: "Read 10 pages",
+        category: "Learning",
+        targetPerWeek: 4,
+        subtasks: [],
+        createdAt: todayISO()
+      },
+      {
+        id: "h3",
+        name: "Mindful check‑in",
+        category: "Mind",
+        targetPerWeek: 5,
+        subtasks: [],
+        createdAt: todayISO()
+      }
+    ],
+    checkins: {},
+    subcheckins: {},
+    notes: [],
+    reminderTime: DEFAULT_REMINDER_TIME,
+    remindersEnabled: true,
+    theme: "dark"
+  };
+}
+
+function normalizeParsedState(parsed) {
+  if (!parsed || typeof parsed !== "object") return defaultState();
+  if (!parsed.reminderTime) parsed.reminderTime = DEFAULT_REMINDER_TIME;
+  if (parsed.remindersEnabled === undefined) parsed.remindersEnabled = true;
+  if (!parsed.theme) parsed.theme = "dark";
+  if (!parsed.notes) parsed.notes = [];
+  if (!parsed.subcheckins) parsed.subcheckins = {};
+  if (Array.isArray(parsed.habits)) {
+    parsed.habits.forEach((h) => {
+      if (h.targetPerWeek == null) h.targetPerWeek = 3;
+      if (h.description == null) h.description = "";
+      if (!Array.isArray(h.subtasks)) h.subtasks = [];
+    });
+  }
+  return parsed;
+}
 
 function todayISO(date = new Date()) {
   const d = new Date(
@@ -90,50 +203,8 @@ const DAILY_QUOTES = [
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return {
-        habits: [
-          {
-            id: "h1",
-            name: "Move 30 min",
-            category: "Health",
-            targetPerWeek: 3,
-            createdAt: todayISO()
-          },
-          {
-            id: "h2",
-            name: "Read 10 pages",
-            category: "Learning",
-            targetPerWeek: 4,
-            createdAt: todayISO()
-          },
-          {
-            id: "h3",
-            name: "Mindful check‑in",
-            category: "Mind",
-            targetPerWeek: 5,
-            createdAt: todayISO()
-          }
-        ],
-        checkins: {},
-        notes: [],
-        reminderTime: DEFAULT_REMINDER_TIME,
-        remindersEnabled: true,
-        theme: "dark"
-      };
-    }
-    const parsed = JSON.parse(raw);
-    if (!parsed.reminderTime) parsed.reminderTime = DEFAULT_REMINDER_TIME;
-    if (parsed.remindersEnabled === undefined) parsed.remindersEnabled = true;
-    if (!parsed.theme) parsed.theme = "dark";
-    if (!parsed.notes) parsed.notes = [];
-    if (Array.isArray(parsed.habits)) {
-      parsed.habits.forEach((h) => {
-        if (h.targetPerWeek == null) h.targetPerWeek = 3;
-        if (h.description == null) h.description = "";
-      });
-    }
-    return parsed;
+    if (!raw) return defaultState();
+    return normalizeParsedState(JSON.parse(raw));
   } catch (e) {
     console.error("Failed to load state", e);
     return {
@@ -149,6 +220,51 @@ function loadState() {
 
 function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(DATA_VERSION_KEY, String(Date.now()));
+  saveStateToIndexedDb(state);
+}
+
+/** Full UI refresh after restore / cloud merge */
+function refreshUIAfterStateImport() {
+  renderTodayLabel();
+  renderHabitsForSelectedDate();
+  try {
+    renderAnalytics();
+  } catch (e) {
+    console.error("renderAnalytics failed", e);
+  }
+  try {
+    renderMatrix();
+  } catch (e) {
+    console.error("renderMatrix failed", e);
+  }
+  renderNotes();
+  initReminders();
+  applyTheme(state.theme);
+}
+
+function applyParsedStateToApp(parsed) {
+  const n = normalizeParsedState(parsed);
+  if (!Array.isArray(n.habits) || !n.checkins) {
+    console.error("Invalid state object");
+    return;
+  }
+  Object.keys(state).forEach((k) => delete state[k]);
+  Object.assign(state, n);
+  saveState(state);
+  refreshUIAfterStateImport();
+}
+
+async function recoverStateFromIndexedDbIfNeeded() {
+  const hasLocal = !!localStorage.getItem(STORAGE_KEY);
+  if (hasLocal) return;
+  const idbState = await loadStateFromIndexedDb();
+  if (!idbState) return;
+  Object.keys(state).forEach((k) => delete state[k]);
+  Object.assign(state, idbState);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(DATA_VERSION_KEY, String(Date.now()));
+  refreshUIAfterStateImport();
 }
 
 const state = loadState();
@@ -192,12 +308,15 @@ function cacheEls() {
   els.backupDownload = document.getElementById("backup-download");
   els.backupRestore = document.getElementById("backup-restore");
   els.backupFileInput = document.getElementById("backup-file-input");
+  els.autoBackupEnabled = document.getElementById("auto-backup-enabled");
+  els.autoBackupStatus = document.getElementById("auto-backup-status");
 
   els.habitDialog = document.getElementById("habit-dialog");
   els.habitDialogTitle = document.getElementById("habit-dialog-title");
   els.habitNameInput = document.getElementById("habit-name-input");
   els.habitCategoryInput = document.getElementById("habit-category-input");
   els.habitDescriptionInput = document.getElementById("habit-description-input");
+  els.habitSubtasksInput = document.getElementById("habit-subtasks-input");
   els.habitTargetInput = document.getElementById("habit-target-input");
   els.deleteHabit = document.getElementById("delete-habit");
   els.saveHabit = document.getElementById("save-habit");
@@ -246,22 +365,84 @@ function setChecked(habitId, iso, value) {
   else delete state.checkins[iso][habitId];
 }
 
+function ensureSubcheckinsBucket(iso, habitId) {
+  if (!state.subcheckins) state.subcheckins = {};
+  if (!state.subcheckins[iso]) state.subcheckins[iso] = {};
+  if (!state.subcheckins[iso][habitId]) state.subcheckins[iso][habitId] = {};
+}
+
+function isSubtaskChecked(habitId, subtaskId, iso) {
+  const bucket = state.subcheckins?.[iso]?.[habitId];
+  return !!(bucket && bucket[subtaskId]);
+}
+
+function setSubtaskChecked(habitId, subtaskId, iso, value) {
+  ensureSubcheckinsBucket(iso, habitId);
+  if (value) state.subcheckins[iso][habitId][subtaskId] = true;
+  else delete state.subcheckins[iso][habitId][subtaskId];
+}
+
+function syncHabitCompletionFromSubtasks(habit, iso) {
+  const subs = Array.isArray(habit.subtasks) ? habit.subtasks : [];
+  if (subs.length === 0) return;
+
+  let anyDone = false;
+  for (const s of subs) {
+    if (isSubtaskChecked(habit.id, s.id, iso)) {
+      anyDone = true;
+      break;
+    }
+  }
+
+  ensureDateBucket(iso);
+  if (anyDone) state.checkins[iso][habit.id] = true;
+  else delete state.checkins[iso][habit.id];
+}
+
+function syncSubtasksFromHabitChecked(habit, iso, checked) {
+  const subs = Array.isArray(habit.subtasks) ? habit.subtasks : [];
+  if (subs.length === 0) return;
+
+  if (!checked) {
+    // Clear all subtask completion for this habit/day.
+    if (state.subcheckins?.[iso]?.[habit.id]) {
+      delete state.subcheckins[iso][habit.id];
+    }
+    ensureDateBucket(iso);
+    delete state.checkins[iso][habit.id];
+    return;
+  }
+
+  // On: mark all subtasks as done for this day.
+  for (const s of subs) {
+    setSubtaskChecked(habit.id, s.id, iso, true);
+  }
+  syncHabitCompletionFromSubtasks(habit, iso);
+}
+
 function renderHabitsForSelectedDate() {
   els.habitList.innerHTML = "";
   const tpl = document.getElementById("habit-row-template");
+  const iso = ui.selectedDate;
+  let didMigrateSubcheckins = false;
   state.habits.forEach((habit, index) => {
     const frag = tpl.content.cloneNode(true);
     const row = frag.querySelector(".habit-row");
     const checkbox = row.querySelector(".habit-checkbox");
     const nameEl = row.querySelector(".habit-name");
     const catEl = row.querySelector(".habit-category");
-    const streakEl = row.querySelector(".habit-streak");
+    const streakCurrentEl = row.querySelector(".habit-streak-current");
+    const streakBestEl = row.querySelector(".habit-streak-best");
     const editBtn = row.querySelector(".habit-edit");
     const progressFill = row.querySelector(".habit-progress-fill");
     const progressLabel = row.querySelector(".habit-progress-label");
     const weekStrip = row.querySelector(".habit-week-strip");
     const goalBadge = row.querySelector(".habit-goal-badge");
     const descEl = row.querySelector(".habit-description");
+    const subtasksEl = row.querySelector(".habit-subtasks");
+    const subtaskProgressEl = row.querySelector(
+      ".habit-subtask-progress"
+    );
 
     row.dataset.habitId = habit.id;
     row.dataset.index = String(index);
@@ -273,15 +454,94 @@ function renderHabitsForSelectedDate() {
       target > 0
         ? `${habit.category || "General"} · ${target}×/week`
         : habit.category || "General";
-    checkbox.checked = isChecked(habit.id, ui.selectedDate);
+    checkbox.checked = isChecked(habit.id, iso);
+
+    const subs = Array.isArray(habit.subtasks) ? habit.subtasks : [];
+    // Migration: if old data says habit is done but subcheckins are empty,
+    // mark the first subtask done for this day so the UI rule stays consistent.
+    if (subs.length > 0) {
+      const subBucket = state.subcheckins?.[iso]?.[habit.id];
+      const hasAnySub = !!(subBucket && Object.keys(subBucket).length > 0);
+      if (checkbox.checked && !hasAnySub) {
+        setSubtaskChecked(habit.id, subs[0].id, iso, true);
+        didMigrateSubcheckins = true;
+      }
+
+      syncHabitCompletionFromSubtasks(habit, iso);
+      checkbox.checked = isChecked(habit.id, iso);
+    }
 
     const streak = computeStreakForHabit(habit.id, ui.selectedDate);
-    streakEl.textContent = streak > 0 ? `🔥 ${streak}‑day streak` : "No streak yet";
+    const longest = computeLongestStreak(habit.id);
+    if (streakCurrentEl) {
+      streakCurrentEl.textContent =
+        streak > 0 ? `🔥 ${streak}‑day streak` : "No streak yet";
+    }
+    if (streakBestEl) {
+      streakBestEl.textContent =
+        longest > 0 ? `Best: ${longest} days` : "";
+    }
 
     if (descEl) {
       const desc = habit.description || "";
       descEl.textContent = desc;
       descEl.hidden = !desc;
+    }
+
+    if (subtasksEl) {
+      subtasksEl.innerHTML = "";
+      if (subs.length > 0) {
+        if (subtaskProgressEl) {
+          const doneCount = subs.reduce((sum, s) => {
+            return sum + (isSubtaskChecked(habit.id, s.id, iso) ? 1 : 0);
+          }, 0);
+          const totalCount = subs.length;
+          subtaskProgressEl.textContent = `Done ${doneCount}/${totalCount} subtasks`;
+          subtaskProgressEl.hidden = false;
+        }
+
+        // Show only unfinished subtasks for the selected day.
+        const visibleSubs = subs.filter(
+          (s) => !isSubtaskChecked(habit.id, s.id, iso)
+        );
+
+        if (visibleSubs.length === 0) {
+          subtasksEl.hidden = true;
+        } else {
+          for (const s of visibleSubs) {
+            const item = document.createElement("label");
+            item.className = "subtask-item";
+
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.className = "subtask-checkbox";
+            cb.checked = false;
+
+            cb.addEventListener("change", () => {
+              setSubtaskChecked(habit.id, s.id, iso, cb.checked);
+              syncHabitCompletionFromSubtasks(habit, iso);
+              saveState(state);
+              renderHabitsForSelectedDate();
+              try {
+                renderAnalytics();
+              } catch (err) {
+                console.error("renderAnalytics failed", err);
+              }
+              maybeShowReminderBanner();
+            });
+
+            const text = document.createElement("span");
+            text.textContent = s.text;
+
+            item.appendChild(cb);
+            item.appendChild(text);
+            subtasksEl.appendChild(item);
+          }
+        }
+      } else {
+        subtasksEl.hidden = true;
+        if (subtaskProgressEl) subtaskProgressEl.hidden = true;
+      }
     }
 
     const monthPct = computeHabitPeriodCompletion(habit.id, 30);
@@ -326,11 +586,19 @@ function renderHabitsForSelectedDate() {
     }
 
     checkbox.addEventListener("change", () => {
-      setChecked(habit.id, ui.selectedDate, checkbox.checked);
+      if (subs.length > 0) {
+        syncSubtasksFromHabitChecked(habit, iso, checkbox.checked);
+      } else {
+        setChecked(habit.id, iso, checkbox.checked);
+      }
       saveState(state);
-      renderAnalytics();
-      maybeShowReminderBanner();
       renderHabitsForSelectedDate();
+      try {
+        renderAnalytics();
+      } catch (err) {
+        console.error("renderAnalytics failed", err);
+      }
+      maybeShowReminderBanner();
     });
 
     editBtn.addEventListener("click", () => openHabitDialog(habit.id));
@@ -347,6 +615,11 @@ function renderHabitsForSelectedDate() {
 
     els.habitList.appendChild(frag);
   });
+
+  if (didMigrateSubcheckins) {
+    // Persist migration so streak/UI stay consistent on refresh.
+    saveState(state);
+  }
 }
 
 function computeStreakForHabit(habitId, refDate) {
@@ -602,24 +875,8 @@ function refreshCategorySuggestions() {
     });
 }
 
-function computePeriodCompletion(daysBack) {
-  const today = todayISO();
-  const start = addDays(today, -(daysBack - 1));
-  const habitsCount = state.habits.length;
-  if (habitsCount === 0) return 0;
-
-  let possible = 0;
-  let completed = 0;
-  let cursor = start;
-  while (cursor <= today) {
-    possible += habitsCount;
-    const bucket = state.checkins[cursor];
-    if (bucket) completed += Object.values(bucket).length;
-    cursor = addDays(cursor, 1);
-  }
-  if (possible === 0) return 0;
-  return Math.round((completed / possible) * 100);
-}
+/** 30-day matrix UI not present in current layout; keep as no-op for analytics. */
+function renderMatrix() {}
 
 function setRingProgress(ringName, percentage) {
   const ring = document.querySelector(`.ring[data-ring="${ringName}"]`);
@@ -814,6 +1071,10 @@ function openHabitDialog(habitId = null) {
     if (els.habitDescriptionInput) {
       els.habitDescriptionInput.value = habit.description || "";
     }
+    if (els.habitSubtasksInput) {
+      const subs = Array.isArray(habit.subtasks) ? habit.subtasks : [];
+      els.habitSubtasksInput.value = subs.map((s) => s.text).join("\n");
+    }
     if (els.habitTargetInput) {
       els.habitTargetInput.value =
         habit.targetPerWeek != null ? String(habit.targetPerWeek) : "3";
@@ -825,6 +1086,9 @@ function openHabitDialog(habitId = null) {
     els.habitCategoryInput.value = "";
     if (els.habitDescriptionInput) {
       els.habitDescriptionInput.value = "";
+    }
+    if (els.habitSubtasksInput) {
+      els.habitSubtasksInput.value = "";
     }
     if (els.habitTargetInput) {
       els.habitTargetInput.value = "3";
@@ -846,7 +1110,15 @@ function handleSaveHabit(ev) {
   if (!name) return;
   const category = els.habitCategoryInput.value || "Other";
   const description = (els.habitDescriptionInput?.value || "").trim();
-   let targetPerWeek = 3;
+  const subtasksRaw = (els.habitSubtasksInput?.value || "").trim();
+  const subtaskTexts = subtasksRaw
+    ? subtasksRaw
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  let targetPerWeek = 3;
   if (els.habitTargetInput) {
     const parsed = parseInt(els.habitTargetInput.value, 10);
     if (!Number.isNaN(parsed)) {
@@ -861,15 +1133,31 @@ function handleSaveHabit(ev) {
       habit.category = category;
       habit.description = description;
       habit.targetPerWeek = targetPerWeek;
+
+      const existing = Array.isArray(habit.subtasks) ? habit.subtasks : [];
+      habit.subtasks = subtaskTexts.map((text) => {
+        const match = existing.find((s) => s.text === text);
+        return (
+          match || {
+            id: "s" + Math.random().toString(36).slice(2, 9),
+            text
+          }
+        );
+      });
     }
   } else {
     const id = "h" + Math.random().toString(36).slice(2, 9);
+    const subtasks = subtaskTexts.map((text) => ({
+      id: "s" + Math.random().toString(36).slice(2, 9),
+      text
+    }));
     state.habits.push({
       id,
       name,
       category,
       description,
       targetPerWeek,
+      subtasks,
       createdAt: todayISO()
     });
   }
@@ -887,6 +1175,11 @@ function handleDeleteHabit() {
   Object.values(state.checkins).forEach((bucket) => {
     delete bucket[id];
   });
+  if (state.subcheckins) {
+    Object.values(state.subcheckins).forEach((bucket) => {
+      if (bucket && bucket[id]) delete bucket[id];
+    });
+  }
   saveState(state);
   closeHabitDialog();
   renderHabitsForSelectedDate();
@@ -899,9 +1192,20 @@ function handleResetToday() {
   state.habits.forEach((h) => {
     delete bucket[h.id];
   });
+  if (state.subcheckins && state.subcheckins[ui.selectedDate]) {
+    state.habits.forEach((h) => {
+      if (state.subcheckins[ui.selectedDate]) {
+        delete state.subcheckins[ui.selectedDate][h.id];
+      }
+    });
+  }
   saveState(state);
   renderHabitsForSelectedDate();
-  renderAnalytics();
+  try {
+    renderAnalytics();
+  } catch (err) {
+    console.error("renderAnalytics failed", err);
+  }
   maybeShowReminderBanner();
 }
 
@@ -984,6 +1288,54 @@ function initTheme() {
       applyTheme(state.theme);
     });
   }
+}
+
+function downloadBackupFile(filename) {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {
+    type: "application/json"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function maybeAutoBackupDownload() {
+  if (!els.autoBackupEnabled || !els.autoBackupEnabled.checked) return;
+  const today = todayISO();
+  const last = localStorage.getItem(AUTO_BACKUP_LAST_DATE_KEY);
+  if (last === today) return;
+
+  downloadBackupFile("habit-rings-backup-latest.json");
+  localStorage.setItem(AUTO_BACKUP_LAST_DATE_KEY, today);
+  if (els.autoBackupStatus) {
+    els.autoBackupStatus.textContent = `Auto backup downloaded (${today}).`;
+  }
+}
+
+function initAutoBackupUI() {
+  if (!els.autoBackupEnabled) return;
+  const enabled = localStorage.getItem(AUTO_BACKUP_ENABLED_KEY) === "1";
+  els.autoBackupEnabled.checked = enabled;
+  if (els.autoBackupStatus) {
+    els.autoBackupStatus.textContent = enabled
+      ? "Auto backup is enabled."
+      : "Auto backup is disabled.";
+  }
+  els.autoBackupEnabled.addEventListener("change", () => {
+    const on = !!els.autoBackupEnabled.checked;
+    localStorage.setItem(AUTO_BACKUP_ENABLED_KEY, on ? "1" : "0");
+    if (els.autoBackupStatus) {
+      els.autoBackupStatus.textContent = on
+        ? "Auto backup is enabled."
+        : "Auto backup is disabled.";
+    }
+    if (on) maybeAutoBackupDownload();
+  });
 }
 
 function initEvents() {
@@ -1105,20 +1457,7 @@ function initEvents() {
         if (!Array.isArray(parsed.habits) || !parsed.checkins) {
           throw new Error("missing keys");
         }
-        state.habits = parsed.habits;
-        state.checkins = parsed.checkins || {};
-        state.notes = Array.isArray(parsed.notes) ? parsed.notes : [];
-        state.reminderTime = parsed.reminderTime || DEFAULT_REMINDER_TIME;
-        state.remindersEnabled =
-          parsed.remindersEnabled === undefined
-            ? true
-            : !!parsed.remindersEnabled;
-        saveState(state);
-        renderTodayLabel();
-        renderHabitsForSelectedDate();
-        renderAnalytics();
-        renderNotes();
-        initReminders();
+        applyParsedStateToApp(parsed);
       } catch (err) {
         console.error("Failed to restore backup", err);
         alert("Could not read this backup file.");
@@ -1144,8 +1483,12 @@ function initEvents() {
   }
 }
 
-function init() {
+async function init() {
   cacheEls();
+  await recoverStateFromIndexedDbIfNeeded();
+  if (!localStorage.getItem(DATA_VERSION_KEY) && localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(DATA_VERSION_KEY, String(Date.now()));
+  }
   // Re-sync notes from localStorage on load so they never appear missing after refresh
   try {
     const fresh = loadState();
@@ -1183,6 +1526,9 @@ function init() {
     console.error("renderMatrix/renderNotes failed", e);
   }
 
+  initAutoBackupUI();
+  maybeAutoBackupDownload();
+
   startDayChangeRefresh();
 }
 
@@ -1201,5 +1547,7 @@ function startDayChangeRefresh() {
   dayChangeCheckInterval = setInterval(checkDayChange, 60 * 1000);
 }
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+  init().catch((e) => console.error("init failed", e));
+});
 

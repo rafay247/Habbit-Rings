@@ -169,7 +169,23 @@
                     style="display: none"
                   />
                 </div>
+                <div class="auto-backup">
+                  <label class="auto-backup-toggle">
+                    <input type="checkbox" id="auto-backup-enabled" />
+                    <span>Auto backup once per day</span>
+                  </label>
+                  <div class="auto-backup-note">
+                    File name: <code>habit-rings-backup-latest.json</code>
+                    (browser overwrites when possible).
+                  </div>
+                  <p
+                    id="auto-backup-status"
+                    class="auto-backup-status"
+                    aria-live="polite"
+                  ></p>
+                </div>
               </div>
+
             </div>
           </section>
 
@@ -290,10 +306,15 @@
             <div class="habit-name"></div>
             <div class="habit-meta">
               <span class="pill habit-category"></span>
-              <span class="habit-streak"></span>
+              <span class="habit-streak-wrap">
+                <span class="habit-streak habit-streak-current"></span>
+                <span class="habit-streak-best"></span>
+              </span>
               <span class="habit-goal-badge" hidden>✓ Goal met</span>
             </div>
             <div class="habit-description"></div>
+            <div class="habit-subtasks" aria-label="Subtasks"></div>
+            <div class="habit-subtask-progress" hidden></div>
             <div class="habit-week-strip"></div>
             <div class="habit-progress">
               <div class="habit-progress-track">
@@ -336,6 +357,15 @@
             rows="2"
             maxlength="140"
             placeholder="Short description or intention for this habit"
+          ></textarea>
+        </label>
+        <label class="field">
+          <span>Subtasks (one per line, optional)</span>
+          <textarea
+            id="habit-subtasks-input"
+            rows="3"
+            maxlength="400"
+            placeholder="e.g. Warm up&#10;Workout&#10;Cool down"
           ></textarea>
         </label>
         <label class="field">
