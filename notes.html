@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Habit Rings — Notes</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      html, body { height: 100%; }
+
+      /* Full-width override for notes page */
+      .app-shell {
+        max-width: 100%;
+        padding-inline: 32px;
+      }
+
+      /* Notes main fills remaining height */
+      #notes-view {
+        display: block;
+        flex: 1;
+        width: 100%;
+      }
+
+      .notes-card {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 210px);
+        min-height: 500px;
+        margin-top: 16px;
+      }
+
+      /* Toolbar styling */
+      .editor-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--bg-raised);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-top: 14px;
+      }
+
+      .notes-page .tb-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        user-select: none;
+      }
+
+      .notes-page .tb-btn:hover {
+        background: var(--bg-hover);
+        border-color: var(--border);
+        color: var(--text);
+      }
+
+      .notes-page .tb-btn:active {
+        transform: scale(0.96);
+      }
+
+      .tb-sep {
+        width: 1px;
+        height: 26px;
+        background: var(--border);
+        margin: 0 6px;
+        flex-shrink: 0;
+      }
+
+      /* The editor itself */
+      #editor {
+        flex: 1;
+        outline: none;
+        overflow-y: auto;
+        padding: 20px 24px;
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--text);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        transition: border-color 0.2s;
+        margin-top: 12px;
+        background: var(--bg-raised);
+        min-height: 0; /* needed for flex child scroll */
+      }
+
+      #editor:focus {
+        border-color: var(--accent-border);
+        box-shadow: none;
+      }
+
+      #editor:empty::before {
+        content: attr(data-placeholder);
+        color: var(--text-dim);
+        pointer-events: none;
+      }
+
+      #editor h2 {
+        font-size: 22px;
+        color: var(--text);
+        margin: 12px 0 6px;
+      }
+
+      #editor ul, #editor ol {
+        margin: 6px 0;
+        padding-left: 24px;
+      }
+
+      /* Color picker */
+      #color-picker {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        padding: 2px;
+      }
+    </style>
+  </head>
+  <body class="notes-page">
+    <div class="app-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav" style="display: flex; gap: 8px; margin: 0 24px;">
+            <a href="index.html" class="chip chip-outline" style="text-decoration: none;">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline" style="background: var(--bg-soft); border-color: var(--border); text-decoration: none;">Notes</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+        <div class="header-secondary">
+          <div class="rings">
+            <div class="ring" data-ring="consistency">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle class="ring-fg" cx="60" cy="60" r="50" stroke-dasharray="0 314" />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">Consistency</span>
+                <span class="ring-value" id="consistency-score">0%</span>
+              </div>
+            </div>
+            <div class="ring" data-ring="streak">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle class="ring-fg" cx="60" cy="60" r="50" stroke-dasharray="0 314" />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">Longest Streak</span>
+                <span class="ring-value" id="longest-streak">0 days</span>
+              </div>
+            </div>
+            <div class="ring" data-ring="year">
+              <svg viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50" />
+                <circle class="ring-fg" cx="60" cy="60" r="50" stroke-dasharray="0 314" />
+              </svg>
+              <div class="ring-label">
+                <span class="ring-title">365d Completion</span>
+                <span class="ring-value" id="year-completion">0%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="notes-view">
+        <section class="card glass notes-card">
+          <!-- Header -->
+          <div>
+            <h2 style="font-size: 26px; margin: 0 0 6px; color: var(--text);">📝 Premium Notes</h2>
+            <p style="font-size: 14px; margin: 0; color: var(--text-muted);">
+              Rich text editor for detailed tasks and planning. Works offline.
+            </p>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="editor-toolbar" id="toolbar">
+            <button class="tb-btn" data-cmd="bold"                 title="Bold"><b>B</b></button>
+            <button class="tb-btn" data-cmd="italic"               title="Italic"><i>I</i></button>
+            <button class="tb-btn" data-cmd="underline"            title="Underline"><u>U</u></button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="insertUnorderedList"  title="Bullet list">• list</button>
+            <button class="tb-btn" data-cmd="insertOrderedList"    title="Numbered list">1. list</button>
+            <div class="tb-sep"></div>
+            <input  type="color" id="color-picker" title="Text color" />
+            <button class="tb-btn" data-cmd="formatBlock" data-val="H2" title="Heading 2" style="font-weight:700;">H2</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" data-cmd="removeFormat" title="Clear formatting" style="font-size:12px;">✕ clear</button>
+          </div>
+
+          <!-- Editor -->
+          <div id="editor"
+               contenteditable="true"
+               spellcheck="true"
+               data-placeholder="Start writing your notes…">
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Main app script (handles rings, reminders, state) -->
+    <script src="script.js"></script>
+
+    <!-- Self-contained editor script — no dependency on script.js internals -->
+    <script>
+      (function () {
+        const STORAGE_KEY = 'habit-rings-notepad';
+        const editor = document.getElementById('editor');
+        const toolbar = document.getElementById('toolbar');
+        const colorPicker = document.getElementById('color-picker');
+
+        /* ── Load saved content ───────────────────────── */
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            // Support both stand-alone key and nested inside full app state
+            const html = typeof parsed === 'string'
+              ? parsed
+              : (parsed.notepadText || '');
+            editor.innerHTML = html;
+          }
+        } catch (e) { /* no saved notes */ }
+
+        /* ── Save on every change ─────────────────────── */
+        function saveContent() {
+          const html = editor.innerHTML;
+          try {
+            // Merge into existing state so other pages still work
+            const existingRaw = localStorage.getItem('habit-rings-state');
+            if (existingRaw) {
+              const state = JSON.parse(existingRaw);
+              state.notepadText = html;
+              localStorage.setItem('habit-rings-state', JSON.stringify(state));
+            }
+            // Also keep stand-alone key as fallback
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(html));
+          } catch (e) {}
+        }
+
+        editor.addEventListener('input', saveContent);
+
+        /* ── Selection save/restore ───────────────────── */
+        let savedRange = null;
+
+        function saveSelection() {
+          const sel = window.getSelection();
+          if (sel && sel.rangeCount > 0) {
+            savedRange = sel.getRangeAt(0).cloneRange();
+          }
+        }
+
+        function restoreSelection() {
+          editor.focus();
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          if (savedRange) {
+            sel.addRange(savedRange);
+          } else {
+            // Put cursor at end
+            const range = document.createRange();
+            range.selectNodeContents(editor);
+            range.collapse(false);
+            sel.addRange(range);
+          }
+        }
+
+        editor.addEventListener('keyup',   saveSelection);
+        editor.addEventListener('mouseup', saveSelection);
+
+        /* ── Toolbar buttons ──────────────────────────── */
+        toolbar.addEventListener('mousedown', function (e) {
+          const btn = e.target.closest('[data-cmd]');
+          if (!btn) return;
+
+          e.preventDefault(); // keep focus in editor
+
+          restoreSelection();
+
+          const cmd = btn.dataset.cmd;
+          const val = btn.dataset.val || null;
+
+          document.execCommand(cmd, false, val);
+
+          saveSelection();
+          saveContent();
+        });
+
+        /* ── Color picker ─────────────────────────────── */
+        colorPicker.addEventListener('mousedown', saveSelection);
+        colorPicker.addEventListener('input', function (e) {
+          restoreSelection();
+          document.execCommand('foreColor', false, e.target.value);
+          saveSelection();
+          saveContent();
+        });
+
+        /* ── Today label ──────────────────────────────── */
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          const d = new Date();
+          todayEl.textContent = d.toLocaleDateString('en-US', {
+            weekday: 'short', month: 'short', day: 'numeric'
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -91,6 +91,7 @@ function defaultState() {
     checkins: {},
     subcheckins: {},
     notes: [],
+    notepadText: "",
     reminderTime: DEFAULT_REMINDER_TIME,
     remindersEnabled: true,
     theme: "dark"
@@ -103,6 +104,7 @@ function normalizeParsedState(parsed) {
   if (parsed.remindersEnabled === undefined) parsed.remindersEnabled = true;
   if (!parsed.theme) parsed.theme = "dark";
   if (!parsed.notes) parsed.notes = [];
+  if (typeof parsed.notepadText !== "string") parsed.notepadText = "";
   if (!parsed.subcheckins) parsed.subcheckins = {};
   if (Array.isArray(parsed.habits)) {
     parsed.habits.forEach((h) => {
@@ -138,6 +140,7 @@ function dayOfYear(date) {
 }
 
 const DAILY_QUOTES = [
+  "You may delay, but time will not. — Benjamin Franklin",
   "The accountability mirror doesn't lie. It's your first step towards growth.",
   "The hardest battle you will fight is the battle to be yourself in a world that is trying to make you like everyone else.",
   "Confidence comes not from always being right but from not fearing to be wrong. — Peter T. McIntyre",
@@ -179,7 +182,7 @@ const DAILY_QUOTES = [
   "The journey of a thousand miles begins with one step. — Lao Tzu",
   "Fall seven times and stand up eight. — Japanese Proverb",
   "Staying in denial may feel safe, but true growth begins when you step out of your comfort zone.",
-  "What you're not changing you're choosing.",
+  "What you're not changing, you're choosing. — Laurie Buchanan, PhD",
   "Procrastination is the thief of time. — Edward Young",
   "You may delay, but time will not. — Benjamin Franklin",
   "A year from now you may wish you had started today. — Karen Lamb",
@@ -240,7 +243,6 @@ function refreshUIAfterStateImport() {
   }
   renderNotes();
   initReminders();
-  applyTheme(state.theme);
 }
 
 function applyParsedStateToApp(parsed) {
@@ -292,9 +294,13 @@ function cacheEls() {
   els.weekProgress = document.getElementById("week-progress");
   els.monthProgress = document.getElementById("month-progress");
   els.categoryChart = document.getElementById("category-chart");
-  els.notesInput = document.getElementById("notes-input");
-  els.notesAdd = document.getElementById("notes-add");
-  els.notesList = document.getElementById("notes-list");
+  els.navDashboard = document.getElementById("nav-dashboard");
+  els.navNotes = document.getElementById("nav-notes");
+  els.dashboardView = document.getElementById("dashboard-view");
+  els.notesView = document.getElementById("notes-view");
+  els.premiumNotesEditor = document.getElementById("premium-notes-editor");
+  els.noteColorPicker = document.getElementById("note-color-picker");
+  els.editorToolBtns = document.querySelectorAll(".tool-btn");
   els.heatmap = document.getElementById("heatmap");
   els.heatmapYear = document.getElementById("heatmap-year");
   els.prevYear = document.getElementById("prev-year");
@@ -320,6 +326,7 @@ function cacheEls() {
   els.habitTargetInput = document.getElementById("habit-target-input");
   els.deleteHabit = document.getElementById("delete-habit");
   els.saveHabit = document.getElementById("save-habit");
+  els.habitPriorityInput = document.getElementById("habit-priority-input");
   els.habitCategorySuggestions = document.getElementById(
     "habit-category-suggestions"
   );
@@ -421,6 +428,7 @@ function syncSubtasksFromHabitChecked(habit, iso, checked) {
 }
 
 function renderHabitsForSelectedDate() {
+  if (!els.habitList) return;
   els.habitList.innerHTML = "";
   const tpl = document.getElementById("habit-row-template");
   const iso = ui.selectedDate;
@@ -447,6 +455,10 @@ function renderHabitsForSelectedDate() {
     row.dataset.habitId = habit.id;
     row.dataset.index = String(index);
     row.draggable = true;
+
+    if (habit.priority) {
+      row.classList.add("habit-priority");
+    }
 
     nameEl.textContent = habit.name;
     const target = habit.targetPerWeek || 0;
@@ -496,7 +508,11 @@ function renderHabitsForSelectedDate() {
             return sum + (isSubtaskChecked(habit.id, s.id, iso) ? 1 : 0);
           }, 0);
           const totalCount = subs.length;
-          subtaskProgressEl.textContent = `Done ${doneCount}/${totalCount} subtasks`;
+          subtaskProgressEl.textContent = `Done ${doneCount}/${totalCount}`;
+          subtaskProgressEl.setAttribute(
+            "aria-label",
+            `Subtasks done: ${doneCount} of ${totalCount}`
+          );
           subtaskProgressEl.hidden = false;
         }
 
@@ -803,58 +819,7 @@ function renderDailyQuote() {
 }
 
 function renderNotes() {
-  if (!els.notesList) return;
-  els.notesList.innerHTML = "";
-  const notes = state.notes || [];
-  if (!notes.length) {
-    const empty = document.createElement("p");
-    empty.className = "card-copy notes-empty";
-    empty.textContent = "No notes yet. Add your first reminder.";
-    els.notesList.appendChild(empty);
-    return;
-  }
-
-  notes.forEach((note) => {
-    const row = document.createElement("div");
-    row.className = "note-row";
-
-    const left = document.createElement("div");
-    left.className = "note-main";
-
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.className = "note-checkbox";
-    cb.checked = !!note.done;
-
-    const text = document.createElement("div");
-    text.className = "note-text";
-    text.textContent = note.text;
-
-    if (note.done) row.classList.add("note-row-done");
-
-    cb.addEventListener("change", () => {
-      note.done = cb.checked;
-      saveState(state);
-      renderNotes();
-    });
-
-    left.appendChild(cb);
-    left.appendChild(text);
-
-    const del = document.createElement("button");
-    del.className = "icon-btn ghost note-delete";
-    del.textContent = "✕";
-    del.title = "Delete note";
-    del.addEventListener("click", () => {
-      state.notes = state.notes.filter((n) => n.id !== note.id);
-      saveState(state);
-      renderNotes();
-    });
-
-    row.appendChild(left);
-    row.appendChild(del);
-    els.notesList.appendChild(row);
-  });
+  // Deprecated UI component, stubbed for backward compatibility.
 }
 
 function refreshCategorySuggestions() {
@@ -897,6 +862,7 @@ function setRingProgress(ringName, percentage) {
 }
 
 function renderAnalytics() {
+  if (!els.consistencyScore) return;
   const {
     overallConsistency,
     longestEver,
@@ -954,6 +920,7 @@ function renderAnalytics() {
 }
 
 function renderCategoryChart(perHabitStats) {
+  if (!els.categoryChart) return;
   els.categoryChart.innerHTML = "";
   const totals = {};
   perHabitStats.forEach((stats, habitId) => {
@@ -1007,7 +974,23 @@ function renderCategoryChart(perHabitStats) {
   });
 }
 
+function computeHeatmapLayout(containerWidth, dayCount) {
+  const gap = 3;
+  const minCell = 4;
+  const maxCell = 11;
+  let cols = Math.min(53, Math.max(1, dayCount));
+  let cellPx = Math.floor((containerWidth - (cols - 1) * gap) / cols);
+  while (cellPx < minCell && cols > 12) {
+    cols -= 1;
+    cellPx = Math.floor((containerWidth - (cols - 1) * gap) / cols);
+  }
+  cellPx = Math.max(minCell, Math.min(maxCell, cellPx));
+  const totalW = cols * cellPx + (cols - 1) * gap;
+  return { cols, cellPx, gap, totalW };
+}
+
 function renderHeatmap(year) {
+  if (!els.heatmap) return;
   els.heatmapYear.textContent = String(year);
   els.heatmap.innerHTML = "";
 
@@ -1020,11 +1003,6 @@ function renderHeatmap(year) {
     counts[iso] = Object.values(habitsDone).length;
   });
 
-  let max = 0;
-  Object.values(counts).forEach((c) => {
-    if (c > max) max = c;
-  });
-
   const days = [];
   let cursor = yearStart;
   while (cursor <= yearEnd) {
@@ -1032,22 +1010,34 @@ function renderHeatmap(year) {
     cursor = addDays(cursor, 1);
   }
 
-  if (window.innerWidth <= 520) {
-    els.heatmap.style.gridTemplateColumns = "repeat(26, 1fr)";
-  } else {
-    els.heatmap.style.gridTemplateColumns = "repeat(53, 1fr)";
+  const wrap = els.heatmap.parentElement;
+  let containerW = wrap?.clientWidth ?? 0;
+  if (containerW < 48) {
+    containerW = Math.round(window.innerWidth * 0.46);
   }
+  const { cols, cellPx, gap, totalW } = computeHeatmapLayout(containerW, days.length);
+  els.heatmap.style.gridTemplateColumns = `repeat(${cols}, ${cellPx}px)`;
+  els.heatmap.style.gridAutoRows = `${cellPx}px`;
+  els.heatmap.style.gap = `${gap}px`;
+  els.heatmap.style.width = `${totalW}px`;
 
+  const todayStr = todayISO();
   days.forEach((iso) => {
     const cell = document.createElement("div");
     const count = counts[iso] || 0;
     let level = 0;
-    if (count === 0) level = 0;
+    if (count <= 0) level = 0;
     else if (count === 1) level = 1;
     else if (count === 2) level = 2;
-    else if (count <= 4) level = 3;
-    else level = 4;
+    else if (count === 3) level = 3;
+    else if (count === 4) level = 4;
+    else if (count === 5) level = 5;
+    else if (count === 6) level = 6;
+    else if (count === 7) level = 7;
+    else level = 8;
     cell.className = `heatmap-cell level-${level}`;
+    if (iso === todayStr) cell.classList.add("heatmap-cell--today");
+    if (iso === ui.selectedDate) cell.classList.add("heatmap-cell--selected");
     cell.title = `${formatHumanDate(iso)} · ${count} habit${
       count === 1 ? "" : "s"
     }`;
@@ -1079,6 +1069,9 @@ function openHabitDialog(habitId = null) {
       els.habitTargetInput.value =
         habit.targetPerWeek != null ? String(habit.targetPerWeek) : "3";
     }
+    if (els.habitPriorityInput) {
+      els.habitPriorityInput.checked = !!habit.priority;
+    }
     els.deleteHabit.style.display = "inline-flex";
   } else {
     els.habitDialogTitle.textContent = "New Habit";
@@ -1093,14 +1086,26 @@ function openHabitDialog(habitId = null) {
     if (els.habitTargetInput) {
       els.habitTargetInput.value = "3";
     }
+    if (els.habitPriorityInput) {
+      els.habitPriorityInput.checked = false;
+    }
     els.deleteHabit.style.display = "none";
   }
   refreshCategorySuggestions();
-  els.habitDialog.showModal();
+  if (!els.habitDialog.open) {
+    els.habitDialog.showModal();
+  }
 }
 
 function closeHabitDialog() {
-  els.habitDialog.close();
+  const d = els.habitDialog;
+  if (!d) return;
+  try {
+    if (d.open) d.close();
+  } catch (e) {
+    console.warn("habit dialog close", e);
+  }
+  if (d.hasAttribute("open")) d.removeAttribute("open");
   ui.editingHabitId = null;
 }
 
@@ -1126,6 +1131,8 @@ function handleSaveHabit(ev) {
     }
   }
 
+  const priority = els.habitPriorityInput ? els.habitPriorityInput.checked : false;
+
   if (ui.editingHabitId) {
     const habit = state.habits.find((h) => h.id === ui.editingHabitId);
     if (habit) {
@@ -1133,6 +1140,7 @@ function handleSaveHabit(ev) {
       habit.category = category;
       habit.description = description;
       habit.targetPerWeek = targetPerWeek;
+      habit.priority = priority;
 
       const existing = Array.isArray(habit.subtasks) ? habit.subtasks : [];
       habit.subtasks = subtaskTexts.map((text) => {
@@ -1157,6 +1165,7 @@ function handleSaveHabit(ev) {
       category,
       description,
       targetPerWeek,
+      priority,
       subtasks,
       createdAt: todayISO()
     });
@@ -1164,8 +1173,15 @@ function handleSaveHabit(ev) {
 
   saveState(state);
   closeHabitDialog();
+  requestAnimationFrame(() => {
+    if (els.habitDialog?.open) closeHabitDialog();
+  });
   renderHabitsForSelectedDate();
-  renderAnalytics();
+  try {
+    renderAnalytics();
+  } catch (err) {
+    console.error("renderAnalytics failed", err);
+  }
 }
 
 function handleDeleteHabit() {
@@ -1182,8 +1198,15 @@ function handleDeleteHabit() {
   }
   saveState(state);
   closeHabitDialog();
+  requestAnimationFrame(() => {
+    if (els.habitDialog?.open) closeHabitDialog();
+  });
   renderHabitsForSelectedDate();
-  renderAnalytics();
+  try {
+    renderAnalytics();
+  } catch (err) {
+    console.error("renderAnalytics failed", err);
+  }
 }
 
 function handleResetToday() {
@@ -1268,26 +1291,8 @@ function initReminders() {
   setInterval(maybeShowReminderBanner, 60 * 1000);
 }
 
-function applyTheme(theme) {
-  const mode = theme === "light" ? "light" : "dark";
-  document.body.dataset.theme = mode;
-  if (els.themeToggle) {
-    const label = els.themeToggle.querySelector("[data-theme-label]");
-    if (label) label.textContent = mode === "light" ? "Light" : "Dark";
-    els.themeToggle.dataset.mode = mode;
-  }
-}
-
 function initTheme() {
-  if (!state.theme) state.theme = "dark";
-  applyTheme(state.theme);
-  if (els.themeToggle) {
-    els.themeToggle.addEventListener("click", () => {
-      state.theme = state.theme === "dark" ? "light" : "dark";
-      saveState(state);
-      applyTheme(state.theme);
-    });
-  }
+  // Single color scheme — no theme switching needed
 }
 
 function downloadBackupFile(filename) {
@@ -1339,139 +1344,209 @@ function initAutoBackupUI() {
 }
 
 function initEvents() {
-  els.datePicker.addEventListener("change", () => {
-    ui.selectedDate = els.datePicker.value || todayISO();
-    renderTodayLabel();
-    renderHabitsForSelectedDate();
-  });
-
-  els.addHabit.addEventListener("click", () => openHabitDialog(null));
-  els.resetToday.addEventListener("click", handleResetToday);
-
-  els.habitList.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    const dragging = els.habitList.querySelector(".habit-row.dragging");
-    if (!dragging) return;
-    const afterElement = Array.from(
-      els.habitList.querySelectorAll(".habit-row:not(.dragging)")
-    ).find((row) => {
-      const rect = row.getBoundingClientRect();
-      return e.clientY < rect.top + rect.height / 2;
-    });
-    if (!afterElement) {
-      els.habitList.appendChild(dragging);
-    } else {
-      els.habitList.insertBefore(dragging, afterElement);
-    }
-  });
-
-  els.habitList.addEventListener("drop", (e) => {
-    e.preventDefault();
-    const dragging = els.habitList.querySelector(".habit-row.dragging");
-    if (!dragging) return;
-    const id = dragging.dataset.habitId;
-    const rows = Array.from(els.habitList.querySelectorAll(".habit-row"));
-    const newIndex = rows.indexOf(dragging);
-    const oldIndex = state.habits.findIndex((h) => h.id === id);
-    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      const [moved] = state.habits.splice(oldIndex, 1);
-      state.habits.splice(newIndex, 0, moved);
-      saveState(state);
+  if (els.datePicker) {
+    els.datePicker.addEventListener("change", () => {
+      ui.selectedDate = els.datePicker.value || todayISO();
+      renderTodayLabel();
       renderHabitsForSelectedDate();
-      renderAnalytics();
-    }
-  });
+      renderHeatmap(ui.heatmapYear);
+    });
+  }
 
-  if (els.notesAdd && els.notesInput) {
-    const addHandler = () => {
-      const text = els.notesInput.value.trim();
-      if (!text) return;
-      const note = {
-        id: "n" + Math.random().toString(36).slice(2, 9),
-        text,
-        done: false,
-        createdAt: todayISO()
-      };
-      if (!state.notes) state.notes = [];
-      state.notes.unshift(note);
-      els.notesInput.value = "";
-      saveState(state);
-      renderNotes();
-    };
+  if (els.addHabit) els.addHabit.addEventListener("click", () => openHabitDialog(null));
+  if (els.resetToday) els.resetToday.addEventListener("click", handleResetToday);
 
-    els.notesAdd.addEventListener("click", addHandler);
-    els.notesInput.addEventListener("keydown", (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-        e.preventDefault();
-        addHandler();
+  if (els.habitList) {
+    els.habitList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      const dragging = els.habitList.querySelector(".habit-row.dragging");
+      if (!dragging) return;
+      const afterElement = Array.from(
+        els.habitList.querySelectorAll(".habit-row:not(.dragging)")
+      ).find((row) => {
+        const rect = row.getBoundingClientRect();
+        return e.clientY < rect.top + rect.height / 2;
+      });
+      if (!afterElement) {
+        els.habitList.appendChild(dragging);
+      } else {
+        els.habitList.insertBefore(dragging, afterElement);
+      }
+    });
+
+    els.habitList.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const dragging = els.habitList.querySelector(".habit-row.dragging");
+      if (!dragging) return;
+      const id = dragging.dataset.habitId;
+      const rows = Array.from(els.habitList.querySelectorAll(".habit-row"));
+      const newIndex = rows.indexOf(dragging);
+      const oldIndex = state.habits.findIndex((h) => h.id === id);
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        const [moved] = state.habits.splice(oldIndex, 1);
+        state.habits.splice(newIndex, 0, moved);
+        saveState(state);
+        renderHabitsForSelectedDate();
+        renderAnalytics();
       }
     });
   }
 
-  els.prevYear.addEventListener("click", () => {
-    ui.heatmapYear -= 1;
-    renderHeatmap(ui.heatmapYear);
-  });
-  els.nextYear.addEventListener("click", () => {
-    const currentYear = new Date().getFullYear();
-    if (ui.heatmapYear < currentYear + 1) {
-      ui.heatmapYear += 1;
-      renderHeatmap(ui.heatmapYear);
-    }
-  });
 
-  els.jumpToToday.addEventListener("click", () => {
-    ui.selectedDate = todayISO();
-    renderTodayLabel();
-    renderHabitsForSelectedDate();
-    els.reminderBanner.classList.remove("visible");
-  });
 
-  els.backupDownload.addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], {
-      type: "application/json"
+  if (els.premiumNotesEditor) {
+    // Load saved content
+    els.premiumNotesEditor.innerHTML = typeof state.notepadText === 'string' ? state.notepadText : '';
+
+    // Save on input
+    els.premiumNotesEditor.addEventListener("input", () => {
+      state.notepadText = els.premiumNotesEditor.innerHTML;
+      saveState(state);
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const stamp = todayISO().replace(/-/g, "");
-    a.href = url;
-    a.download = `habit-rings-backup-${stamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
 
-  els.backupRestore.addEventListener("click", () => {
-    els.backupFileInput.click();
-  });
+    // Track the saved selection so we can restore it before executing commands
+    let savedRange = null;
 
-  els.backupFileInput.addEventListener("change", (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        if (!parsed || typeof parsed !== "object") throw new Error("bad");
-        if (!Array.isArray(parsed.habits) || !parsed.checkins) {
-          throw new Error("missing keys");
-        }
-        applyParsedStateToApp(parsed);
-      } catch (err) {
-        console.error("Failed to restore backup", err);
-        alert("Could not read this backup file.");
-      } finally {
-        e.target.value = "";
+    function saveSelection() {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        savedRange = sel.getRangeAt(0).cloneRange();
       }
-    };
-    reader.readAsText(file);
-  });
+    }
+
+    function restoreSelection() {
+      if (!savedRange) {
+        // If no saved range, move cursor to end of editor
+        els.premiumNotesEditor.focus();
+        const sel = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(els.premiumNotesEditor);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return;
+      }
+      els.premiumNotesEditor.focus();
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedRange);
+    }
+
+    // Save selection whenever user interacts with the editor
+    els.premiumNotesEditor.addEventListener("mouseup", saveSelection);
+    els.premiumNotesEditor.addEventListener("keyup", saveSelection);
+    els.premiumNotesEditor.addEventListener("focus", saveSelection);
+
+    // Formatting tools
+    if (els.editorToolBtns) {
+      els.editorToolBtns.forEach(btn => {
+        btn.addEventListener("mousedown", (e) => {
+          e.preventDefault(); // Prevent focus leaving editor
+          restoreSelection();  // Put cursor back in editor
+          const cmd = btn.dataset.cmd;
+          const val = btn.dataset.val || null;
+          document.execCommand(cmd, false, val);
+          saveSelection(); // Save new selection after formatting
+          // Trigger save
+          state.notepadText = els.premiumNotesEditor.innerHTML;
+          saveState(state);
+        });
+      });
+    }
+
+    if (els.noteColorPicker) {
+      els.noteColorPicker.addEventListener("mousedown", () => {
+        saveSelection();
+      });
+      els.noteColorPicker.addEventListener("input", (e) => {
+        restoreSelection();
+        document.execCommand("foreColor", false, e.target.value);
+        saveSelection();
+        state.notepadText = els.premiumNotesEditor.innerHTML;
+        saveState(state);
+      });
+    }
+  }
+
+  if (els.prevYear) {
+    els.prevYear.addEventListener("click", () => {
+      ui.heatmapYear -= 1;
+      renderHeatmap(ui.heatmapYear);
+    });
+  }
+  if (els.nextYear) {
+    els.nextYear.addEventListener("click", () => {
+      const currentYear = new Date().getFullYear();
+      if (ui.heatmapYear < currentYear + 1) {
+        ui.heatmapYear += 1;
+        renderHeatmap(ui.heatmapYear);
+      }
+    });
+  }
+
+  if (els.jumpToToday) {
+    els.jumpToToday.addEventListener("click", () => {
+      ui.selectedDate = todayISO();
+      renderTodayLabel();
+      renderHabitsForSelectedDate();
+      renderHeatmap(ui.heatmapYear);
+      els.reminderBanner.classList.remove("visible");
+    });
+  }
+
+  if (els.backupDownload) {
+    els.backupDownload.addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {
+        type: "application/json"
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const stamp = todayISO().replace(/-/g, "");
+      a.href = url;
+      a.download = `habit-rings-backup-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  if (els.backupRestore && els.backupFileInput) {
+    els.backupRestore.addEventListener("click", () => {
+      els.backupFileInput.click();
+    });
+
+    els.backupFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (!parsed || typeof parsed !== "object") throw new Error("bad");
+          if (!Array.isArray(parsed.habits) || !parsed.checkins) {
+            throw new Error("missing keys");
+          }
+          applyParsedStateToApp(parsed);
+        } catch (err) {
+          console.error("Failed to restore backup", err);
+          alert("Could not read this backup file.");
+        } finally {
+          e.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
 
   els.habitDialog.addEventListener("close", () => {
     ui.editingHabitId = null;
   });
-  els.saveHabit.addEventListener("click", handleSaveHabit);
+  const habitDialogForm = els.habitDialog.querySelector("form");
+  if (habitDialogForm && habitDialogForm.dataset.saveBound !== "1") {
+    habitDialogForm.dataset.saveBound = "1";
+    habitDialogForm.addEventListener("submit", handleSaveHabit);
+  }
   els.deleteHabit.addEventListener("click", handleDeleteHabit);
 
   const cancelButton = els.habitDialog.querySelector('button[value="cancel"]');
@@ -1481,6 +1556,20 @@ function initEvents() {
       closeHabitDialog();
     });
   }
+
+}
+
+let heatmapRoTimer = null;
+function initHeatmapResizeObserver() {
+  const wrap = document.querySelector(".heatmap-scroll");
+  if (!wrap || wrap.dataset.heatmapRo === "1") return;
+  wrap.dataset.heatmapRo = "1";
+  const ro = new ResizeObserver(() => {
+    if (!els.heatmap) return;
+    clearTimeout(heatmapRoTimer);
+    heatmapRoTimer = setTimeout(() => renderHeatmap(ui.heatmapYear), 48);
+  });
+  ro.observe(wrap);
 }
 
 async function init() {
@@ -1511,6 +1600,7 @@ async function init() {
   }
 
   initEvents();
+  initHeatmapResizeObserver();
   initReminders();
   initTheme();
 

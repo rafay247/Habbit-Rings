@@ -18,20 +18,21 @@
             <span class="brand-dot"></span>
             <span class="brand-name">Habit Rings</span>
           </div>
+          <nav class="header-nav" style="display: flex; gap: 8px; margin: 0 24px;">
+            <a href="index.html" class="chip chip-outline" style="background: var(--bg-soft); border-color: var(--border); text-decoration: none;">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline" style="text-decoration: none;">Notes</a>
+          </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
             <button id="reminder-toggle" class="chip chip-outline">
               🔔 Auto Reminders: <span data-state>On</span>
             </button>
-            <button id="theme-toggle" class="chip chip-outline">
-              🌗 Theme: <span data-theme-label>Dark</span>
-            </button>
           </div>
         </div>
-        <div class="header-quote" id="header-quote" aria-live="polite">
-          <span id="quote-text"></span>
-          <cite id="quote-author"></cite>
-        </div>
+        <blockquote class="header-quote" id="header-quote" aria-live="polite">
+          <p id="quote-text" class="header-quote__text"></p>
+          <cite id="quote-author" class="header-quote__cite"></cite>
+        </blockquote>
         <div class="header-secondary">
           <div class="rings">
             <div class="ring" data-ring="consistency">
@@ -86,7 +87,7 @@
         </div>
       </header>
 
-      <main class="app-main">
+      <main id="dashboard-view" class="app-main">
         <section class="grid-lhs">
           <section class="card glass card-today">
             <header class="card-header">
@@ -212,18 +213,26 @@
                 </button>
               </div>
             </header>
-            <div class="heatmap-legend">
-              <span>Less</span>
-              <div class="legend-squares">
-                <span class="legend-square level-0"></span>
-                <span class="legend-square level-1"></span>
-                <span class="legend-square level-2"></span>
-                <span class="legend-square level-3"></span>
-                <span class="legend-square level-4"></span>
+            <div class="heatmap-panel">
+              <div class="heatmap-legend">
+                <span>None</span>
+                <div class="legend-squares">
+                  <span class="legend-square level-0"></span>
+                  <span class="legend-square level-1"></span>
+                  <span class="legend-square level-2"></span>
+                  <span class="legend-square level-3"></span>
+                  <span class="legend-square level-4"></span>
+                  <span class="legend-square level-5"></span>
+                  <span class="legend-square level-6"></span>
+                  <span class="legend-square level-7"></span>
+                  <span class="legend-square level-8"></span>
+                </div>
+                <span>8+</span>
               </div>
-              <span>More</span>
+              <div class="heatmap-scroll">
+                <div id="heatmap" class="heatmap" aria-label="Daily habit activity for the year"></div>
+              </div>
             </div>
-            <div id="heatmap" class="heatmap"></div>
           </section>
 
           <section class="card glass card-kpi">
@@ -274,34 +283,21 @@
             <div id="category-chart" class="category-chart"></div>
           </section>
 
-          <section class="card glass card-notes">
-            <header class="card-header">
-              <div>
-                <h2>Notes & Tasks</h2>
-                <p>Capture quick reminders tied to your habits.</p>
-              </div>
-            </header>
-            <div class="notes-input-wrap">
-              <textarea
-                id="notes-input"
-                class="notes-input"
-                rows="2"
-                placeholder="Add a note or task for yourself…"
-              ></textarea>
-              <button id="notes-add" class="btn btn-primary btn-small">
-                Add
-              </button>
-            </div>
-            <div id="notes-list" class="notes-list"></div>
           </section>
         </section>
-      </main>
     </div>
 
     <template id="habit-row-template">
       <div class="habit-row">
         <div class="habit-main">
-          <input type="checkbox" class="habit-checkbox" />
+          <label class="checkbox-wrapper-31 habit-checkbox-label">
+            <input type="checkbox" class="habit-checkbox" />
+            <svg viewBox="0 0 35.6 35.6" aria-hidden="true" focusable="false">
+              <circle class="background" cx="17.8" cy="17.8" r="17.8"></circle>
+              <circle class="stroke" cx="17.8" cy="17.8" r="14.37"></circle>
+              <polyline class="check" points="11.78 18.12 15.55 22.23 25.17 12.87"></polyline>
+            </svg>
+          </label>
           <div class="habit-text">
             <div class="habit-name"></div>
             <div class="habit-meta">
@@ -329,7 +325,8 @@
     </template>
 
     <dialog id="habit-dialog" class="habit-dialog">
-      <form method="dialog" class="habit-dialog-body">
+      <div class="habit-dialog-panel">
+      <form class="habit-dialog-body" novalidate>
         <h3 id="habit-dialog-title">New Habit</h3>
         <label class="field">
           <span>Name</span>
@@ -368,6 +365,14 @@
             placeholder="e.g. Warm up&#10;Workout&#10;Cool down"
           ></textarea>
         </label>
+        <label class="field" style="flex-direction: row; align-items: center; gap: 8px;">
+          <input
+            id="habit-priority-input"
+            type="checkbox"
+            style="width: max-content; margin: 0;"
+          />
+          <span>High Priority</span>
+        </label>
         <label class="field">
           <span>Minimum times per week</span>
           <input
@@ -391,6 +396,7 @@
           </button>
         </div>
       </form>
+      </div>
     </dialog>
 
     <datalist id="habit-category-suggestions"></datalist>
