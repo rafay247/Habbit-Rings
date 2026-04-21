@@ -173,6 +173,294 @@ blockquote.header-quote {
 .header-quote__cite:empty { display: none; }
 .header-quote__cite:empty::before { content: none; }
 
+/* ── Header quote row (quote + timer side by side) ── */
+.header-quote-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.header-quote-row > blockquote.header-quote {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Focus Timer Widget ── */
+.focus-timer {
+  flex-shrink: 0;
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  background: var(--bg-raised);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.focus-timer:hover { border-color: var(--border-strong); }
+
+/* Setup state */
+.focus-timer__setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.focus-timer__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.focus-timer__input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.focus-timer__input {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 5px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.focus-timer__input::-webkit-outer-spin-button,
+.focus-timer__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.focus-timer__input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.focus-timer__unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.focus-timer__start {
+  width: 100%;
+  justify-content: center;
+  font-size: 11px;
+  padding: 5px 8px;
+}
+.focus-timer__start:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Running state */
+.focus-timer__running {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.focus-timer__countdown {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+
+.focus-timer__cancel {
+  font-size: 10px;
+  padding: 3px 8px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.focus-timer__cancel:hover { opacity: 1; }
+
+/* Done state */
+.focus-timer__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  animation: timerPulse 0.5s ease;
+}
+.focus-timer__done-icon { font-size: 22px; }
+.focus-timer__done-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+@keyframes timerPulse {
+  0%    { transform: scale(0.8); opacity: 0; }
+  60%   { transform: scale(1.08); }
+  100%  { transform: scale(1); opacity: 1; }
+}
+
+/* ── Sand Timer (Hourglass) ── */
+.sand-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 44px;
+}
+
+.sand-timer__frame {
+  position: relative;
+  width: 38px;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Bulbs */
+.sand-timer__bulb {
+  width: 34px;
+  height: 22px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sand-timer__bulb--top {
+  border-radius: 50% 50% 4px 4px / 60% 60% 6px 6px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.12) 0%,
+    rgba(255,255,255,0.04) 50%,
+    rgba(255,255,255,0.08) 100%
+  );
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-bottom: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sand-timer__bulb--bottom {
+  border-radius: 4px 4px 50% 50% / 6px 6px 60% 60%;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.12) 0%,
+    rgba(255,255,255,0.04) 50%,
+    rgba(255,255,255,0.08) 100%
+  );
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-top: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* Sand inside bulbs */
+.sand-timer__sand {
+  border-radius: 0 0 50% 50%;
+  transition: height 0.5s linear;
+  width: 100%;
+}
+
+.sand-timer__sand--top {
+  background: linear-gradient(to bottom, #d4a54a, #c49636);
+  height: 100%;
+  border-radius: 20px 20px 2px 2px / 12px 12px 2px 2px;
+  align-self: flex-end;
+}
+
+.sand-timer__sand--bottom {
+  background: linear-gradient(to top, #d4a54a, #c49636);
+  height: 0%;
+  border-radius: 2px 2px 40% 40% / 2px 2px 50% 50%;
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+}
+
+/* Neck connecting bulbs */
+.sand-timer__neck {
+  width: 6px;
+  height: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.10) 0%,
+    rgba(255,255,255,0.04) 100%
+  );
+  border-left: 1.5px solid rgba(255,255,255,0.18);
+  border-right: 1.5px solid rgba(255,255,255,0.18);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Falling sand stream */
+.sand-timer__stream {
+  width: 2px;
+  height: 100%;
+  background: #d4a54a;
+  border-radius: 1px;
+  opacity: 0;
+  animation: none;
+}
+
+.sand-timer__stream.flowing {
+  opacity: 1;
+  animation: sandFlow 0.6s ease-in-out infinite;
+}
+
+@keyframes sandFlow {
+  0%   { opacity: 0.5; transform: scaleY(0.7); }
+  50%  { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0.5; transform: scaleY(0.7); }
+}
+
+/* Wooden base */
+.sand-timer__base {
+  width: 40px;
+  height: 7px;
+  margin-top: -1px;
+  border-radius: 2px 2px 4px 4px;
+  background: linear-gradient(
+    to bottom,
+    #c9a87c 0%,
+    #b89468 40%,
+    #a68158 60%,
+    #967451 100%
+  );
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* Glass highlight on top bulb */
+.sand-timer__bulb--top::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 8px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  transform: rotate(-20deg);
+}
+
 /* Secondary / rings */
 .header-secondary {
   border-top: 1px solid var(--border);
@@ -972,6 +1260,9 @@ blockquote.header-quote {
 @media (max-width: 720px) {
   .app-shell { padding-inline: 10px; }
   .app-header { padding: 12px 12px 10px; }
+  .header-quote-row { flex-direction: column; }
+  .focus-timer { width: 100%; }
+  .focus-timer__running { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .rings { gap: 4px; }
   .ring svg { width: 48px; height: 48px; }
   .ring-value { font-size: 15px; }

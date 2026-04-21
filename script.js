@@ -1639,5 +1639,142 @@ function startDayChangeRefresh() {
 
 document.addEventListener("DOMContentLoaded", () => {
   init().catch((e) => console.error("init failed", e));
+
+  // ── Focus Timer ──────────────────────────────────
+  const timerMinInput = document.getElementById("timer-minutes-input");
+  const timerStartBtn = document.getElementById("timer-start-btn");
+  const timerCancelBtn = document.getElementById("timer-cancel-btn");
+  const timerResetBtn = document.getElementById("timer-reset-btn");
+  const timerSetup = document.getElementById("timer-setup");
+  const timerRunning = document.getElementById("timer-running");
+  const timerDone = document.getElementById("timer-done");
+  const timerCountdown = document.getElementById("timer-countdown");
+  const sandTop = document.getElementById("sand-top");
+  const sandBottom = document.getElementById("sand-bottom");
+  const sandStream = document.getElementById("sand-stream");
+
+  if (!timerMinInput || !timerStartBtn) return; // guard for notes page
+
+  let tmInterval = null;
+  let tmEndTime = 0;
+  let tmTotalMs = 0;
+
+  // ── Input validation ──
+  timerMinInput.addEventListener("input", () => {
+    let val = parseInt(timerMinInput.value, 10);
+    if (val > 60) {
+      timerMinInput.value = 60;
+      val = 60;
+    }
+    timerStartBtn.disabled = !(val >= 1 && val <= 60);
+  });
+
+  // Prevent typing values > 60
+  timerMinInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !timerStartBtn.disabled) {
+      timerStartBtn.click();
+    }
+  });
+
+  // ── Start timer ──
+  timerStartBtn.addEventListener("click", () => {
+    const minutes = parseInt(timerMinInput.value, 10);
+    if (minutes < 1 || minutes > 60) return;
+
+    tmTotalMs = minutes * 60 * 1000;
+    tmEndTime = Date.now() + tmTotalMs;
+
+    // Switch UI state
+    timerSetup.style.display = "none";
+    timerRunning.style.display = "flex";
+    timerDone.style.display = "none";
+
+    // Start sand animation
+    sandStream.classList.add("flowing");
+    updateSandTimer(1); // start with full top
+
+    tmInterval = setInterval(() => {
+      const remaining = Math.max(0, tmEndTime - Date.now());
+      const fraction = remaining / tmTotalMs; // 1 → 0
+
+      // Update countdown text
+      const totalSec = Math.ceil(remaining / 1000);
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      timerCountdown.textContent =
+        String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+
+      // Update sand visuals
+      updateSandTimer(fraction);
+
+      if (remaining <= 0) {
+        clearInterval(tmInterval);
+        tmInterval = null;
+        sandStream.classList.remove("flowing");
+        onTimerComplete();
+      }
+    }, 250);
+  });
+
+  // ── Sand visual updater ──
+  function updateSandTimer(fraction) {
+    // fraction: 1 = full (start), 0 = empty (end)
+    const topPct = Math.max(0, Math.min(100, fraction * 100));
+    const bottomPct = Math.max(0, Math.min(100, (1 - fraction) * 100));
+    if (sandTop) sandTop.style.height = topPct + "%";
+    if (sandBottom) sandBottom.style.height = bottomPct + "%";
+  }
+
+  // ── Timer complete ──
+  function onTimerComplete() {
+    timerRunning.style.display = "none";
+    timerDone.style.display = "flex";
+
+    // Play a subtle completion sound
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const playTone = (freq, time, dur) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.15, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+        osc.start(time);
+        osc.stop(time + dur);
+      };
+      const now = ctx.currentTime;
+      playTone(523.25, now, 0.15);       // C5
+      playTone(659.25, now + 0.15, 0.15); // E5
+      playTone(783.99, now + 0.3, 0.3);   // G5
+    } catch (e) { /* audio not supported */ }
+  }
+
+  // ── Cancel timer ──
+  timerCancelBtn.addEventListener("click", () => {
+    if (tmInterval) {
+      clearInterval(tmInterval);
+      tmInterval = null;
+    }
+    sandStream.classList.remove("flowing");
+    resetTimerUI();
+  });
+
+  // ── Reset after done ──
+  timerResetBtn.addEventListener("click", () => {
+    resetTimerUI();
+  });
+
+  function resetTimerUI() {
+    timerSetup.style.display = "flex";
+    timerRunning.style.display = "none";
+    timerDone.style.display = "none";
+    timerMinInput.value = "";
+    timerStartBtn.disabled = true;
+    timerCountdown.textContent = "00:00";
+    updateSandTimer(1); // reset sand to full top
+  }
 });
 

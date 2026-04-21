@@ -29,10 +29,65 @@
             </button>
           </div>
         </div>
-        <blockquote class="header-quote" id="header-quote" aria-live="polite">
-          <p id="quote-text" class="header-quote__text"></p>
-          <cite id="quote-author" class="header-quote__cite"></cite>
-        </blockquote>
+        <div class="header-quote-row">
+          <blockquote class="header-quote" id="header-quote" aria-live="polite">
+            <p id="quote-text" class="header-quote__text"></p>
+            <cite id="quote-author" class="header-quote__cite"></cite>
+          </blockquote>
+
+          <!-- Focus Timer Widget -->
+          <div class="focus-timer" id="focus-timer">
+            <div class="focus-timer__setup" id="timer-setup">
+              <div class="focus-timer__label">⏳ Focus Timer</div>
+              <div class="focus-timer__input-row">
+                <input
+                  type="number"
+                  id="timer-minutes-input"
+                  class="focus-timer__input"
+                  min="1"
+                  max="60"
+                  placeholder="Min"
+                  aria-label="Minutes (1-60)"
+                />
+                <span class="focus-timer__unit">min</span>
+              </div>
+              <button id="timer-start-btn" class="btn btn-primary focus-timer__start" disabled>
+                ▶ Start
+              </button>
+            </div>
+
+            <div class="focus-timer__running" id="timer-running" style="display:none">
+              <div class="sand-timer" id="sand-timer">
+                <div class="sand-timer__frame">
+                  <!-- Top bulb -->
+                  <div class="sand-timer__bulb sand-timer__bulb--top">
+                    <div class="sand-timer__sand sand-timer__sand--top" id="sand-top"></div>
+                  </div>
+                  <!-- Neck -->
+                  <div class="sand-timer__neck">
+                    <div class="sand-timer__stream" id="sand-stream"></div>
+                  </div>
+                  <!-- Bottom bulb -->
+                  <div class="sand-timer__bulb sand-timer__bulb--bottom">
+                    <div class="sand-timer__sand sand-timer__sand--bottom" id="sand-bottom"></div>
+                  </div>
+                </div>
+                <!-- Wooden base -->
+                <div class="sand-timer__base"></div>
+              </div>
+              <div class="focus-timer__countdown" id="timer-countdown">00:00</div>
+              <button id="timer-cancel-btn" class="btn btn-ghost btn-small focus-timer__cancel">
+                ✕ Cancel
+              </button>
+            </div>
+
+            <div class="focus-timer__done" id="timer-done" style="display:none">
+              <div class="focus-timer__done-icon">🎉</div>
+              <div class="focus-timer__done-text">Time's up!</div>
+              <button id="timer-reset-btn" class="btn btn-soft btn-small">Reset</button>
+            </div>
+          </div>
+        </div>
         <div class="header-secondary">
           <div class="rings">
             <div class="ring" data-ring="consistency">
