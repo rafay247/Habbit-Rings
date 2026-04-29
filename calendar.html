@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Habit Rings — Calendar</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      html, body { height: 100%; }
+
+      .calendar-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .calendar-hero {
+        padding: 22px;
+        border-radius: 24px;
+      }
+
+      .calendar-hero__top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .calendar-hero__eyebrow {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent-muted);
+      }
+
+      .calendar-hero h1 {
+        margin-top: 8px;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(28px, 5vw, 42px);
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      .calendar-hero p {
+        margin-top: 10px;
+        max-width: 640px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-muted);
+      }
+
+      .calendar-status {
+        min-width: 220px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(63, 185, 80, 0.08);
+        border: 1px solid rgba(63, 185, 80, 0.18);
+      }
+
+      .calendar-status__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .calendar-status__value {
+        margin-top: 8px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 22px;
+      }
+
+      .calendar-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 16px 18px;
+        border-radius: 20px;
+      }
+
+      .calendar-toolbar__group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .calendar-btn {
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 9px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+      }
+
+      .calendar-btn:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-border);
+        transform: translateY(-1px);
+      }
+
+      .calendar-btn.is-active {
+        background: rgba(63, 185, 80, 0.15);
+        border-color: rgba(63, 185, 80, 0.32);
+      }
+
+      .calendar-year {
+        min-width: 88px;
+        text-align: center;
+        font-family: 'Lexend', sans-serif;
+        font-size: 24px;
+      }
+
+      .calendar-selection {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .month-card {
+        padding: 14px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .month-card.current-month {
+        background: linear-gradient(180deg, rgba(63, 185, 80, 0.18), rgba(63, 185, 80, 0.06));
+        border-color: rgba(63, 185, 80, 0.36);
+        box-shadow: inset 0 0 0 1px rgba(63, 185, 80, 0.12);
+      }
+
+      .month-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .month-card__name {
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+      }
+
+      .month-card__hint {
+        margin-top: 4px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+
+      .month-weekdays,
+      .month-days {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .month-weekdays {
+        margin-top: 12px;
+      }
+
+      .month-weekdays span {
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+      }
+
+      .month-days {
+        margin-top: 8px;
+      }
+
+      .day-pad,
+      .day-btn {
+        aspect-ratio: 1;
+      }
+
+      .day-btn {
+        position: relative;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        cursor: pointer;
+        transition: background 0.14s, border-color 0.14s, color 0.14s, transform 0.14s;
+      }
+
+      .day-btn:hover {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--text);
+        transform: translateY(-1px);
+      }
+
+      .day-btn.today {
+        border-color: rgba(255,255,255,0.26);
+        color: #fff;
+      }
+
+      .day-btn.selected {
+        color: #fff;
+        border-color: rgba(255, 88, 88, 0.5);
+        background: rgba(255, 88, 88, 0.14);
+      }
+
+      .day-btn.selected::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 4px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ff5858;
+        transform: translateX(-50%);
+      }
+
+      .day-btn.marked-x::before {
+        content: 'X';
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: #ff5858;
+        font-family: 'Lexend', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        pointer-events: none;
+      }
+
+      .calendar-empty {
+        padding: 26px 18px;
+        border-radius: 20px;
+        border: 1px dashed rgba(255,255,255,0.14);
+        text-align: center;
+        color: var(--text-muted);
+        font-family: 'Inter', sans-serif;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 1180px) {
+        .calendar-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 860px) {
+        .calendar-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 620px) {
+        .calendar-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .calendar-hero,
+        .calendar-toolbar {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell calendar-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
+            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
+            <a href="calendar.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline" style="text-decoration:none;">Books</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="calendar-hero glass">
+        <div class="calendar-hero__top">
+          <div>
+            <div class="calendar-hero__eyebrow">Separate Planning View</div>
+            <h1>Year Calendar</h1>
+          </div>
+          <div class="calendar-status">
+            <div class="calendar-status__label">Selected Day</div>
+            <div class="calendar-status__value" id="selected-day-label">None</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="calendar-toolbar glass">
+        <div class="calendar-toolbar__group">
+          <button class="calendar-btn" id="prev-year-btn" type="button">← Year</button>
+          <div class="calendar-year" id="calendar-year-label">2026</div>
+          <button class="calendar-btn" id="next-year-btn" type="button">Year →</button>
+        </div>
+        <div class="calendar-toolbar__group">
+          <button class="calendar-btn" id="show-passed-btn" type="button">Show passed</button>
+          <button class="calendar-btn" id="show-full-btn" type="button">Show full</button>
+          <button class="calendar-btn" id="show-current-btn" type="button">Current month</button>
+          <button class="calendar-btn" id="clear-selection-btn" type="button">Clear mark</button>
+        </div>
+        <div class="calendar-selection" id="calendar-selection-copy">Showing passed months only.</div>
+      </section>
+
+      <main class="calendar-grid" id="calendar-grid"></main>
+    </div>
+
+    <script>
+      (function () {
+        'use strict';
+
+        const STORAGE_KEY = 'habit-rings-calendar-selection-v1';
+        const MARKS_KEY = 'habit-rings-calendar-x-marks-v1';
+        const today = new Date();
+        const realYear = today.getFullYear();
+        const realMonth = today.getMonth();
+
+        let year = realYear;
+        let viewMode = 'passed';
+        let selectedDate = loadSelection();
+        let markedDates = loadMarkedDates();
+        let pendingClickTimer = null;
+
+        const yearLabel = document.getElementById('calendar-year-label');
+        const grid = document.getElementById('calendar-grid');
+        const selectionLabel = document.getElementById('selected-day-label');
+        const selectionCopy = document.getElementById('calendar-selection-copy');
+        const showPassedBtn = document.getElementById('show-passed-btn');
+        const showFullBtn = document.getElementById('show-full-btn');
+        const showCurrentBtn = document.getElementById('show-current-btn');
+        const clearSelectionBtn = document.getElementById('clear-selection-btn');
+
+        function loadSelection() {
+          try {
+            return localStorage.getItem(STORAGE_KEY) || '';
+          } catch {
+            return '';
+          }
+        }
+
+        function persistSelection() {
+          try {
+            if (selectedDate) localStorage.setItem(STORAGE_KEY, selectedDate);
+            else localStorage.removeItem(STORAGE_KEY);
+          } catch {}
+        }
+
+        function loadMarkedDates() {
+          try {
+            const raw = localStorage.getItem(MARKS_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return new Set(Array.isArray(parsed) ? parsed : []);
+          } catch {
+            return new Set();
+          }
+        }
+
+        function persistMarkedDates() {
+          localStorage.setItem(MARKS_KEY, JSON.stringify([...markedDates]));
+        }
+
+        function formatDateLabel(iso) {
+          if (!iso) return 'None';
+          const date = new Date(`${iso}T00:00:00`);
+          return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          });
+        }
+
+        function getVisibleMonths() {
+          if (viewMode === 'current') {
+            if (year !== realYear) return [];
+            return [realMonth];
+          }
+
+          if (viewMode === 'full') {
+            return Array.from({ length: 12 }, (_, index) => index);
+          }
+
+          if (year < realYear) {
+            return Array.from({ length: 12 }, (_, index) => index);
+          }
+
+          if (year === realYear) {
+            return Array.from({ length: realMonth + 1 }, (_, index) => index);
+          }
+
+          return [];
+        }
+
+        function render() {
+          const months = getVisibleMonths();
+          yearLabel.textContent = String(year);
+          selectionLabel.textContent = formatDateLabel(selectedDate);
+          showPassedBtn.classList.toggle('is-active', viewMode === 'passed');
+          showFullBtn.classList.toggle('is-active', viewMode === 'full');
+          showCurrentBtn.classList.toggle('is-active', viewMode === 'current');
+          clearSelectionBtn.classList.toggle('is-active', !!selectedDate);
+
+          if (viewMode === 'full') {
+            selectionCopy.textContent = 'Showing the full year.';
+          } else if (viewMode === 'current') {
+            selectionCopy.textContent = year === realYear
+              ? 'Showing only the current month.'
+              : 'Current month view is only available for the current year.';
+          } else if (year < realYear) {
+            selectionCopy.textContent = 'All months in this past year are visible.';
+          } else if (year === realYear) {
+            selectionCopy.textContent = 'Showing only months that have already passed or are current.';
+          } else {
+            selectionCopy.textContent = 'This is a future year. Click “Show full” to reveal all months.';
+          }
+
+          if (!months.length) {
+            grid.innerHTML = '<div class="calendar-empty">No months are visible in this mode for the selected year. Try <strong>Show full</strong> or switch back to the current year.</div>';
+            return;
+          }
+
+          const weekdayMarkup = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+            .map(day => `<span>${day}</span>`)
+            .join('');
+
+          grid.innerHTML = months.map(month => renderMonth(month, weekdayMarkup)).join('');
+        }
+
+        function renderMonth(month, weekdayMarkup) {
+          const monthName = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long' });
+          const firstWeekday = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const currentMonthCard = year === realYear && month === realMonth ? ' current-month' : '';
+
+          let daysMarkup = '';
+          for (let i = 0; i < firstWeekday; i += 1) {
+            daysMarkup += '<span class="day-pad"></span>';
+          }
+
+          for (let day = 1; day <= daysInMonth; day += 1) {
+            const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const classes = ['day-btn'];
+            if (iso === selectedDate) classes.push('selected');
+            if (markedDates.has(iso)) classes.push('marked-x');
+            if (iso === isoToday()) classes.push('today');
+            daysMarkup += `<button class="${classes.join(' ')}" type="button" data-date="${iso}" aria-label="${iso}">${day}</button>`;
+          }
+
+          return `
+            <section class="month-card${currentMonthCard}">
+              <div class="month-card__name">${monthName}</div>
+              <div class="month-card__hint">${year === realYear && month === realMonth ? 'Current month' : 'Month view'}</div>
+              <div class="month-weekdays">${weekdayMarkup}</div>
+              <div class="month-days">${daysMarkup}</div>
+            </section>
+          `;
+        }
+
+        function isoToday() {
+          const y = today.getFullYear();
+          const m = String(today.getMonth() + 1).padStart(2, '0');
+          const d = String(today.getDate()).padStart(2, '0');
+          return `${y}-${m}-${d}`;
+        }
+
+        document.getElementById('prev-year-btn').addEventListener('click', () => {
+          year -= 1;
+          render();
+        });
+
+        document.getElementById('next-year-btn').addEventListener('click', () => {
+          year += 1;
+          render();
+        });
+
+        showPassedBtn.addEventListener('click', () => {
+          viewMode = 'passed';
+          render();
+        });
+
+        showFullBtn.addEventListener('click', () => {
+          viewMode = 'full';
+          render();
+        });
+
+        showCurrentBtn.addEventListener('click', () => {
+          viewMode = 'current';
+          render();
+        });
+
+        clearSelectionBtn.addEventListener('click', () => {
+          selectedDate = '';
+          persistSelection();
+          render();
+        });
+
+        grid.addEventListener('click', event => {
+          const btn = event.target.closest('.day-btn');
+          if (!btn) return;
+          const iso = btn.dataset.date;
+
+          if (pendingClickTimer) {
+            clearTimeout(pendingClickTimer);
+          }
+
+          pendingClickTimer = window.setTimeout(() => {
+            selectedDate = iso;
+            persistSelection();
+            render();
+            pendingClickTimer = null;
+          }, 220);
+        });
+
+        grid.addEventListener('dblclick', event => {
+          const btn = event.target.closest('.day-btn');
+          if (!btn) return;
+          if (pendingClickTimer) {
+            clearTimeout(pendingClickTimer);
+            pendingClickTimer = null;
+          }
+          const iso = btn.dataset.date;
+          if (markedDates.has(iso)) markedDates.delete(iso);
+          else markedDates.add(iso);
+          persistMarkedDates();
+          render();
+        });
+
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          todayEl.textContent = today.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

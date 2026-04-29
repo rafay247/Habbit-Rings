@@ -21,6 +21,8 @@
           <nav class="header-nav" style="display: flex; gap: 8px; margin: 0 24px;">
             <a href="index.html" class="chip chip-outline" style="background: var(--bg-soft); border-color: var(--border); text-decoration: none;">Dashboard</a>
             <a href="notes.html" class="chip chip-outline" style="text-decoration: none;">Notes</a>
+            <a href="calendar.html" class="chip chip-outline" style="text-decoration: none;">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline" style="text-decoration: none;">Books</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -49,7 +51,7 @@
                   placeholder="Min"
                   aria-label="Minutes (1-60)"
                 />
-                <span class="focus-timer__unit">min</span>
+                <span class="focus-timer__unit"></span>
               </div>
               <button id="timer-start-btn" class="btn btn-primary focus-timer__start" disabled>
                 ▶ Start
@@ -251,7 +253,7 @@
           <section class="card glass card-heatmap">
             <header class="card-header">
               <div class="card-header-main">
-                <h2>GitHub‑Style Heatmap</h2>
+                <h2>Heatmap</h2>
                 <span class="pill small">🔥 Streak tracker</span>
               </div>
               <div class="year-switcher">
@@ -459,4 +461,3 @@
     <script src="script.js"></script>
   </body>
 </html>
-

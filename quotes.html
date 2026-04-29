@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Habit Rings — Books</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      html, body { height: 100%; }
+
+      .quotes-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .quotes-hero,
+      .quotes-workspace {
+        border-radius: 22px;
+      }
+
+      .quotes-hero {
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-hero__copy,
+      .quotes-hero__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quotes-hero__copy {
+        align-items: flex-start;
+      }
+
+      .quotes-hero__actions {
+        align-items: flex-end;
+      }
+
+      .quotes-chip {
+        display: inline-flex;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(227, 179, 65, 0.12);
+        color: var(--gold);
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .quotes-hero h1 {
+        margin-top: 10px;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(28px, 5vw, 42px);
+        letter-spacing: -0.04em;
+      }
+
+      .quotes-total {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        cursor: pointer;
+        transition: border-color 0.18s, transform 0.18s;
+      }
+
+      .quotes-total:hover {
+        transform: translateY(-1px);
+        border-color: rgba(227, 179, 65, 0.24);
+      }
+
+      .quotes-total__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-total__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 28px;
+        line-height: 1;
+        color: var(--gold);
+      }
+
+      .quotes-top-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-top-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, background 0.18s;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+
+      .quotes-top-tab.active {
+        color: var(--gold);
+        background: rgba(227, 179, 65, 0.12);
+        border-color: rgba(227, 179, 65, 0.28);
+      }
+
+      .quotes-top-tab__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-top-tab.active .quotes-top-tab__label {
+        color: rgba(255, 245, 216, 0.7);
+      }
+
+      .quotes-top-tab__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .quotes-workspace {
+        padding: 18px;
+      }
+
+      .quotes-read-section {
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-read-section[hidden] {
+        display: none;
+      }
+
+      .quotes-all-section[hidden] {
+        display: none;
+      }
+
+      .quotes-read-section h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+      }
+
+      .quotes-layout {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .quotes-sidebar,
+      .quotes-main {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .quotes-read-form {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
+      .quotes-read-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-read-input:focus {
+        outline: none;
+        border-color: rgba(227, 179, 65, 0.28);
+      }
+
+      .quotes-read-moral-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-read-moral-input:focus {
+        outline: none;
+        border-color: rgba(227, 179, 65, 0.28);
+      }
+
+      .quotes-read-add {
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        background: rgba(227, 179, 65, 0.1);
+        color: var(--gold);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-read-grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
+
+      .quotes-read-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--text-muted);
+      }
+
+      .quotes-read-item__top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .quotes-read-item__open {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .quotes-read-item__title {
+        display: block;
+        font-family: 'Lexend', sans-serif;
+        font-size: 15px;
+        line-height: 1.25;
+        color: var(--text);
+        word-break: break-word;
+      }
+
+      .quotes-read-item__category {
+        margin-top: 6px;
+        display: block;
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .quotes-read-item__moral-preview {
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        padding: 8px 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+      }
+
+      .quotes-read-delete {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.18s, color 0.18s, background 0.18s;
+      }
+
+      .quotes-read-delete:hover {
+        border-color: rgba(255, 123, 114, 0.28);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
+      }
+
+      .quotes-read-empty {
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px dashed rgba(255,255,255,0.12);
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+
+      .quotes-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-category-form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-category-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-category-input:focus {
+        outline: none;
+        border-color: rgba(227, 179, 65, 0.28);
+      }
+
+      .quotes-category-add {
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        background: rgba(227, 179, 65, 0.1);
+        color: var(--gold);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-tab {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text-muted);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+        text-align: left;
+        line-height: 1.45;
+        min-height: 46px;
+      }
+
+      .quotes-tab:hover {
+        transform: translateX(2px);
+        border-color: rgba(227, 179, 65, 0.18);
+        color: var(--text);
+      }
+
+      .quotes-tab.active {
+        background: rgba(227, 179, 65, 0.12);
+        border-color: rgba(227, 179, 65, 0.32);
+        color: var(--gold);
+      }
+
+      .quotes-tab.dragging {
+        opacity: 0.6;
+      }
+
+      .quotes-tab__drag {
+        flex-shrink: 0;
+        margin-left: 10px;
+        color: var(--text-dim);
+        font-size: 14px;
+        letter-spacing: 0.08em;
+      }
+
+      .quotes-tab__label {
+        display: block;
+        letter-spacing: -0.01em;
+      }
+
+      .quotes-tab__meta {
+        flex-shrink: 0;
+        margin-left: 10px;
+        min-width: 28px;
+        text-align: center;
+        border-radius: 999px;
+        padding: 3px 7px;
+        font-size: 11px;
+        color: var(--text-dim);
+        background: rgba(255,255,255,0.05);
+      }
+
+      .quotes-tab.active .quotes-tab__meta {
+        color: #fff5d8;
+        background: rgba(227, 179, 65, 0.16);
+      }
+
+      .quotes-panel {
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.68);
+      }
+
+      .quotes-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-panel h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 20px;
+      }
+
+      .quotes-editor {
+        width: 100%;
+        min-height: 380px;
+        margin-top: 14px;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.94);
+        color: var(--text);
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .quotes-editor:focus {
+        outline: none;
+        border-color: rgba(227, 179, 65, 0.38);
+      }
+
+      .quotes-meta {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      .quotes-modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+        z-index: 1000;
+      }
+
+      .quotes-modal.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .quotes-modal__panel {
+        width: min(620px, 100%);
+        max-height: 80vh;
+        overflow: auto;
+        margin-top: 18px;
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.96);
+      }
+
+      .quotes-modal__top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .quotes-modal__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 24px;
+        line-height: 1.15;
+      }
+
+      .quotes-modal__close {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .quotes-modal__section {
+        margin-top: 18px;
+      }
+
+      .quotes-modal__label {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .quotes-modal__value {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-muted);
+        white-space: pre-wrap;
+      }
+
+      .quotes-modal__form {
+        margin-top: 8px;
+        display: grid;
+        grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
+      .quotes-modal__search {
+        margin-top: 8px;
+      }
+
+      .quotes-modal__input,
+      .quotes-modal__select,
+      .quotes-modal__search-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-modal__input:focus,
+      .quotes-modal__select:focus,
+      .quotes-modal__search-input:focus {
+        outline: none;
+        border-color: rgba(227, 179, 65, 0.28);
+      }
+
+      .quotes-modal__add {
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        background: rgba(227, 179, 65, 0.1);
+        color: var(--gold);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-modal__groups {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quotes-modal__group {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02);
+      }
+
+      .quotes-modal__group-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+        color: var(--text);
+      }
+
+      .quotes-modal__book-list {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .quotes-modal__book-chip {
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .quotes-modal__book-empty {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      @media (max-width: 760px) {
+        .quotes-hero,
+        .quotes-workspace,
+        .quotes-panel,
+        .quotes-read-section {
+          padding: 18px;
+        }
+
+        .quotes-hero__actions {
+          align-items: flex-start;
+        }
+
+        .quotes-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .quotes-read-form {
+          grid-template-columns: 1fr;
+        }
+
+        .quotes-modal__form {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell quotes-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
+            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
+            <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Books</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="quotes-hero glass">
+        <div class="quotes-hero__copy">
+          <span class="quotes-chip">Book Library</span>
+          <h1>Books Library</h1>
+        </div>
+        <div class="quotes-hero__actions">
+          <button class="quotes-total" id="all-books-toggle" type="button">
+            <span class="quotes-total__label">Total Books</span>
+            <span class="quotes-total__value" id="all-books-count">0</span>
+          </button>
+          <div class="quotes-top-tabs">
+            <button class="quotes-top-tab active" id="all-books-tab" type="button">
+              <span class="quotes-top-tab__label">All Books by Category</span>
+            </button>
+            <button class="quotes-top-tab" id="read-books-tab" type="button">
+              <span class="quotes-top-tab__label">Books Read</span>
+              <span class="quotes-top-tab__value" id="books-read-count">0</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-all-section" id="quotes-all-section">
+        <div class="quotes-layout">
+          <div class="quotes-sidebar">
+            <form class="quotes-category-form" id="quotes-category-form">
+              <input
+                id="quotes-category-input"
+                class="quotes-category-input"
+                type="text"
+                maxlength="80"
+                placeholder="Add new category"
+                autocomplete="off"
+              />
+              <button class="quotes-category-add" type="submit">Add Category</button>
+            </form>
+            <div class="quotes-tabs" id="quotes-tabs"></div>
+          </div>
+
+          <div class="quotes-main">
+            <div class="quotes-panel">
+              <div class="quotes-panel-header">
+                <h2 id="quotes-panel-title">Mindset & Personal Development</h2>
+                <div class="quotes-meta" id="quotes-meta">Saved automatically.</div>
+              </div>
+            <textarea
+              id="quotes-editor"
+              class="quotes-editor"
+              spellcheck="false"
+              placeholder="Add your book notes here..."
+            ></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-read-section" id="books-read-section" hidden>
+          <h2>Read Books</h2>
+          <form class="quotes-read-form" id="books-read-form">
+            <input
+              id="books-read-input"
+              class="quotes-read-input"
+              type="text"
+              maxlength="120"
+              placeholder="Book"
+              autocomplete="off"
+            />
+            <input
+              id="books-read-moral-input"
+              class="quotes-read-moral-input"
+              type="text"
+              maxlength="180"
+              placeholder="Moral"
+              autocomplete="off"
+            />
+            <button class="quotes-read-add" type="submit">Add Read Book</button>
+          </form>
+          <div class="quotes-read-grid" id="books-read-list"></div>
+      </section>
+
+      <div class="quotes-modal" id="read-book-modal">
+        <div class="quotes-modal__panel">
+          <div class="quotes-modal__top">
+            <div class="quotes-modal__title" id="read-book-modal-title">Book</div>
+            <button class="quotes-modal__close" id="read-book-modal-close" type="button">×</button>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Category</div>
+            <div class="quotes-modal__value" id="read-book-modal-category">Uncategorized</div>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Moral</div>
+            <div class="quotes-modal__value" id="read-book-modal-moral">No moral added yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quotes-modal" id="all-books-modal">
+        <div class="quotes-modal__panel">
+          <div class="quotes-modal__top">
+            <div class="quotes-modal__title">All Books by Category</div>
+            <button class="quotes-modal__close" id="all-books-modal-close" type="button">×</button>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Add Book</div>
+            <form class="quotes-modal__form" id="all-books-modal-form">
+              <select class="quotes-modal__select" id="all-books-modal-category"></select>
+              <input class="quotes-modal__input" id="all-books-modal-input" type="text" maxlength="140" placeholder="Book name" autocomplete="off" />
+              <button class="quotes-modal__add" type="submit">Add Book</button>
+            </form>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__search">
+              <input class="quotes-modal__search-input" id="all-books-modal-search" type="text" maxlength="140" placeholder="Search books or categories" autocomplete="off" />
+            </div>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Category Wise Books</div>
+            <div class="quotes-modal__groups" id="all-books-modal-groups"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          todayEl.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        const STORAGE_KEY = 'habit-rings-books-tabs-v2';
+        const CATEGORY_STORAGE_KEY = 'habit-rings-books-categories-v1';
+        const READ_BOOKS_STORAGE_KEY = 'habit-rings-read-books-v1';
+        const DEFAULT_READ_BOOKS = [
+          { title: 'asdasd', moral: '' },
+          { title: 'The power of dicipline', moral: '' },
+          { title: '12 weeks year', moral: '' },
+          { title: 'Emotional Intelligence', moral: '' },
+          { title: 'The Power of Positive Thinking', moral: '' },
+          { title: 'Think and Grow Rich', moral: '' },
+          { title: 'Mindset', moral: '' },
+          { title: 'The Alchemist', moral: '' },
+          { title: 'You Can Heal Your Life', moral: '' },
+          { title: 'Who Moved My Cheese?', moral: '' },
+          { title: 'The art of not giving a f*ck', moral: '' },
+          { title: 'The Power of Now', moral: '' },
+          { title: 'How to talk to anyone', moral: '' },
+          { title: 'Read people like a book', moral: '' },
+          { title: 'The Millionare Fastlane', moral: '' },
+          { title: 'The Magic of thinking big', moral: '' },
+          { title: 'The art of public speaking', moral: '' },
+          { title: 'The power of no', moral: '' },
+          { title: 'How to win friends & Influence people', moral: '' }
+        ];
+        const TAB_INFO = {
+          mindset_personal_development: {
+            title: 'Mindset & Personal Development',
+            defaultText: `Mindset
+The magic of thinking big
+Attitude is everything
+Think and grow rich
+The courage to be disliked
+The psychology of winning
+Believe in yourself
+Win your inner battle
+The Power of now
+who moved my cheese
+The art of not giving a f*ck`
+          },
+          self_learning_personal_growth: {
+            title: 'Self-Learning & Personal Growth',
+            defaultText: `FountainHead
+The art of self learning
+The art of being alone
+Range
+Ikigai
+Manifest anything in 45 days
+The art of risk
+The law of success by 16 lessons
+Principles
+You can heal your life
+The Alchemist`
+          },
+          success_wealth_building: {
+            title: 'Success & Wealth Building',
+            defaultText: `The Millionaire Fastlane
+Rich dad poor dad
+The psychology of money
+17 rules of wealth
+Secret of the millionaire mindset
+Main street millionaire
+Become a money magnet`
+          },
+          business_entrepreneurship: {
+            title: 'Business & Entrepreneurship',
+            defaultText: `The diary of CEO
+Good to great (Business)
+Zero to One
+$100 startup
+How to sell anything
+trillionare dollar coach
+the alegebra of money
+The diary of CEO
+The tipping point`
+          },
+          communication_influence: {
+            title: 'Communication & Influence',
+            defaultText: `How to talk to anyone
+Read people like a book
+The art of public speaking
+How to win friends & Influence people
+48 laws of power
+The power of no
+Crucial conversations
+Never split the differnce
+You're not listening
+The culture map
+Think again`
+          },
+          psychology_subconscious_mind: {
+            title: 'Psychology & Subconscious Mind',
+            defaultText: `The power of subconscious mind
+The power of discipline
+The compound effect
+Emotional Intelligence
+Master your emotion
+Thinking fast and slow
+The kite runner
+The power of positive thinking
+Can't get hurt`
+          },
+          habits_productivity: {
+            title: 'Habits & Productivity',
+            defaultText: `Atomic habit
+7 habits of highly effective people
+The practicing mind
+12 weeks year
+Finish what you start
+Getting Things done
+Do it today
+Working Smarter not Harder
+Rework
+Master the art of focus
+The 5am Club
+Deep work
+Hyper focus
+The miracle morning`
+          },
+          trading_investing: {
+            title: 'Trading & Investing',
+            defaultText: `The Market wizard
+High probability trading
+The Disciplined Trader
+Just keep buying
+The intelligent investor
+The simple path to wealth
+The art of trading`
+          },
+          economics_finance_theory: {
+            title: 'Economics & Finance Theory',
+            defaultText: `Economic facts and Fallacies
+Principles`
+          },
+          sales: {
+            title: 'Sales',
+            defaultText: `The challenger sale
+To sell is human
+selling to big companies
+spin selling
+Mastering the complex sale
+The sales accelaration formula
+Pitch anything
+The pychology of selling
+Made to stick`
+          },
+          human_behavior: {
+            title: 'Human Behavior',
+            defaultText: `Human Behavior
+Chatter
+Critical mass
+Wiser`
+          }
+        };
+
+        let categories = loadCategories();
+        let activeTab = categories[0]?.id || 'mindset_personal_development';
+        let state = loadState();
+        let readBooks = loadReadBooks();
+        let draggedCategoryId = null;
+        let activeSection = 'all';
+        let selectedReadBookIndex = null;
+        let allBooksSearch = '';
+
+        const tabsEl = document.getElementById('quotes-tabs');
+        const categoryFormEl = document.getElementById('quotes-category-form');
+        const categoryInputEl = document.getElementById('quotes-category-input');
+        const editorEl = document.getElementById('quotes-editor');
+        const titleEl = document.getElementById('quotes-panel-title');
+        const metaEl = document.getElementById('quotes-meta');
+        const allBooksToggleEl = document.getElementById('all-books-toggle');
+        const allBooksTabEl = document.getElementById('all-books-tab');
+        const readBooksTabEl = document.getElementById('read-books-tab');
+        const allBooksSectionEl = document.getElementById('quotes-all-section');
+        const allBooksCountEl = document.getElementById('all-books-count');
+        const booksReadCountEl = document.getElementById('books-read-count');
+        const booksReadSectionEl = document.getElementById('books-read-section');
+        const booksReadFormEl = document.getElementById('books-read-form');
+        const booksReadInputEl = document.getElementById('books-read-input');
+        const booksReadMoralInputEl = document.getElementById('books-read-moral-input');
+        const booksReadListEl = document.getElementById('books-read-list');
+        const readBookModalEl = document.getElementById('read-book-modal');
+        const readBookModalTitleEl = document.getElementById('read-book-modal-title');
+        const readBookModalCategoryEl = document.getElementById('read-book-modal-category');
+        const readBookModalMoralEl = document.getElementById('read-book-modal-moral');
+        const readBookModalCloseEl = document.getElementById('read-book-modal-close');
+        const allBooksModalEl = document.getElementById('all-books-modal');
+        const allBooksModalCloseEl = document.getElementById('all-books-modal-close');
+        const allBooksModalFormEl = document.getElementById('all-books-modal-form');
+        const allBooksModalCategoryEl = document.getElementById('all-books-modal-category');
+        const allBooksModalInputEl = document.getElementById('all-books-modal-input');
+        const allBooksModalSearchEl = document.getElementById('all-books-modal-search');
+        const allBooksModalGroupsEl = document.getElementById('all-books-modal-groups');
+
+        function loadCategories() {
+          const defaultCategories = Object.entries(TAB_INFO).map(([id, info]) => ({ id, title: info.title }));
+          try {
+            const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!Array.isArray(parsed) || !parsed.length) return defaultCategories;
+
+            const seen = new Set();
+            const normalized = parsed
+              .map(item => ({
+                id: typeof item?.id === 'string' ? item.id : '',
+                title: typeof item?.title === 'string' ? item.title.trim() : ''
+              }))
+              .filter(item => item.id && item.title && !seen.has(item.id) && seen.add(item.id));
+
+            defaultCategories.forEach(item => {
+              if (!seen.has(item.id)) normalized.push(item);
+            });
+
+            return normalized;
+          } catch {
+            return defaultCategories;
+          }
+        }
+
+        function loadState() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return categories.reduce((acc, category) => {
+              const key = category.id;
+              const fallback = TAB_INFO[key]?.defaultText || '';
+              acc[key] = typeof parsed[key] === 'string' && parsed[key].trim()
+                ? parsed[key]
+                : fallback;
+              return acc;
+            }, {});
+          } catch {
+            return categories.reduce((acc, category) => {
+              const key = category.id;
+              acc[key] = TAB_INFO[key]?.defaultText || '';
+              return acc;
+            }, {});
+          }
+        }
+
+        function loadReadBooks() {
+          try {
+            const raw = localStorage.getItem(READ_BOOKS_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!Array.isArray(parsed) || !parsed.length) return [...DEFAULT_READ_BOOKS];
+            return parsed
+              .map(item => {
+                if (typeof item === 'string') {
+                  return { title: item.trim(), moral: '' };
+                }
+                return {
+                  title: typeof item?.title === 'string' ? item.title.trim() : '',
+                  moral: typeof item?.moral === 'string' ? item.moral : ''
+                };
+              })
+              .filter(item => item.title);
+          } catch {
+            return [...DEFAULT_READ_BOOKS];
+          }
+        }
+
+        function saveCategories() {
+          localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
+        }
+
+        function saveReadBooks() {
+          localStorage.setItem(READ_BOOKS_STORAGE_KEY, JSON.stringify(readBooks));
+        }
+
+        function saveState() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
+        }
+
+        function getCategoryTitle(id) {
+          return categories.find(category => category.id === id)?.title || TAB_INFO[id]?.title || 'Category';
+        }
+
+        function getBooksForCategory(categoryId) {
+          const raw = state[categoryId] || '';
+          return raw
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean);
+        }
+
+        function getAllBooksCount() {
+          return categories.reduce((total, category) => total + getBooksForCategory(category.id).length, 0);
+        }
+
+        function normalizeTitle(value) {
+          return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+        }
+
+        function getBookCategories(title) {
+          const target = normalizeTitle(title);
+          return categories
+            .filter(category => getBooksForCategory(category.id).some(book => normalizeTitle(book) === target))
+            .map(category => category.title);
+        }
+
+        function openReadBookModal(index) {
+          if (!Number.isInteger(index) || index < 0 || index >= readBooks.length) return;
+          const book = readBooks[index];
+          selectedReadBookIndex = index;
+          readBookModalTitleEl.textContent = book.title;
+          const categoryMatches = getBookCategories(book.title);
+          readBookModalCategoryEl.textContent = categoryMatches.length ? categoryMatches.join(', ') : 'Uncategorized';
+          readBookModalMoralEl.textContent = book.moral?.trim() ? book.moral : 'No moral added yet.';
+          readBookModalEl.classList.add('open');
+        }
+
+        function closeReadBookModal() {
+          selectedReadBookIndex = null;
+          readBookModalEl.classList.remove('open');
+        }
+
+        function openAllBooksModal() {
+          allBooksModalCategoryEl.innerHTML = categories.map(category => `
+            <option value="${category.id}">${escapeHtml(category.title)}</option>
+          `).join('');
+          allBooksModalSearchEl.value = allBooksSearch;
+          const search = allBooksSearch.trim().toLowerCase();
+          allBooksModalGroupsEl.innerHTML = categories.map(category => {
+            const categoryTitle = category.title;
+            const books = getBooksForCategory(category.id)
+              .filter(book => !search || book.toLowerCase().includes(search) || categoryTitle.toLowerCase().includes(search));
+            if (search && !books.length && !categoryTitle.toLowerCase().includes(search)) {
+              return '';
+            }
+            return `
+              <div class="quotes-modal__group">
+                <div class="quotes-modal__group-title">${escapeHtml(categoryTitle)} (${books.length})</div>
+                ${books.length
+                  ? `<div class="quotes-modal__book-list">${books.map(book => `<span class="quotes-modal__book-chip">${escapeHtml(book)}</span>`).join('')}</div>`
+                  : '<div class="quotes-modal__book-empty">No books yet.</div>'
+                }
+              </div>
+            `;
+          }).join('') || '<div class="quotes-modal__book-empty">No matching books found.</div>';
+          allBooksModalEl.classList.add('open');
+        }
+
+        function closeAllBooksModal() {
+          allBooksModalEl.classList.remove('open');
+        }
+
+        function renderTabs() {
+          tabsEl.innerHTML = categories.map(category => `
+            <button
+              class="quotes-tab${category.id === activeTab ? ' active' : ''}"
+              data-tab="${category.id}"
+              type="button"
+              draggable="true"
+            >
+              <span class="quotes-tab__label">${escapeHtml(category.title)}</span>
+              <span class="quotes-tab__meta">${getBooksForCategory(category.id).length}</span>
+              <span class="quotes-tab__drag">::</span>
+            </button>
+          `).join('');
+
+          tabsEl.querySelectorAll('.quotes-tab').forEach(tab => {
+            tab.addEventListener('dragstart', onDragStart);
+            tab.addEventListener('dragover', onDragOver);
+            tab.addEventListener('drop', onDrop);
+            tab.addEventListener('dragend', onDragEnd);
+          });
+        }
+
+        function escapeHtml(value) {
+          const div = document.createElement('div');
+          div.textContent = value;
+          return div.innerHTML;
+        }
+
+        function slugify(value) {
+          return value
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 50);
+        }
+
+        function ensureUniqueId(baseId) {
+          let id = baseId || `category_${Date.now().toString(36)}`;
+          let counter = 2;
+          while (categories.some(category => category.id === id)) {
+            id = `${baseId}_${counter}`;
+            counter += 1;
+          }
+          return id;
+        }
+
+        function onDragStart(event) {
+          draggedCategoryId = event.currentTarget.dataset.tab;
+          event.currentTarget.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', draggedCategoryId);
+        }
+
+        function onDragOver(event) {
+          if (!draggedCategoryId) return;
+          event.preventDefault();
+        }
+
+        function onDrop(event) {
+          event.preventDefault();
+          const targetId = event.currentTarget.dataset.tab;
+          if (!draggedCategoryId || draggedCategoryId === targetId) return;
+
+          const fromIndex = categories.findIndex(category => category.id === draggedCategoryId);
+          const toIndex = categories.findIndex(category => category.id === targetId);
+          if (fromIndex < 0 || toIndex < 0) return;
+
+          const [moved] = categories.splice(fromIndex, 1);
+          categories.splice(toIndex, 0, moved);
+          saveCategories();
+          render();
+        }
+
+        function onDragEnd(event) {
+          event.currentTarget.classList.remove('dragging');
+          draggedCategoryId = null;
+        }
+
+        function render() {
+          if (!categories.some(category => category.id === activeTab)) {
+            activeTab = categories[0]?.id || 'mindset_personal_development';
+          }
+          renderTabs();
+          allBooksTabEl.classList.toggle('active', activeSection === 'all');
+          readBooksTabEl.classList.toggle('active', activeSection === 'read');
+          allBooksSectionEl.hidden = activeSection !== 'all';
+          booksReadSectionEl.hidden = activeSection !== 'read';
+          allBooksCountEl.textContent = String(getAllBooksCount());
+          booksReadCountEl.textContent = String(readBooks.length);
+          booksReadListEl.innerHTML = readBooks.length ? readBooks.map((book, index) => `
+            <div class="quotes-read-item">
+              <div class="quotes-read-item__top">
+                <button class="quotes-read-item__open" type="button" data-index="${index}">
+                  <span class="quotes-read-item__title">${escapeHtml(book.title)}</span>
+                  <span class="quotes-read-item__category">${escapeHtml(getBookCategories(book.title).join(', ') || 'Uncategorized')}</span>
+                </button>
+                <button class="quotes-read-delete" type="button" data-index="${index}" aria-label="Delete ${escapeHtml(book.title)}">×</button>
+              </div>
+              <div class="quotes-read-item__moral-preview">${escapeHtml(book.moral?.trim() || 'No moral added yet.')}</div>
+            </div>
+          `).join('') : '<div class="quotes-read-empty">No read books added yet.</div>';
+          titleEl.textContent = getCategoryTitle(activeTab);
+          editorEl.value = state[activeTab] || '';
+          metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
+        }
+
+        tabsEl.addEventListener('click', event => {
+          const button = event.target.closest('.quotes-tab');
+          if (!button) return;
+          activeTab = button.dataset.tab;
+          render();
+        });
+
+        allBooksTabEl.addEventListener('click', () => {
+          activeSection = 'all';
+          render();
+        });
+
+        readBooksTabEl.addEventListener('click', () => {
+          activeSection = 'read';
+          render();
+        });
+
+        categoryFormEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const title = categoryInputEl.value.trim();
+          if (!title) return;
+
+          const baseId = slugify(title);
+          const id = ensureUniqueId(baseId);
+          categories.push({ id, title });
+          if (!(id in state)) state[id] = '';
+          activeTab = id;
+          saveCategories();
+          saveState();
+          categoryFormEl.reset();
+          render();
+          categoryInputEl.focus();
+        });
+
+        booksReadFormEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const title = booksReadInputEl.value.trim();
+          const moral = booksReadMoralInputEl.value.trim();
+          if (!title) return;
+          readBooks.unshift({ title, moral });
+          saveReadBooks();
+          booksReadFormEl.reset();
+          activeSection = 'read';
+          render();
+          booksReadInputEl.focus();
+        });
+
+        booksReadListEl.addEventListener('click', event => {
+          const openButton = event.target.closest('.quotes-read-item__open');
+          if (openButton) {
+            const index = Number(openButton.dataset.index);
+            openReadBookModal(index);
+            return;
+          }
+          const button = event.target.closest('.quotes-read-delete');
+          if (!button) return;
+          const index = Number(button.dataset.index);
+          if (!Number.isInteger(index) || index < 0 || index >= readBooks.length) return;
+          readBooks.splice(index, 1);
+          saveReadBooks();
+          if (selectedReadBookIndex === index) closeReadBookModal();
+          render();
+        });
+
+        editorEl.addEventListener('input', () => {
+          state[activeTab] = editorEl.value;
+          saveState();
+          renderTabs();
+          allBooksCountEl.textContent = String(getAllBooksCount());
+        });
+
+        allBooksToggleEl.addEventListener('click', openAllBooksModal);
+        readBookModalCloseEl.addEventListener('click', closeReadBookModal);
+        readBookModalEl.addEventListener('click', event => {
+          if (event.target === readBookModalEl) closeReadBookModal();
+        });
+        allBooksModalCloseEl.addEventListener('click', closeAllBooksModal);
+        allBooksModalEl.addEventListener('click', event => {
+          if (event.target === allBooksModalEl) closeAllBooksModal();
+        });
+        allBooksModalFormEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const categoryId = allBooksModalCategoryEl.value;
+          const title = allBooksModalInputEl.value.trim();
+          if (!categoryId || !title) return;
+          const currentBooks = getBooksForCategory(categoryId);
+          currentBooks.push(title);
+          state[categoryId] = currentBooks.join('\n');
+          saveState();
+          allBooksModalFormEl.reset();
+          render();
+          openAllBooksModal();
+          allBooksModalInputEl.focus();
+        });
+        allBooksModalSearchEl.addEventListener('input', () => {
+          allBooksSearch = allBooksModalSearchEl.value;
+          openAllBooksModal();
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
