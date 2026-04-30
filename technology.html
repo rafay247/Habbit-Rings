@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Habit Rings — Technology</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      html, body { height: 100%; }
+
+      .tech-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .tech-hero,
+      .tech-workspace {
+        border-radius: 22px;
+      }
+
+      .tech-hero {
+        padding: 22px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .tech-hero__copy {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 760px;
+      }
+
+      .tech-chip {
+        display: inline-flex;
+        align-self: flex-start;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .tech-hero h1 {
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(30px, 5vw, 44px);
+        letter-spacing: -0.04em;
+      }
+
+      .tech-hero p {
+        max-width: 60ch;
+        color: var(--text-muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .tech-kpis {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .tech-kpi {
+        min-width: 118px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.88);
+      }
+
+      .tech-kpi__label {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .tech-kpi__value {
+        margin-top: 8px;
+        font-family: 'Lexend', sans-serif;
+        font-size: 24px;
+        color: var(--accent);
+      }
+
+      .tech-workspace {
+        padding: 18px;
+      }
+
+      .tech-layout {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .tech-main,
+      .tech-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .tech-doc {
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.82);
+        overflow: hidden;
+      }
+
+      .tech-doc__top {
+        padding: 18px 18px 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .tech-title-input {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(24px, 4vw, 34px);
+        letter-spacing: -0.03em;
+      }
+
+      .tech-title-input:focus {
+        outline: none;
+      }
+
+      .tech-toolbar {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 6px;
+        padding: 10px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+      }
+
+      .tech-tool,
+      .tech-select {
+        min-height: 36px;
+        flex: 0 0 auto;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text-muted);
+        padding: 8px 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11.5px;
+        white-space: nowrap;
+      }
+
+      .tech-tool {
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.18s;
+      }
+
+      .tech-tool:hover,
+      .tech-select:focus {
+        border-color: var(--accent-border);
+        color: var(--text);
+      }
+
+      .tech-tool:hover {
+        transform: translateY(-1px);
+      }
+
+      .tech-tool.is-accent {
+        background: var(--accent-soft);
+        border-color: var(--accent-border);
+        color: var(--accent);
+      }
+
+      .tech-tool--icon {
+        width: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .tech-select {
+        cursor: pointer;
+        min-width: 116px;
+      }
+
+      .tech-doc__meta {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        color: var(--text-dim);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .tech-editor {
+        min-height: 70vh;
+        padding: 22px 24px 28px;
+        color: var(--text);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 17px;
+        line-height: 1.85;
+        outline: none;
+      }
+
+      .tech-editor h1,
+      .tech-editor h2,
+      .tech-editor h3 {
+        font-family: 'Lexend', sans-serif;
+        line-height: 1.25;
+        letter-spacing: -0.03em;
+        margin: 1.3em 0 0.55em;
+      }
+
+      .tech-editor h1 { font-size: 30px; }
+      .tech-editor h2 { font-size: 24px; }
+      .tech-editor h3 { font-size: 19px; }
+
+      .tech-editor p {
+        margin: 0 0 1em;
+      }
+
+      .tech-editor ul,
+      .tech-editor ol {
+        padding-left: 1.5em;
+        margin: 0 0 1.1em;
+      }
+
+      .tech-editor blockquote {
+        margin: 1.2em 0;
+        padding: 12px 16px;
+        border-left: 4px solid var(--accent);
+        background: rgba(63, 185, 80, 0.08);
+        border-radius: 0 14px 14px 0;
+        color: var(--text-muted);
+      }
+
+      .tech-editor pre {
+        margin: 1.2em 0;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(7, 10, 7, 0.94);
+        overflow: auto;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .tech-editor code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.9em;
+      }
+
+      .tech-editor hr {
+        border: 0;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin: 1.8em 0;
+      }
+
+      .tech-editor a {
+        color: var(--accent-muted);
+      }
+
+      .tech-editor mark {
+        background: rgba(63, 185, 80, 0.22);
+        color: var(--text);
+        padding: 0 0.18em;
+        border-radius: 4px;
+      }
+
+      .tech-editor[data-placeholder]:empty::before {
+        content: attr(data-placeholder);
+        color: var(--text-dim);
+      }
+
+      .tech-panel {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.82);
+      }
+
+      .tech-panel h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 17px;
+      }
+
+      .tech-category-form {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+
+      .tech-input {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .tech-input:focus {
+        outline: none;
+        border-color: var(--accent-border);
+      }
+
+      .tech-add-btn {
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 10px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .tech-categories {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .tech-category {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 12px 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+      }
+
+      .tech-category.is-active {
+        border-color: var(--accent-border);
+        background: rgba(63, 185, 80, 0.1);
+      }
+
+      .tech-category__open {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        text-align: left;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .tech-category__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+        color: var(--text);
+        word-break: break-word;
+      }
+
+      .tech-category__meta {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .tech-category__delete {
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .tech-category__delete:hover {
+        border-color: rgba(255, 123, 114, 0.3);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
+      }
+
+      .tech-empty {
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px dashed rgba(255,255,255,0.12);
+        color: var(--text-dim);
+        font-size: 12px;
+      }
+
+      @media (max-width: 980px) {
+        .tech-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .tech-hero,
+        .tech-workspace {
+          padding: 18px;
+        }
+
+        .tech-hero__actions {
+          align-items: flex-start;
+        }
+
+        .tech-category-form {
+          grid-template-columns: 1fr;
+        }
+
+        .tech-toolbar {
+          gap: 6px;
+          padding: 10px;
+        }
+
+        .tech-tool,
+        .tech-select {
+          min-height: 36px;
+        }
+
+        .tech-editor {
+          min-height: 56vh;
+          padding: 18px;
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell tech-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
+            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
+            <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline" style="text-decoration:none;">Books</a>
+            <a href="technology.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Technology</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="tech-hero glass">
+        <div class="tech-hero__copy">
+          <span class="tech-chip">Knowledge System</span>
+          <h1>Technology Knowledge Base</h1>
+        </div>
+        <div class="tech-kpis">
+          <div class="tech-kpi">
+            <div class="tech-kpi__label">Categories</div>
+            <div class="tech-kpi__value" id="tech-category-count">0</div>
+          </div>
+          <div class="tech-kpi">
+            <div class="tech-kpi__label">Words</div>
+            <div class="tech-kpi__value" id="tech-word-count">0</div>
+          </div>
+          <div class="tech-kpi">
+            <div class="tech-kpi__label">Last Edited</div>
+            <div class="tech-kpi__value" id="tech-last-edited">--</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-workspace glass">
+        <div class="tech-layout">
+          <aside class="tech-sidebar">
+            <div class="tech-panel">
+              <h2>Categories</h2>
+              <form class="tech-category-form" id="tech-category-form">
+                <input
+                  id="tech-category-input"
+                  class="tech-input"
+                  type="text"
+                  maxlength="80"
+                  placeholder="Add category"
+                  autocomplete="off"
+                />
+                <button class="tech-add-btn" type="submit">Add</button>
+              </form>
+
+              <div class="tech-categories" id="tech-categories"></div>
+            </div>
+
+          </aside>
+
+          <div class="tech-main">
+            <div class="tech-doc">
+              <div class="tech-doc__top">
+                <input
+                  id="tech-title-input"
+                  class="tech-title-input"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Document title"
+                  autocomplete="off"
+                />
+
+                <div class="tech-toolbar" id="tech-toolbar">
+                  <select class="tech-select" id="tech-block-format">
+                    <option value="p">Paragraph</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                    <option value="blockquote">Quote</option>
+                  </select>
+                  <button class="tech-tool" type="button" data-cmd="bold">Bold</button>
+                  <button class="tech-tool" type="button" data-cmd="italic">Italic</button>
+                  <button class="tech-tool" type="button" data-cmd="underline">Underline</button>
+                  <button class="tech-tool" type="button" data-cmd="insertUnorderedList">Bullets</button>
+                  <button class="tech-tool" type="button" data-cmd="insertOrderedList">Numbers</button>
+                  <button class="tech-tool" type="button" data-action="highlight">Highlight</button>
+                  <button class="tech-tool" type="button" data-action="link">Link</button>
+                  <button class="tech-tool" type="button" data-action="code">Code Block</button>
+                  <button class="tech-tool" type="button" data-action="divider">Divider</button>
+                  <button class="tech-tool" type="button" data-cmd="removeFormat">Clear</button>
+                  <button class="tech-tool tech-tool--icon is-accent" type="button" data-cmd="undo" aria-label="Undo" title="Undo">↶</button>
+                  <button class="tech-tool tech-tool--icon is-accent" type="button" data-cmd="redo" aria-label="Redo" title="Redo">↷</button>
+                </div>
+
+                <div class="tech-doc__meta">
+                  <span id="tech-active-category">No category selected</span>
+                  <span id="tech-selection-state">Ready to document</span>
+                </div>
+              </div>
+
+              <div
+                id="tech-editor"
+                class="tech-editor"
+                contenteditable="true"
+                spellcheck="true"
+                data-placeholder="Start writing architecture notes, workflows, commands, API references, implementation guides, research findings, checklists, decisions, examples, and documentation here..."
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          todayEl.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        const TECH_CATEGORIES_KEY = 'habit-rings-tech-categories-v1';
+        const TECH_DOCS_KEY = 'habit-rings-tech-docs-v1';
+        const DEFAULT_CATEGORIES = [
+          { id: 'frontend_systems', title: 'Frontend Systems' },
+          { id: 'backend_architecture', title: 'Backend Architecture' },
+          { id: 'devops_deployment', title: 'DevOps & Deployment' }
+        ];
+        const DEFAULT_DOCS = {
+          frontend_systems: {
+            title: 'Frontend Systems',
+            content: `
+              <h1>Frontend Systems</h1>
+              <p>Use this document for UI architecture, component standards, design tokens, layout rules, performance notes, accessibility decisions, and implementation checklists.</p>
+              <h2>Useful Sections</h2>
+              <ul>
+                <li>Design system decisions and component usage rules</li>
+                <li>Routing structure and state management patterns</li>
+                <li>Responsive behavior and breakpoints</li>
+                <li>Accessibility checklist and testing notes</li>
+              </ul>
+              <blockquote>Document the reason behind decisions, not just the final rule.</blockquote>
+              <h2>Example Checklist</h2>
+              <ol>
+                <li>Define the user goal</li>
+                <li>List UI states</li>
+                <li>Capture edge cases</li>
+                <li>Write implementation notes</li>
+              </ol>
+            `
+          },
+          backend_architecture: {
+            title: 'Backend Architecture',
+            content: `
+              <h1>Backend Architecture</h1>
+              <p>Store API notes, data flow diagrams, authentication plans, job processing details, schema ideas, and reliability decisions in this category.</p>
+              <h2>Suggested Template</h2>
+              <ul>
+                <li>Problem statement</li>
+                <li>Core services involved</li>
+                <li>Data contracts</li>
+                <li>Failure modes</li>
+                <li>Monitoring strategy</li>
+              </ul>
+              <pre><code>Request -&gt; Controller -&gt; Service -&gt; Repository -&gt; Database</code></pre>
+            `
+          },
+          devops_deployment: {
+            title: 'DevOps & Deployment',
+            content: `
+              <h1>DevOps & Deployment</h1>
+              <p>Track infrastructure notes, server setup, CI/CD pipeline steps, environment variables, release checklists, and rollback procedures here.</p>
+              <h2>Release Notes Structure</h2>
+              <p><mark>What changed</mark>, how it is deployed, how it is verified, and what to do if it fails.</p>
+              <hr />
+              <h3>Commands</h3>
+              <pre><code>npm run build
+npm run test
+deploy --env production</code></pre>
+            `
+          }
+        };
+
+        let categories = loadCategories();
+        let docs = loadDocs();
+        let activeCategoryId = categories[0]?.id || null;
+        let saveTimer = null;
+
+        const categoryFormEl = document.getElementById('tech-category-form');
+        const categoryInputEl = document.getElementById('tech-category-input');
+        const categoriesEl = document.getElementById('tech-categories');
+        const titleInputEl = document.getElementById('tech-title-input');
+        const editorEl = document.getElementById('tech-editor');
+        const toolbarEl = document.getElementById('tech-toolbar');
+        const blockFormatEl = document.getElementById('tech-block-format');
+        const activeCategoryEl = document.getElementById('tech-active-category');
+        const selectionStateEl = document.getElementById('tech-selection-state');
+        const categoryCountEl = document.getElementById('tech-category-count');
+        const wordCountEl = document.getElementById('tech-word-count');
+        const lastEditedEl = document.getElementById('tech-last-edited');
+
+        function loadCategories() {
+          try {
+            const raw = localStorage.getItem(TECH_CATEGORIES_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!Array.isArray(parsed) || !parsed.length) return [...DEFAULT_CATEGORIES];
+            return parsed
+              .map(item => ({
+                id: typeof item?.id === 'string' ? item.id : '',
+                title: typeof item?.title === 'string' ? item.title.trim() : ''
+              }))
+              .filter(item => item.id && item.title);
+          } catch {
+            return [...DEFAULT_CATEGORIES];
+          }
+        }
+
+        function loadDocs() {
+          try {
+            const raw = localStorage.getItem(TECH_DOCS_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return categories.reduce((acc, category) => {
+              const fallback = DEFAULT_DOCS[category.id] || {
+                title: category.title,
+                content: `<h1>${escapeHtml(category.title)}</h1><p>Start documenting your information here.</p>`
+              };
+              const current = parsed[category.id] || {};
+              acc[category.id] = {
+                title: typeof current.title === 'string' && current.title.trim() ? current.title : fallback.title,
+                content: typeof current.content === 'string' && current.content.trim() ? current.content : fallback.content,
+                updatedAt: typeof current.updatedAt === 'number' ? current.updatedAt : Date.now()
+              };
+              return acc;
+            }, {});
+          } catch {
+            return categories.reduce((acc, category) => {
+              acc[category.id] = DEFAULT_DOCS[category.id] || {
+                title: category.title,
+                content: `<h1>${escapeHtml(category.title)}</h1><p>Start documenting your information here.</p>`,
+                updatedAt: Date.now()
+              };
+              return acc;
+            }, {});
+          }
+        }
+
+        function saveCategories() {
+          localStorage.setItem(TECH_CATEGORIES_KEY, JSON.stringify(categories));
+        }
+
+        function saveDocs() {
+          localStorage.setItem(TECH_DOCS_KEY, JSON.stringify(docs));
+        }
+
+        function escapeHtml(value) {
+          const div = document.createElement('div');
+          div.textContent = value;
+          return div.innerHTML;
+        }
+
+        function slugify(value) {
+          return value
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 50);
+        }
+
+        function ensureUniqueId(baseId) {
+          let id = baseId || `category_${Date.now().toString(36)}`;
+          let count = 2;
+          while (categories.some(category => category.id === id)) {
+            id = `${baseId}_${count}`;
+            count += 1;
+          }
+          return id;
+        }
+
+        function getActiveDoc() {
+          if (!activeCategoryId) return null;
+          return docs[activeCategoryId] || null;
+        }
+
+        function getWordCountFromHtml(html) {
+          const temp = document.createElement('div');
+          temp.innerHTML = html || '';
+          const text = temp.textContent.trim();
+          return text ? text.split(/\s+/).length : 0;
+        }
+
+        function formatTimestamp(timestamp) {
+          if (!timestamp) return '--';
+          return new Date(timestamp).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        function updateMeta() {
+          const doc = getActiveDoc();
+          categoryCountEl.textContent = String(categories.length);
+          wordCountEl.textContent = String(getWordCountFromHtml(editorEl.innerHTML));
+          lastEditedEl.textContent = formatTimestamp(doc?.updatedAt);
+          activeCategoryEl.textContent = categories.find(category => category.id === activeCategoryId)?.title || 'No category selected';
+        }
+
+        function renderCategories() {
+          categoriesEl.innerHTML = categories.length ? categories.map(category => {
+            const doc = docs[category.id] || { content: '', updatedAt: Date.now() };
+            const isActive = category.id === activeCategoryId;
+            return `
+              <div class="tech-category${isActive ? ' is-active' : ''}">
+                <button class="tech-category__open" type="button" data-category="${category.id}">
+                  <span class="tech-category__title">${escapeHtml(category.title)}</span>
+                  <span class="tech-category__meta">${getWordCountFromHtml(doc.content)} words · ${formatTimestamp(doc.updatedAt)}</span>
+                </button>
+                <button class="tech-category__delete" type="button" data-delete="${category.id}" aria-label="Delete ${escapeHtml(category.title)}">×</button>
+              </div>
+            `;
+          }).join('') : '<div class="tech-empty">No categories yet. Add one on the right.</div>';
+        }
+
+        function renderDocument() {
+          const doc = getActiveDoc();
+          if (!doc) {
+            titleInputEl.value = '';
+            editorEl.innerHTML = '';
+            updateMeta();
+            return;
+          }
+          titleInputEl.value = doc.title || '';
+          editorEl.innerHTML = doc.content || '';
+          updateMeta();
+        }
+
+        function render() {
+          if (!categories.some(category => category.id === activeCategoryId)) {
+            activeCategoryId = categories[0]?.id || null;
+          }
+          renderCategories();
+          renderDocument();
+        }
+
+        function persistActiveDoc() {
+          if (!activeCategoryId) return;
+          const title = titleInputEl.value.trim() || categories.find(category => category.id === activeCategoryId)?.title || 'Untitled Document';
+          docs[activeCategoryId] = {
+            title,
+            content: editorEl.innerHTML,
+            updatedAt: Date.now()
+          };
+          saveDocs();
+          updateMeta();
+          renderCategories();
+        }
+
+        function scheduleSave() {
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(persistActiveDoc, 180);
+        }
+
+        function focusEditor() {
+          editorEl.focus();
+        }
+
+        function applyBlockFormat(value) {
+          focusEditor();
+          if (value === 'blockquote') {
+            document.execCommand('formatBlock', false, 'blockquote');
+            return;
+          }
+          if (value === 'p') {
+            document.execCommand('formatBlock', false, 'p');
+            return;
+          }
+          document.execCommand('formatBlock', false, value);
+        }
+
+        function insertLink() {
+          const url = window.prompt('Enter link URL');
+          if (!url) return;
+          focusEditor();
+          document.execCommand('createLink', false, url);
+          scheduleSave();
+        }
+
+        function insertCodeBlock() {
+          focusEditor();
+          document.execCommand('insertHTML', false, '<pre><code>Code snippet</code></pre>');
+          scheduleSave();
+        }
+
+        function insertDivider() {
+          focusEditor();
+          document.execCommand('insertHorizontalRule');
+          scheduleSave();
+        }
+
+        function toggleHighlight() {
+          focusEditor();
+          document.execCommand('hiliteColor', false, 'rgba(63, 185, 80, 0.22)');
+          scheduleSave();
+        }
+
+        categoryFormEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const title = categoryInputEl.value.trim();
+          if (!title) return;
+          const id = ensureUniqueId(slugify(title));
+          categories.push({ id, title });
+          docs[id] = {
+            title,
+            content: `<h1>${escapeHtml(title)}</h1><p>Start documenting your information here.</p>`,
+            updatedAt: Date.now()
+          };
+          activeCategoryId = id;
+          saveCategories();
+          saveDocs();
+          categoryFormEl.reset();
+          render();
+          categoryInputEl.focus();
+        });
+
+        categoriesEl.addEventListener('click', event => {
+          const deleteButton = event.target.closest('[data-delete]');
+          if (deleteButton) {
+            const id = deleteButton.dataset.delete;
+            if (!id) return;
+            categories = categories.filter(category => category.id !== id);
+            delete docs[id];
+            saveCategories();
+            saveDocs();
+            if (activeCategoryId === id) {
+              activeCategoryId = categories[0]?.id || null;
+            }
+            render();
+            return;
+          }
+
+          const openButton = event.target.closest('[data-category]');
+          if (!openButton) return;
+          const id = openButton.dataset.category;
+          if (!id || id === activeCategoryId) return;
+          persistActiveDoc();
+          activeCategoryId = id;
+          render();
+        });
+
+        titleInputEl.addEventListener('input', scheduleSave);
+        editorEl.addEventListener('input', scheduleSave);
+
+        editorEl.addEventListener('focus', () => {
+          selectionStateEl.textContent = 'Editing document';
+        });
+
+        editorEl.addEventListener('blur', () => {
+          selectionStateEl.textContent = 'Saved automatically';
+        });
+
+        blockFormatEl.addEventListener('change', () => {
+          applyBlockFormat(blockFormatEl.value);
+          scheduleSave();
+        });
+
+        toolbarEl.addEventListener('click', event => {
+          const button = event.target.closest('.tech-tool');
+          if (!button) return;
+
+          const action = button.dataset.action;
+          const cmd = button.dataset.cmd;
+
+          if (action === 'link') {
+            insertLink();
+            return;
+          }
+          if (action === 'code') {
+            insertCodeBlock();
+            return;
+          }
+          if (action === 'divider') {
+            insertDivider();
+            return;
+          }
+          if (action === 'highlight') {
+            toggleHighlight();
+            return;
+          }
+          if (!cmd) return;
+
+          focusEditor();
+          document.execCommand(cmd, false);
+          scheduleSave();
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

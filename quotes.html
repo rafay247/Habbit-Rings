@@ -14,6 +14,13 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+        --gold: var(--accent);
+        --books-accent-soft: var(--accent-soft);
+        --books-accent-border: var(--accent-border);
+        --books-accent-strong: rgba(63, 185, 80, 0.34);
+        --books-accent-ring: rgba(63, 185, 80, 0.08);
+        --books-accent-label: rgba(217, 251, 224, 0.76);
+        --books-accent-fill: rgba(63, 185, 80, 0.18);
       }
 
       .quotes-hero,
@@ -49,7 +56,7 @@
         display: inline-flex;
         padding: 7px 12px;
         border-radius: 999px;
-        background: rgba(227, 179, 65, 0.12);
+        background: var(--books-accent-soft);
         color: var(--gold);
         font-family: 'Inter', sans-serif;
         font-size: 11px;
@@ -78,7 +85,7 @@
 
       .quotes-total:hover {
         transform: translateY(-1px);
-        border-color: rgba(227, 179, 65, 0.24);
+        border-color: var(--books-accent-border);
       }
 
       .quotes-total__label {
@@ -120,8 +127,8 @@
 
       .quotes-top-tab.active {
         color: var(--gold);
-        background: rgba(227, 179, 65, 0.12);
-        border-color: rgba(227, 179, 65, 0.28);
+        background: var(--books-accent-soft);
+        border-color: var(--books-accent-border);
       }
 
       .quotes-top-tab__label {
@@ -133,7 +140,7 @@
       }
 
       .quotes-top-tab.active .quotes-top-tab__label {
-        color: rgba(255, 245, 216, 0.7);
+        color: var(--books-accent-label);
       }
 
       .quotes-top-tab__value {
@@ -147,7 +154,7 @@
       }
 
       .quotes-read-section {
-        padding: 16px;
+        padding: 20px;
         border-radius: 20px;
         border: 1px solid rgba(255,255,255,0.08);
         background: rgba(12, 16, 12, 0.72);
@@ -164,6 +171,7 @@
       .quotes-read-section h2 {
         font-family: 'Lexend', sans-serif;
         font-size: 18px;
+        margin-bottom: 14px;
       }
 
       .quotes-layout {
@@ -181,67 +189,65 @@
       }
 
       .quotes-read-form {
-        margin-top: 12px;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-        gap: 8px;
+        grid-template-columns: minmax(0, 1.35fr) minmax(210px, 0.8fr) minmax(180px, 0.7fr);
+        gap: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+          rgba(10, 14, 10, 0.42);
       }
 
-      .quotes-read-input {
+      .quotes-read-input,
+      .quotes-read-category-input {
         width: 100%;
         border-radius: 12px;
         border: 1px solid rgba(255,255,255,0.1);
-        background: rgba(20, 26, 20, 0.96);
+        background: rgba(20, 26, 20, 0.98);
         color: var(--text);
-        padding: 10px 12px;
+        min-height: 48px;
+        padding: 12px 14px;
         font-family: 'Inter', sans-serif;
-        font-size: 12.5px;
+        font-size: 13px;
       }
 
-      .quotes-read-input:focus {
+      .quotes-read-input:focus,
+      .quotes-read-category-input:focus {
         outline: none;
-        border-color: rgba(227, 179, 65, 0.28);
-      }
-
-      .quotes-read-moral-input {
-        width: 100%;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.1);
-        background: rgba(20, 26, 20, 0.96);
-        color: var(--text);
-        padding: 10px 12px;
-        font-family: 'Inter', sans-serif;
-        font-size: 12.5px;
-      }
-
-      .quotes-read-moral-input:focus {
-        outline: none;
-        border-color: rgba(227, 179, 65, 0.28);
+        border-color: var(--books-accent-strong);
+        box-shadow: 0 0 0 3px var(--books-accent-ring);
       }
 
       .quotes-read-add {
-        border: 1px solid rgba(227, 179, 65, 0.2);
-        background: rgba(227, 179, 65, 0.1);
+        border: 1px solid var(--books-accent-border);
+        background: linear-gradient(180deg, rgba(63, 185, 80, 0.18), rgba(63, 185, 80, 0.1));
         color: var(--gold);
-        border-radius: 12px;
-        padding: 10px 12px;
+        border-radius: 14px;
+        min-height: 50px;
+        padding: 12px 16px;
+        width: 100%;
         font-family: 'Inter', sans-serif;
-        font-size: 12.5px;
+        font-size: 13px;
         font-weight: 600;
         cursor: pointer;
+        transition: transform 0.18s, border-color 0.18s, background 0.18s;
+      }
+
+      .quotes-read-add:hover {
+        transform: translateY(-1px);
+        border-color: var(--books-accent-border);
+        background: linear-gradient(180deg, rgba(63, 185, 80, 0.22), rgba(63, 185, 80, 0.12));
       }
 
       .quotes-read-grid {
-        margin-top: 12px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 10px;
+        gap: 12px;
       }
 
       .quotes-read-item {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
         padding: 12px;
         border-radius: 14px;
         border: 1px solid rgba(255,255,255,0.08);
@@ -250,6 +256,22 @@
         font-size: 12px;
         line-height: 1.35;
         color: var(--text-muted);
+        cursor: grab;
+        transition: border-color 0.18s, transform 0.18s, opacity 0.18s;
+      }
+
+      .quotes-read-item:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+
+      .quotes-read-item.dragging {
+        opacity: 0.58;
+        transform: scale(0.985);
+      }
+
+      .quotes-read-item.drag-over {
+        border-color: var(--books-accent-border);
       }
 
       .quotes-read-item__top {
@@ -279,25 +301,6 @@
         word-break: break-word;
       }
 
-      .quotes-read-item__category {
-        margin-top: 6px;
-        display: block;
-        font-size: 11px;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-      }
-
-      .quotes-read-item__moral-preview {
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.08);
-        background: rgba(255,255,255,0.03);
-        color: var(--text-muted);
-        padding: 8px 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 12px;
-      }
-
       .quotes-read-delete {
         flex-shrink: 0;
         width: 28px;
@@ -321,12 +324,65 @@
         background: rgba(255, 123, 114, 0.08);
       }
 
+      .quotes-read-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+        margin-bottom: 16px;
+      }
+
+      .quotes-read-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text-dim);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, background 0.18s, color 0.18s, transform 0.18s;
+      }
+
+      .quotes-read-filter:hover {
+        transform: translateY(-1px);
+        border-color: var(--books-accent-border);
+        color: var(--text);
+      }
+
+      .quotes-read-filter.active {
+        border-color: var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+      }
+
+      .quotes-read-filter__count {
+        min-width: 22px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        color: var(--text-muted);
+        font-size: 10.5px;
+        line-height: 1.2;
+        text-align: center;
+      }
+
+      .quotes-read-filter.active .quotes-read-filter__count {
+        background: var(--books-accent-fill);
+        color: var(--books-accent-label);
+      }
+
       .quotes-read-empty {
-        padding: 14px;
-        border-radius: 12px;
+        padding: 18px 16px;
+        border-radius: 16px;
         border: 1px dashed rgba(255,255,255,0.12);
         color: var(--text-dim);
-        font-size: 12px;
+        font-size: 13px;
+        background: rgba(255,255,255,0.015);
       }
 
       .quotes-tabs {
@@ -349,6 +405,7 @@
         background: rgba(12, 16, 12, 0.72);
       }
 
+      .quotes-read-category-input,
       .quotes-category-input {
         width: 100%;
         border-radius: 12px;
@@ -360,14 +417,15 @@
         font-size: 12.5px;
       }
 
+      .quotes-read-category-input:focus,
       .quotes-category-input:focus {
         outline: none;
-        border-color: rgba(227, 179, 65, 0.28);
+        border-color: var(--books-accent-border);
       }
 
       .quotes-category-add {
-        border: 1px solid rgba(227, 179, 65, 0.2);
-        background: rgba(227, 179, 65, 0.1);
+        border: 1px solid var(--books-accent-border);
+        background: var(--books-accent-soft);
         color: var(--gold);
         border-radius: 12px;
         padding: 10px 12px;
@@ -398,13 +456,13 @@
 
       .quotes-tab:hover {
         transform: translateX(2px);
-        border-color: rgba(227, 179, 65, 0.18);
+        border-color: var(--books-accent-border);
         color: var(--text);
       }
 
       .quotes-tab.active {
-        background: rgba(227, 179, 65, 0.12);
-        border-color: rgba(227, 179, 65, 0.32);
+        background: var(--books-accent-soft);
+        border-color: var(--books-accent-border);
         color: var(--gold);
       }
 
@@ -438,8 +496,8 @@
       }
 
       .quotes-tab.active .quotes-tab__meta {
-        color: #fff5d8;
-        background: rgba(227, 179, 65, 0.16);
+        color: var(--books-accent-label);
+        background: var(--books-accent-fill);
       }
 
       .quotes-panel {
@@ -479,7 +537,7 @@
 
       .quotes-editor:focus {
         outline: none;
-        border-color: rgba(227, 179, 65, 0.38);
+        border-color: var(--books-accent-strong);
       }
 
       .quotes-meta {
@@ -561,6 +619,48 @@
         white-space: pre-wrap;
       }
 
+      .quotes-modal__textarea {
+        width: 100%;
+        min-height: 120px;
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 12px 14px;
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .quotes-modal__input-inline,
+      .quotes-modal__select-inline {
+        width: 100%;
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+      }
+
+      .quotes-modal__input-inline:focus,
+      .quotes-modal__select-inline:focus,
+      .quotes-modal__textarea:focus {
+        outline: none;
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-modal__actions {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
       .quotes-modal__form {
         margin-top: 8px;
         display: grid;
@@ -589,12 +689,12 @@
       .quotes-modal__select:focus,
       .quotes-modal__search-input:focus {
         outline: none;
-        border-color: rgba(227, 179, 65, 0.28);
+        border-color: var(--books-accent-border);
       }
 
       .quotes-modal__add {
-        border: 1px solid rgba(227, 179, 65, 0.2);
-        background: rgba(227, 179, 65, 0.1);
+        border: 1px solid var(--books-accent-border);
+        background: var(--books-accent-soft);
         color: var(--gold);
         border-radius: 12px;
         padding: 10px 12px;
@@ -602,6 +702,24 @@
         font-size: 12.5px;
         font-weight: 600;
         cursor: pointer;
+      }
+
+      .quotes-modal__button {
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-modal__button--primary {
+        border-color: var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
       }
 
       .quotes-modal__groups {
@@ -684,6 +802,7 @@
             <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
             <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
             <a href="quotes.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Books</a>
+            <a href="technology.html" class="chip chip-outline" style="text-decoration:none;">Technology</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -697,13 +816,10 @@
           <h1>Books Library</h1>
         </div>
         <div class="quotes-hero__actions">
-          <button class="quotes-total" id="all-books-toggle" type="button">
-            <span class="quotes-total__label">Total Books</span>
-            <span class="quotes-total__value" id="all-books-count">0</span>
-          </button>
           <div class="quotes-top-tabs">
             <button class="quotes-top-tab active" id="all-books-tab" type="button">
-              <span class="quotes-top-tab__label">All Books by Category</span>
+              <span class="quotes-top-tab__label">All Books</span>
+              <span class="quotes-top-tab__value" id="all-books-count">0</span>
             </button>
             <button class="quotes-top-tab" id="read-books-tab" type="button">
               <span class="quotes-top-tab__label">Books Read</span>
@@ -758,16 +874,13 @@
               placeholder="Book"
               autocomplete="off"
             />
-            <input
-              id="books-read-moral-input"
-              class="quotes-read-moral-input"
-              type="text"
-              maxlength="180"
-              placeholder="Moral"
-              autocomplete="off"
-            />
+            <select
+              id="books-read-category-input"
+              class="quotes-read-category-input"
+            ></select>
             <button class="quotes-read-add" type="submit">Add Read Book</button>
           </form>
+          <div class="quotes-read-filters" id="books-read-filters"></div>
           <div class="quotes-read-grid" id="books-read-list"></div>
       </section>
 
@@ -780,36 +893,35 @@
           <div class="quotes-modal__section">
             <div class="quotes-modal__label">Category</div>
             <div class="quotes-modal__value" id="read-book-modal-category">Uncategorized</div>
+            <select class="quotes-modal__select-inline" id="read-book-modal-category-input" hidden></select>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Book</div>
+            <div class="quotes-modal__value" id="read-book-modal-book">Book</div>
+            <input
+              class="quotes-modal__input-inline"
+              id="read-book-modal-title-input"
+              type="text"
+              maxlength="120"
+              placeholder="Book name"
+              hidden
+            />
           </div>
           <div class="quotes-modal__section">
             <div class="quotes-modal__label">Moral</div>
             <div class="quotes-modal__value" id="read-book-modal-moral">No moral added yet.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="quotes-modal" id="all-books-modal">
-        <div class="quotes-modal__panel">
-          <div class="quotes-modal__top">
-            <div class="quotes-modal__title">All Books by Category</div>
-            <button class="quotes-modal__close" id="all-books-modal-close" type="button">×</button>
-          </div>
-          <div class="quotes-modal__section">
-            <div class="quotes-modal__label">Add Book</div>
-            <form class="quotes-modal__form" id="all-books-modal-form">
-              <select class="quotes-modal__select" id="all-books-modal-category"></select>
-              <input class="quotes-modal__input" id="all-books-modal-input" type="text" maxlength="140" placeholder="Book name" autocomplete="off" />
-              <button class="quotes-modal__add" type="submit">Add Book</button>
-            </form>
-          </div>
-          <div class="quotes-modal__section">
-            <div class="quotes-modal__search">
-              <input class="quotes-modal__search-input" id="all-books-modal-search" type="text" maxlength="140" placeholder="Search books or categories" autocomplete="off" />
+            <textarea
+              class="quotes-modal__textarea"
+              id="read-book-modal-moral-input"
+              maxlength="300"
+              placeholder="Add the moral or lesson from this book..."
+              hidden
+            ></textarea>
+            <div class="quotes-modal__actions">
+              <button class="quotes-modal__button" id="read-book-modal-edit" type="button">Edit Book</button>
+              <button class="quotes-modal__button" id="read-book-modal-cancel" type="button" hidden>Cancel</button>
+              <button class="quotes-modal__button quotes-modal__button--primary" id="read-book-modal-save" type="button" hidden>Save Changes</button>
             </div>
-          </div>
-          <div class="quotes-modal__section">
-            <div class="quotes-modal__label">Category Wise Books</div>
-            <div class="quotes-modal__groups" id="all-books-modal-groups"></div>
           </div>
         </div>
       </div>
@@ -985,9 +1097,11 @@ Wiser`
         let state = loadState();
         let readBooks = loadReadBooks();
         let draggedCategoryId = null;
+        let draggedReadBookIndex = null;
         let activeSection = 'all';
         let selectedReadBookIndex = null;
-        let allBooksSearch = '';
+        let activeReadBookFilter = 'all';
+        let isReadBookEditing = false;
 
         const tabsEl = document.getElementById('quotes-tabs');
         const categoryFormEl = document.getElementById('quotes-category-form');
@@ -995,29 +1109,29 @@ Wiser`
         const editorEl = document.getElementById('quotes-editor');
         const titleEl = document.getElementById('quotes-panel-title');
         const metaEl = document.getElementById('quotes-meta');
-        const allBooksToggleEl = document.getElementById('all-books-toggle');
         const allBooksTabEl = document.getElementById('all-books-tab');
+        const allBooksCountEl = document.getElementById('all-books-count');
         const readBooksTabEl = document.getElementById('read-books-tab');
         const allBooksSectionEl = document.getElementById('quotes-all-section');
-        const allBooksCountEl = document.getElementById('all-books-count');
         const booksReadCountEl = document.getElementById('books-read-count');
         const booksReadSectionEl = document.getElementById('books-read-section');
         const booksReadFormEl = document.getElementById('books-read-form');
         const booksReadInputEl = document.getElementById('books-read-input');
-        const booksReadMoralInputEl = document.getElementById('books-read-moral-input');
+        const booksReadCategoryInputEl = document.getElementById('books-read-category-input');
+        const booksReadFiltersEl = document.getElementById('books-read-filters');
         const booksReadListEl = document.getElementById('books-read-list');
         const readBookModalEl = document.getElementById('read-book-modal');
         const readBookModalTitleEl = document.getElementById('read-book-modal-title');
+        const readBookModalBookEl = document.getElementById('read-book-modal-book');
         const readBookModalCategoryEl = document.getElementById('read-book-modal-category');
         const readBookModalMoralEl = document.getElementById('read-book-modal-moral');
+        const readBookModalTitleInputEl = document.getElementById('read-book-modal-title-input');
+        const readBookModalCategoryInputEl = document.getElementById('read-book-modal-category-input');
+        const readBookModalMoralInputEl = document.getElementById('read-book-modal-moral-input');
+        const readBookModalEditEl = document.getElementById('read-book-modal-edit');
+        const readBookModalCancelEl = document.getElementById('read-book-modal-cancel');
+        const readBookModalSaveEl = document.getElementById('read-book-modal-save');
         const readBookModalCloseEl = document.getElementById('read-book-modal-close');
-        const allBooksModalEl = document.getElementById('all-books-modal');
-        const allBooksModalCloseEl = document.getElementById('all-books-modal-close');
-        const allBooksModalFormEl = document.getElementById('all-books-modal-form');
-        const allBooksModalCategoryEl = document.getElementById('all-books-modal-category');
-        const allBooksModalInputEl = document.getElementById('all-books-modal-input');
-        const allBooksModalSearchEl = document.getElementById('all-books-modal-search');
-        const allBooksModalGroupsEl = document.getElementById('all-books-modal-groups');
 
         function loadCategories() {
           const defaultCategories = Object.entries(TAB_INFO).map(([id, info]) => ({ id, title: info.title }));
@@ -1073,11 +1187,12 @@ Wiser`
             return parsed
               .map(item => {
                 if (typeof item === 'string') {
-                  return { title: item.trim(), moral: '' };
+                  return { title: item.trim(), moral: '', category: '' };
                 }
                 return {
                   title: typeof item?.title === 'string' ? item.title.trim() : '',
-                  moral: typeof item?.moral === 'string' ? item.moral : ''
+                  moral: typeof item?.moral === 'string' ? item.moral : '',
+                  category: typeof item?.category === 'string' ? item.category.trim() : ''
                 };
               })
               .filter(item => item.title);
@@ -1126,50 +1241,129 @@ Wiser`
             .map(category => category.title);
         }
 
+        function getReadBookCategory(book) {
+          if (book?.category) return book.category;
+          const matches = getBookCategories(book?.title || '');
+          return matches[0] || 'Uncategorized';
+        }
+
+        function getReadBookFilterOptions() {
+          const options = new Set(['All']);
+          readBooks.forEach(book => {
+            options.add(getReadBookCategory(book));
+          });
+          return Array.from(options);
+        }
+
+        function getFilteredReadBooks() {
+          if (activeReadBookFilter === 'all') return readBooks;
+          return readBooks.filter(book => getReadBookCategory(book) === activeReadBookFilter);
+        }
+
+        function renderReadBookCategoryInput() {
+          const options = categories.map(category => `
+            <option value="${escapeHtml(category.title)}">${escapeHtml(category.title)}</option>
+          `).join('');
+          booksReadCategoryInputEl.innerHTML = `
+            <option value="">Select category</option>
+            ${options}
+          `;
+          readBookModalCategoryInputEl.innerHTML = `
+            <option value="">Select category</option>
+            ${options}
+          `;
+        }
+
+        function renderReadBookFilters() {
+          const options = getReadBookFilterOptions();
+          const validFilter = activeReadBookFilter === 'all' || options.includes(activeReadBookFilter);
+          if (!validFilter) activeReadBookFilter = 'all';
+          booksReadFiltersEl.innerHTML = options.map(option => {
+            const filterValue = option === 'All' ? 'all' : option;
+            const isActive = activeReadBookFilter === filterValue;
+            const count = filterValue === 'all'
+              ? readBooks.length
+              : readBooks.filter(book => getReadBookCategory(book) === filterValue).length;
+            return `
+              <button
+                class="quotes-read-filter${isActive ? ' active' : ''}"
+                type="button"
+                data-filter="${escapeHtml(filterValue)}"
+              >
+                <span>${escapeHtml(option)}</span>
+                <span class="quotes-read-filter__count">${count}</span>
+              </button>
+            `;
+          }).join('');
+        }
+
+        function syncReadBookModalEditState() {
+          readBookModalBookEl.hidden = isReadBookEditing;
+          readBookModalTitleInputEl.hidden = !isReadBookEditing;
+          readBookModalMoralEl.hidden = isReadBookEditing;
+          readBookModalMoralInputEl.hidden = !isReadBookEditing;
+          readBookModalCategoryEl.hidden = isReadBookEditing;
+          readBookModalCategoryInputEl.hidden = !isReadBookEditing;
+          readBookModalEditEl.hidden = isReadBookEditing;
+          readBookModalCancelEl.hidden = !isReadBookEditing;
+          readBookModalSaveEl.hidden = !isReadBookEditing;
+        }
+
+        function enterReadBookEditMode() {
+          if (selectedReadBookIndex === null) return;
+          const book = readBooks[selectedReadBookIndex];
+          if (!book) return;
+          isReadBookEditing = true;
+          readBookModalTitleInputEl.value = book.title || '';
+          readBookModalCategoryInputEl.value = book.category || '';
+          readBookModalMoralInputEl.value = book.moral || '';
+          syncReadBookModalEditState();
+          readBookModalTitleInputEl.focus();
+        }
+
+        function exitReadBookEditMode() {
+          isReadBookEditing = false;
+          syncReadBookModalEditState();
+        }
+
+        function saveReadBookChanges() {
+          if (selectedReadBookIndex === null) return;
+          const book = readBooks[selectedReadBookIndex];
+          if (!book) return;
+          const nextTitle = readBookModalTitleInputEl.value.trim();
+          if (!nextTitle) return;
+          book.title = nextTitle;
+          book.category = readBookModalCategoryInputEl.value.trim();
+          book.moral = readBookModalMoralInputEl.value.trim();
+          saveReadBooks();
+          readBookModalTitleEl.textContent = book.title;
+          readBookModalBookEl.textContent = book.title;
+          readBookModalCategoryEl.textContent = getReadBookCategory(book);
+          readBookModalMoralEl.textContent = book.moral || 'No moral added yet.';
+          exitReadBookEditMode();
+          render();
+        }
+
         function openReadBookModal(index) {
           if (!Number.isInteger(index) || index < 0 || index >= readBooks.length) return;
           const book = readBooks[index];
           selectedReadBookIndex = index;
+          isReadBookEditing = false;
           readBookModalTitleEl.textContent = book.title;
-          const categoryMatches = getBookCategories(book.title);
-          readBookModalCategoryEl.textContent = categoryMatches.length ? categoryMatches.join(', ') : 'Uncategorized';
+          readBookModalBookEl.textContent = book.title;
+          readBookModalCategoryEl.textContent = getReadBookCategory(book);
           readBookModalMoralEl.textContent = book.moral?.trim() ? book.moral : 'No moral added yet.';
+          readBookModalTitleInputEl.value = book.title || '';
+          readBookModalCategoryInputEl.value = book.category || '';
+          readBookModalMoralInputEl.value = book.moral || '';
+          syncReadBookModalEditState();
           readBookModalEl.classList.add('open');
         }
 
         function closeReadBookModal() {
+          exitReadBookEditMode();
           selectedReadBookIndex = null;
           readBookModalEl.classList.remove('open');
-        }
-
-        function openAllBooksModal() {
-          allBooksModalCategoryEl.innerHTML = categories.map(category => `
-            <option value="${category.id}">${escapeHtml(category.title)}</option>
-          `).join('');
-          allBooksModalSearchEl.value = allBooksSearch;
-          const search = allBooksSearch.trim().toLowerCase();
-          allBooksModalGroupsEl.innerHTML = categories.map(category => {
-            const categoryTitle = category.title;
-            const books = getBooksForCategory(category.id)
-              .filter(book => !search || book.toLowerCase().includes(search) || categoryTitle.toLowerCase().includes(search));
-            if (search && !books.length && !categoryTitle.toLowerCase().includes(search)) {
-              return '';
-            }
-            return `
-              <div class="quotes-modal__group">
-                <div class="quotes-modal__group-title">${escapeHtml(categoryTitle)} (${books.length})</div>
-                ${books.length
-                  ? `<div class="quotes-modal__book-list">${books.map(book => `<span class="quotes-modal__book-chip">${escapeHtml(book)}</span>`).join('')}</div>`
-                  : '<div class="quotes-modal__book-empty">No books yet.</div>'
-                }
-              </div>
-            `;
-          }).join('') || '<div class="quotes-modal__book-empty">No matching books found.</div>';
-          allBooksModalEl.classList.add('open');
-        }
-
-        function closeAllBooksModal() {
-          allBooksModalEl.classList.remove('open');
         }
 
         function renderTabs() {
@@ -1250,29 +1444,92 @@ Wiser`
           draggedCategoryId = null;
         }
 
+        function onReadBookDragStart(event) {
+          const index = Number(event.currentTarget.dataset.index);
+          if (!Number.isInteger(index)) return;
+          draggedReadBookIndex = index;
+          event.currentTarget.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', String(index));
+        }
+
+        function onReadBookDragOver(event) {
+          if (!Number.isInteger(draggedReadBookIndex)) return;
+          event.preventDefault();
+          event.currentTarget.classList.add('drag-over');
+        }
+
+        function onReadBookDrop(event) {
+          event.preventDefault();
+          const targetIndex = Number(event.currentTarget.dataset.index);
+          event.currentTarget.classList.remove('drag-over');
+          if (!Number.isInteger(draggedReadBookIndex) || !Number.isInteger(targetIndex) || draggedReadBookIndex === targetIndex) return;
+
+          const fromIndex = draggedReadBookIndex;
+          const [moved] = readBooks.splice(fromIndex, 1);
+          readBooks.splice(targetIndex, 0, moved);
+
+          if (selectedReadBookIndex === fromIndex) {
+            selectedReadBookIndex = targetIndex;
+          } else if (selectedReadBookIndex !== null) {
+            if (fromIndex < selectedReadBookIndex && selectedReadBookIndex <= targetIndex) {
+              selectedReadBookIndex -= 1;
+            } else if (targetIndex <= selectedReadBookIndex && selectedReadBookIndex < fromIndex) {
+              selectedReadBookIndex += 1;
+            }
+          }
+
+          saveReadBooks();
+          render();
+        }
+
+        function onReadBookDragLeave(event) {
+          event.currentTarget.classList.remove('drag-over');
+        }
+
+        function onReadBookDragEnd(event) {
+          event.currentTarget.classList.remove('dragging');
+          event.currentTarget.classList.remove('drag-over');
+          draggedReadBookIndex = null;
+          booksReadListEl.querySelectorAll('.quotes-read-item').forEach(item => {
+            item.classList.remove('drag-over');
+          });
+        }
+
         function render() {
           if (!categories.some(category => category.id === activeTab)) {
             activeTab = categories[0]?.id || 'mindset_personal_development';
           }
           renderTabs();
+          renderReadBookCategoryInput();
+          renderReadBookFilters();
           allBooksTabEl.classList.toggle('active', activeSection === 'all');
           readBooksTabEl.classList.toggle('active', activeSection === 'read');
           allBooksSectionEl.hidden = activeSection !== 'all';
           booksReadSectionEl.hidden = activeSection !== 'read';
           allBooksCountEl.textContent = String(getAllBooksCount());
           booksReadCountEl.textContent = String(readBooks.length);
-          booksReadListEl.innerHTML = readBooks.length ? readBooks.map((book, index) => `
-            <div class="quotes-read-item">
+          const filteredReadBooks = getFilteredReadBooks();
+          booksReadListEl.innerHTML = filteredReadBooks.length ? filteredReadBooks.map(book => {
+            const index = readBooks.indexOf(book);
+            return `
+            <div class="quotes-read-item" data-index="${index}" draggable="true">
               <div class="quotes-read-item__top">
                 <button class="quotes-read-item__open" type="button" data-index="${index}">
                   <span class="quotes-read-item__title">${escapeHtml(book.title)}</span>
-                  <span class="quotes-read-item__category">${escapeHtml(getBookCategories(book.title).join(', ') || 'Uncategorized')}</span>
                 </button>
                 <button class="quotes-read-delete" type="button" data-index="${index}" aria-label="Delete ${escapeHtml(book.title)}">×</button>
               </div>
-              <div class="quotes-read-item__moral-preview">${escapeHtml(book.moral?.trim() || 'No moral added yet.')}</div>
             </div>
-          `).join('') : '<div class="quotes-read-empty">No read books added yet.</div>';
+          `;
+          }).join('') : `<div class="quotes-read-empty">${activeReadBookFilter === 'all' ? 'No read books added yet.' : `No books found in ${escapeHtml(activeReadBookFilter)}.`}</div>`;
+          booksReadListEl.querySelectorAll('.quotes-read-item').forEach(item => {
+            item.addEventListener('dragstart', onReadBookDragStart);
+            item.addEventListener('dragover', onReadBookDragOver);
+            item.addEventListener('drop', onReadBookDrop);
+            item.addEventListener('dragleave', onReadBookDragLeave);
+            item.addEventListener('dragend', onReadBookDragEnd);
+          });
           titleEl.textContent = getCategoryTitle(activeTab);
           editorEl.value = state[activeTab] || '';
           metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
@@ -1315,14 +1572,22 @@ Wiser`
         booksReadFormEl.addEventListener('submit', event => {
           event.preventDefault();
           const title = booksReadInputEl.value.trim();
-          const moral = booksReadMoralInputEl.value.trim();
+          const category = booksReadCategoryInputEl.value.trim();
           if (!title) return;
-          readBooks.unshift({ title, moral });
+          readBooks.unshift({ title, moral: '', category });
           saveReadBooks();
           booksReadFormEl.reset();
+          activeReadBookFilter = 'all';
           activeSection = 'read';
           render();
           booksReadInputEl.focus();
+        });
+
+        booksReadFiltersEl.addEventListener('click', event => {
+          const button = event.target.closest('.quotes-read-filter');
+          if (!button) return;
+          activeReadBookFilter = button.dataset.filter || 'all';
+          render();
         });
 
         booksReadListEl.addEventListener('click', event => {
@@ -1339,6 +1604,9 @@ Wiser`
           readBooks.splice(index, 1);
           saveReadBooks();
           if (selectedReadBookIndex === index) closeReadBookModal();
+          if (selectedReadBookIndex !== null && index < selectedReadBookIndex) {
+            selectedReadBookIndex -= 1;
+          }
           render();
         });
 
@@ -1349,32 +1617,18 @@ Wiser`
           allBooksCountEl.textContent = String(getAllBooksCount());
         });
 
-        allBooksToggleEl.addEventListener('click', openAllBooksModal);
         readBookModalCloseEl.addEventListener('click', closeReadBookModal);
+        readBookModalEditEl.addEventListener('click', enterReadBookEditMode);
+        readBookModalCancelEl.addEventListener('click', exitReadBookEditMode);
+        readBookModalSaveEl.addEventListener('click', saveReadBookChanges);
+        readBookModalMoralInputEl.addEventListener('keydown', event => {
+          if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+            event.preventDefault();
+            saveReadBookChanges();
+          }
+        });
         readBookModalEl.addEventListener('click', event => {
           if (event.target === readBookModalEl) closeReadBookModal();
-        });
-        allBooksModalCloseEl.addEventListener('click', closeAllBooksModal);
-        allBooksModalEl.addEventListener('click', event => {
-          if (event.target === allBooksModalEl) closeAllBooksModal();
-        });
-        allBooksModalFormEl.addEventListener('submit', event => {
-          event.preventDefault();
-          const categoryId = allBooksModalCategoryEl.value;
-          const title = allBooksModalInputEl.value.trim();
-          if (!categoryId || !title) return;
-          const currentBooks = getBooksForCategory(categoryId);
-          currentBooks.push(title);
-          state[categoryId] = currentBooks.join('\n');
-          saveState();
-          allBooksModalFormEl.reset();
-          render();
-          openAllBooksModal();
-          allBooksModalInputEl.focus();
-        });
-        allBooksModalSearchEl.addEventListener('input', () => {
-          allBooksSearch = allBooksModalSearchEl.value;
-          openAllBooksModal();
         });
 
         render();
