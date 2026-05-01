@@ -207,6 +207,47 @@
 
               <div class="utilities-column">
                 <h3 class="utilities-title">
+                  Cloud Sync
+                  <span class="pill small">☁ Firebase</span>
+                </h3>
+                <p class="card-copy">
+                  Sync your habits across devices in real-time using a shared
+                  Sync ID. Enable sync, copy your ID, then paste it on any
+                  other device to keep data in sync automatically.
+                </p>
+
+                <div class="firebase-sync-row">
+                  <label class="auto-backup-toggle">
+                    <input type="checkbox" id="firebase-sync-toggle" />
+                    <span>Enable Cloud Sync</span>
+                  </label>
+                </div>
+
+                <div class="firebase-id-row" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+                  <label style="font-size:12px; color:var(--text-muted);">Your Sync ID (share across devices)</label>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <input
+                      type="text"
+                      id="firebase-user-id-input"
+                      placeholder="Auto-generated when you enable sync"
+                      style="flex:1; min-width:0; font-family:ui-monospace,monospace; font-size:11px; padding:7px 9px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-raised); color:var(--text);"
+                      autocomplete="off"
+                      spellcheck="false"
+                    />
+                    <button id="firebase-copy-id" class="btn btn-ghost btn-small" disabled>Copy ID</button>
+                  </div>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                    <button id="firebase-sync-now" class="btn btn-soft btn-small" disabled>⟳ Sync Now</button>
+                    <span id="firebase-sync-status" class="firebase-sync-status"></span>
+                  </div>
+                  <p style="font-size:11px; color:var(--text-muted); margin-top:4px; line-height:1.5;">
+                    To sync on another device: enable sync, then paste the same Sync ID above.
+                  </p>
+                </div>
+              </div>
+
+              <div class="utilities-column">
+                <h3 class="utilities-title">
                   Data & Backup
                   <span class="pill small">💾 Local & file backup</span>
                 </h3>
