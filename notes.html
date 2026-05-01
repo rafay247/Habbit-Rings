@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Habit Rings — Notes</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
@@ -208,12 +208,12 @@
       .notes-masonry {
         margin-top: 20px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
         gap: 16px;
         align-items: start;
         padding-bottom: 60px;
       }
-      @media (max-width: 600px)  { .notes-masonry { grid-template-columns: 1fr; } }
+      @media (max-width: 600px)  { .notes-masonry { grid-template-columns: 1fr; gap: 10px; } }
 
       /* ── Note Card ── */
       .note-card {
@@ -697,6 +697,33 @@
       }
       .editor-save-btn:hover { background: rgba(0,0,0,0.14); border-color: rgba(0,0,0,0.25); }
 
+      /* ── Mobile ── */
+      @media (max-width: 600px) {
+        .app-shell { padding-inline: 10px; }
+        .notes-top-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .btn-new-note { width: 100%; justify-content: center; }
+        .notes-stats-bar { gap: 10px; flex-wrap: wrap; }
+        .notes-search { font-size: 13px; padding: 9px 14px 9px 38px; }
+        .notes-filter-bar { gap: 4px; }
+        .filter-chip { font-size: 11px; padding: 4px 10px; }
+        .note-editor-overlay { align-items: flex-end; padding: 0; }
+        .note-editor-panel {
+          width: 100% !important;
+          max-height: 92dvh;
+          border-radius: 20px 20px 0 0 !important;
+        }
+        .note-editor-body { padding: 16px 14px 8px; }
+        .note-editor-footer { padding: 8px 14px 20px; flex-wrap: wrap; gap: 8px; }
+        .color-wash-row { gap: 5px; }
+        .color-swatch { width: 22px; height: 22px; }
+        .editor-save-btn { flex: 1; text-align: center; justify-content: center; }
+        .note-format-toolbar { gap: 1px; padding: 4px 0; }
+        .fmt-btn { width: 28px; height: 28px; }
+        .note-card-body { padding: 12px 14px 8px; }
+        .note-card-title { font-size: 14px; }
+        .note-card-content { font-size: 12px; }
+      }
+
     </style>
   </head>
   <body class="notes-page">
@@ -709,12 +736,12 @@
             <span class="brand-dot"></span>
             <span class="brand-name">Habit Rings</span>
           </div>
-          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
-            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
-            <a href="notes.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Notes</a>
-            <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline" style="text-decoration:none;">Books</a>
-            <a href="technology.html" class="chip chip-outline" style="text-decoration:none;">Technology</a>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline chip-active">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="technology.html" class="chip chip-outline">Technology</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>

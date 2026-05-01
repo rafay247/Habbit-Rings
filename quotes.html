@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Habit Rings — Books</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
@@ -787,6 +787,39 @@
           grid-template-columns: 1fr;
         }
       }
+
+      @media (max-width: 480px) {
+        .quotes-shell { gap: 10px; }
+        .quotes-hero { padding: 12px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .quotes-hero h1 { font-size: 24px; }
+        .quotes-hero__actions { width: 100%; }
+        .quotes-top-tabs { width: 100%; }
+        .quotes-top-tab { flex: 1; justify-content: center; padding: 8px 8px; font-size: 11px; }
+        .quotes-top-tab__value { font-size: 16px; }
+        .quotes-workspace { padding: 12px; }
+        .quotes-panel { padding: 12px; }
+        .quotes-panel h2 { font-size: 16px; }
+        .quotes-editor { min-height: 200px; font-size: 13px; padding: 12px; }
+        .quotes-read-section { padding: 12px; }
+        .quotes-read-section h2 { font-size: 16px; }
+        .quotes-read-input, .quotes-read-category-input { min-height: 42px; font-size: 12px; }
+        .quotes-read-add { min-height: 42px; font-size: 12px; }
+        .quotes-read-grid { grid-template-columns: 1fr; gap: 8px; }
+        .quotes-read-item { padding: 10px; }
+        .quotes-read-item__title { font-size: 13px; }
+        .quotes-tabs { padding: 8px; gap: 4px; }
+        .quotes-tab { padding: 8px 10px; font-size: 11px; min-height: 40px; }
+        .quotes-category-form { gap: 6px; }
+        .quotes-category-input { padding: 8px 10px; font-size: 12px; }
+        .quotes-category-add { padding: 8px 10px; font-size: 12px; }
+        .quotes-modal { align-items: flex-end; padding: 0; }
+        .quotes-modal__panel { width: 100%; border-radius: 20px 20px 0 0; margin-top: 0; padding: 16px; }
+        .quotes-modal__title { font-size: 18px; }
+        .quotes-read-filters { gap: 4px; }
+        .quotes-read-filter { font-size: 10px; padding: 5px 8px; }
+        .quotes-total { padding: 8px 12px; }
+        .quotes-total__value { font-size: 20px; }
+      }
     </style>
   </head>
   <body>
@@ -797,12 +830,12 @@
             <span class="brand-dot"></span>
             <span class="brand-name">Habit Rings</span>
           </div>
-          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
-            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
-            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
-            <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Books</a>
-            <a href="technology.html" class="chip chip-outline" style="text-decoration:none;">Technology</a>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline chip-active">Books</a>
+            <a href="technology.html" class="chip chip-outline">Technology</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -941,155 +974,19 @@
         const STORAGE_KEY = 'habit-rings-books-tabs-v2';
         const CATEGORY_STORAGE_KEY = 'habit-rings-books-categories-v1';
         const READ_BOOKS_STORAGE_KEY = 'habit-rings-read-books-v1';
-        const DEFAULT_READ_BOOKS = [
-          { title: 'asdasd', moral: '' },
-          { title: 'The power of dicipline', moral: '' },
-          { title: '12 weeks year', moral: '' },
-          { title: 'Emotional Intelligence', moral: '' },
-          { title: 'The Power of Positive Thinking', moral: '' },
-          { title: 'Think and Grow Rich', moral: '' },
-          { title: 'Mindset', moral: '' },
-          { title: 'The Alchemist', moral: '' },
-          { title: 'You Can Heal Your Life', moral: '' },
-          { title: 'Who Moved My Cheese?', moral: '' },
-          { title: 'The art of not giving a f*ck', moral: '' },
-          { title: 'The Power of Now', moral: '' },
-          { title: 'How to talk to anyone', moral: '' },
-          { title: 'Read people like a book', moral: '' },
-          { title: 'The Millionare Fastlane', moral: '' },
-          { title: 'The Magic of thinking big', moral: '' },
-          { title: 'The art of public speaking', moral: '' },
-          { title: 'The power of no', moral: '' },
-          { title: 'How to win friends & Influence people', moral: '' }
-        ];
+        const DEFAULT_READ_BOOKS = [];
         const TAB_INFO = {
-          mindset_personal_development: {
-            title: 'Mindset & Personal Development',
-            defaultText: `Mindset
-The magic of thinking big
-Attitude is everything
-Think and grow rich
-The courage to be disliked
-The psychology of winning
-Believe in yourself
-Win your inner battle
-The Power of now
-who moved my cheese
-The art of not giving a f*ck`
-          },
-          self_learning_personal_growth: {
-            title: 'Self-Learning & Personal Growth',
-            defaultText: `FountainHead
-The art of self learning
-The art of being alone
-Range
-Ikigai
-Manifest anything in 45 days
-The art of risk
-The law of success by 16 lessons
-Principles
-You can heal your life
-The Alchemist`
-          },
-          success_wealth_building: {
-            title: 'Success & Wealth Building',
-            defaultText: `The Millionaire Fastlane
-Rich dad poor dad
-The psychology of money
-17 rules of wealth
-Secret of the millionaire mindset
-Main street millionaire
-Become a money magnet`
-          },
-          business_entrepreneurship: {
-            title: 'Business & Entrepreneurship',
-            defaultText: `The diary of CEO
-Good to great (Business)
-Zero to One
-$100 startup
-How to sell anything
-trillionare dollar coach
-the alegebra of money
-The diary of CEO
-The tipping point`
-          },
-          communication_influence: {
-            title: 'Communication & Influence',
-            defaultText: `How to talk to anyone
-Read people like a book
-The art of public speaking
-How to win friends & Influence people
-48 laws of power
-The power of no
-Crucial conversations
-Never split the differnce
-You're not listening
-The culture map
-Think again`
-          },
-          psychology_subconscious_mind: {
-            title: 'Psychology & Subconscious Mind',
-            defaultText: `The power of subconscious mind
-The power of discipline
-The compound effect
-Emotional Intelligence
-Master your emotion
-Thinking fast and slow
-The kite runner
-The power of positive thinking
-Can't get hurt`
-          },
-          habits_productivity: {
-            title: 'Habits & Productivity',
-            defaultText: `Atomic habit
-7 habits of highly effective people
-The practicing mind
-12 weeks year
-Finish what you start
-Getting Things done
-Do it today
-Working Smarter not Harder
-Rework
-Master the art of focus
-The 5am Club
-Deep work
-Hyper focus
-The miracle morning`
-          },
-          trading_investing: {
-            title: 'Trading & Investing',
-            defaultText: `The Market wizard
-High probability trading
-The Disciplined Trader
-Just keep buying
-The intelligent investor
-The simple path to wealth
-The art of trading`
-          },
-          economics_finance_theory: {
-            title: 'Economics & Finance Theory',
-            defaultText: `Economic facts and Fallacies
-Principles`
-          },
-          sales: {
-            title: 'Sales',
-            defaultText: `The challenger sale
-To sell is human
-selling to big companies
-spin selling
-Mastering the complex sale
-The sales accelaration formula
-Pitch anything
-The pychology of selling
-Made to stick`
-          },
-          human_behavior: {
-            title: 'Human Behavior',
-            defaultText: `Human Behavior
-Chatter
-Critical mass
-Wiser`
-          }
+          mindset_personal_development:    { title: 'Mindset & Personal Development',    defaultText: '' },
+          self_learning_personal_growth:   { title: 'Self-Learning & Personal Growth',   defaultText: '' },
+          success_wealth_building:         { title: 'Success & Wealth Building',         defaultText: '' },
+          business_entrepreneurship:       { title: 'Business & Entrepreneurship',       defaultText: '' },
+          communication_influence:         { title: 'Communication & Influence',         defaultText: '' },
+          psychology_subconscious_mind:    { title: 'Psychology & Subconscious Mind',    defaultText: '' },
+          habits_productivity:             { title: 'Habits & Productivity',             defaultText: '' },
+          trading_investing:               { title: 'Trading & Investing',               defaultText: '' },
+          economics_finance_theory:        { title: 'Economics & Finance Theory',        defaultText: '' },
+          sales:                           { title: 'Sales',                             defaultText: '' },
+          human_behavior:                  { title: 'Human Behavior',                   defaultText: '' }
         };
 
         let categories = loadCategories();

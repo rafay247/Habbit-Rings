@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Habit Rings — Technology</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
@@ -353,10 +353,44 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 12px 12px 12px 14px;
+        padding: 12px 12px 12px 10px;
         border-radius: 14px;
         border: 1px solid rgba(255,255,255,0.08);
         background: rgba(20, 26, 20, 0.96);
+        cursor: default;
+      }
+
+      .tech-category.drag-over {
+        border-color: var(--accent-border);
+        background: rgba(63, 185, 80, 0.07);
+      }
+
+      .tech-category.dragging-cat {
+        opacity: 0.45;
+        cursor: grabbing;
+      }
+
+      .tech-category__handle {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 4px 4px 4px 2px;
+        cursor: grab;
+        opacity: 0.35;
+        transition: opacity 0.15s;
+      }
+
+      .tech-category__handle:hover {
+        opacity: 0.75;
+      }
+
+      .tech-category__handle span {
+        display: block;
+        width: 14px;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--text-muted);
       }
 
       .tech-category.is-active {
@@ -441,11 +475,14 @@
         .tech-toolbar {
           gap: 6px;
           padding: 10px;
+          overflow-x: auto;
+          flex-wrap: nowrap;
         }
 
         .tech-tool,
         .tech-select {
           min-height: 36px;
+          flex-shrink: 0;
         }
 
         .tech-editor {
@@ -453,6 +490,36 @@
           padding: 18px;
           font-size: 16px;
         }
+      }
+
+      @media (max-width: 480px) {
+        .tech-shell { gap: 10px; }
+        .tech-hero { padding: 12px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .tech-hero h1 { font-size: 22px; }
+        .tech-kpis { gap: 6px; width: 100%; }
+        .tech-kpi { min-width: 0; flex: 1; padding: 8px 10px; }
+        .tech-kpi__value { font-size: 18px; }
+        .tech-kpi__label { font-size: 9px; }
+        .tech-workspace { padding: 10px; }
+        .tech-layout { gap: 10px; }
+        .tech-panel { padding: 10px; }
+        .tech-panel h2 { font-size: 15px; }
+        .tech-doc__top { padding: 12px 12px 8px; gap: 8px; }
+        .tech-title-input { font-size: 18px; }
+        .tech-toolbar { padding: 6px; gap: 4px; }
+        .tech-tool { padding: 5px 7px; font-size: 10px; min-height: 30px; }
+        .tech-select { min-height: 30px; font-size: 10px; min-width: 90px; }
+        .tech-editor { min-height: 45vh; padding: 14px; font-size: 14px; line-height: 1.7; }
+        .tech-editor h1 { font-size: 22px; }
+        .tech-editor h2 { font-size: 18px; }
+        .tech-editor h3 { font-size: 15px; }
+        .tech-category-form { grid-template-columns: 1fr; gap: 6px; }
+        .tech-add-btn { width: 100%; }
+        .tech-input { padding: 8px 10px; font-size: 12px; }
+        .tech-category { padding: 8px 8px 8px 10px; }
+        .tech-category__title { font-size: 12px; }
+        .tech-category__meta { font-size: 10px; }
+        .tech-doc__meta { font-size: 10px; gap: 8px; }
       }
     </style>
   </head>
@@ -464,12 +531,12 @@
             <span class="brand-dot"></span>
             <span class="brand-name">Habit Rings</span>
           </div>
-          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
-            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
-            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
-            <a href="calendar.html" class="chip chip-outline" style="text-decoration:none;">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline" style="text-decoration:none;">Books</a>
-            <a href="technology.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Technology</a>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="technology.html" class="chip chip-outline chip-active">Technology</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -586,65 +653,8 @@
 
         const TECH_CATEGORIES_KEY = 'habit-rings-tech-categories-v1';
         const TECH_DOCS_KEY = 'habit-rings-tech-docs-v1';
-        const DEFAULT_CATEGORIES = [
-          { id: 'frontend_systems', title: 'Frontend Systems' },
-          { id: 'backend_architecture', title: 'Backend Architecture' },
-          { id: 'devops_deployment', title: 'DevOps & Deployment' }
-        ];
-        const DEFAULT_DOCS = {
-          frontend_systems: {
-            title: 'Frontend Systems',
-            content: `
-              <h1>Frontend Systems</h1>
-              <p>Use this document for UI architecture, component standards, design tokens, layout rules, performance notes, accessibility decisions, and implementation checklists.</p>
-              <h2>Useful Sections</h2>
-              <ul>
-                <li>Design system decisions and component usage rules</li>
-                <li>Routing structure and state management patterns</li>
-                <li>Responsive behavior and breakpoints</li>
-                <li>Accessibility checklist and testing notes</li>
-              </ul>
-              <blockquote>Document the reason behind decisions, not just the final rule.</blockquote>
-              <h2>Example Checklist</h2>
-              <ol>
-                <li>Define the user goal</li>
-                <li>List UI states</li>
-                <li>Capture edge cases</li>
-                <li>Write implementation notes</li>
-              </ol>
-            `
-          },
-          backend_architecture: {
-            title: 'Backend Architecture',
-            content: `
-              <h1>Backend Architecture</h1>
-              <p>Store API notes, data flow diagrams, authentication plans, job processing details, schema ideas, and reliability decisions in this category.</p>
-              <h2>Suggested Template</h2>
-              <ul>
-                <li>Problem statement</li>
-                <li>Core services involved</li>
-                <li>Data contracts</li>
-                <li>Failure modes</li>
-                <li>Monitoring strategy</li>
-              </ul>
-              <pre><code>Request -&gt; Controller -&gt; Service -&gt; Repository -&gt; Database</code></pre>
-            `
-          },
-          devops_deployment: {
-            title: 'DevOps & Deployment',
-            content: `
-              <h1>DevOps & Deployment</h1>
-              <p>Track infrastructure notes, server setup, CI/CD pipeline steps, environment variables, release checklists, and rollback procedures here.</p>
-              <h2>Release Notes Structure</h2>
-              <p><mark>What changed</mark>, how it is deployed, how it is verified, and what to do if it fails.</p>
-              <hr />
-              <h3>Commands</h3>
-              <pre><code>npm run build
-npm run test
-deploy --env production</code></pre>
-            `
-          }
-        };
+        const DEFAULT_CATEGORIES = [];
+        const DEFAULT_DOCS = {};
 
         let categories = loadCategories();
         let docs = loadDocs();
@@ -769,12 +779,17 @@ deploy --env production</code></pre>
           activeCategoryEl.textContent = categories.find(category => category.id === activeCategoryId)?.title || 'No category selected';
         }
 
+        let dragSrcId = null;
+
         function renderCategories() {
           categoriesEl.innerHTML = categories.length ? categories.map(category => {
             const doc = docs[category.id] || { content: '', updatedAt: Date.now() };
             const isActive = category.id === activeCategoryId;
             return `
-              <div class="tech-category${isActive ? ' is-active' : ''}">
+              <div class="tech-category${isActive ? ' is-active' : ''}" draggable="true" data-cat-id="${category.id}">
+                <div class="tech-category__handle" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
                 <button class="tech-category__open" type="button" data-category="${category.id}">
                   <span class="tech-category__title">${escapeHtml(category.title)}</span>
                   <span class="tech-category__meta">${getWordCountFromHtml(doc.content)} words · ${formatTimestamp(doc.updatedAt)}</span>
@@ -783,6 +798,52 @@ deploy --env production</code></pre>
               </div>
             `;
           }).join('') : '<div class="tech-empty">No categories yet. Add one on the right.</div>';
+
+          // Wire up drag-and-drop on each category item
+          categoriesEl.querySelectorAll('.tech-category[data-cat-id]').forEach(el => {
+            el.addEventListener('dragstart', e => {
+              dragSrcId = el.dataset.catId;
+              el.classList.add('dragging-cat');
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', dragSrcId);
+            });
+
+            el.addEventListener('dragend', () => {
+              el.classList.remove('dragging-cat');
+              categoriesEl.querySelectorAll('.tech-category').forEach(c => c.classList.remove('drag-over'));
+            });
+
+            el.addEventListener('dragover', e => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+              categoriesEl.querySelectorAll('.tech-category').forEach(c => c.classList.remove('drag-over'));
+              if (el.dataset.catId !== dragSrcId) {
+                el.classList.add('drag-over');
+              }
+            });
+
+            el.addEventListener('dragleave', () => {
+              el.classList.remove('drag-over');
+            });
+
+            el.addEventListener('drop', e => {
+              e.preventDefault();
+              el.classList.remove('drag-over');
+              const targetId = el.dataset.catId;
+              if (!dragSrcId || dragSrcId === targetId) return;
+
+              const srcIdx = categories.findIndex(c => c.id === dragSrcId);
+              const tgtIdx = categories.findIndex(c => c.id === targetId);
+              if (srcIdx === -1 || tgtIdx === -1) return;
+
+              // Reorder
+              const [moved] = categories.splice(srcIdx, 1);
+              categories.splice(tgtIdx, 0, moved);
+
+              saveCategories();
+              renderCategories();
+            });
+          });
         }
 
         function renderDocument() {

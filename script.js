@@ -59,12 +59,16 @@ async function pushStateToFirebase(stateObj) {
     if (!db) return;
     const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     _fbIgnoreNextRemote = true;
-    await set(ref(db, fbUserPath()), {
+    // Push habit state + all other page data in one write
+    const fullPayload = {
       ...stateObj,
-      _syncedAt: Date.now()
-    });
+      _syncedAt: Date.now(),
+      _allPages: collectAllPagesData()
+    };
+    await set(ref(db, fbUserPath()), fullPayload);
   } catch (e) {
     console.error("Firebase push failed", e);
+    _fbIgnoreNextRemote = false;
   }
 }
 
@@ -77,6 +81,11 @@ async function pullStateFromFirebase() {
     const snap = await get(ref(db, fbUserPath()));
     if (!snap.exists()) return null;
     const data = snap.val();
+    // Restore all other pages data first
+    if (data._allPages) {
+      applyAllPagesData(data._allPages);
+      delete data._allPages;
+    }
     delete data._syncedAt;
     return normalizeParsedState(data);
   } catch (e) {
@@ -96,10 +105,13 @@ async function startFirebaseListener() {
       if (!snap.exists()) return;
       if (_fbIgnoreNextRemote) { _fbIgnoreNextRemote = false; return; }
       const remote = snap.val();
+      if (remote._allPages) {
+        applyAllPagesData(remote._allPages);
+        delete remote._allPages;
+      }
       delete remote._syncedAt;
       const localVersion = Number(localStorage.getItem(DATA_VERSION_KEY) || 0);
       const remoteVersion = Number(remote._version || 0);
-      // Only apply remote if it's newer
       if (remoteVersion > localVersion) {
         applyParsedStateToApp(remote);
         updateSyncStatus("✓ Synced from another device", "ok");
@@ -109,6 +121,37 @@ async function startFirebaseListener() {
     console.error("Firebase listener failed", e);
     _fbListenerActive = false;
   }
+}
+
+// ── All-pages data helpers ───────────────────────────────────────────────────
+const ALL_PAGE_KEYS = [
+  "habit-rings-vibe-notes",
+  "habit-rings-calendar-selection-v1",
+  "habit-rings-calendar-x-marks-v1",
+  "habit-rings-calendar-events-v1",
+  "habit-rings-books-tabs-v2",
+  "habit-rings-books-categories-v1",
+  "habit-rings-read-books-v1",
+  "habit-rings-tech-categories-v1",
+  "habit-rings-tech-docs-v1"
+];
+
+function collectAllPagesData() {
+  const out = {};
+  ALL_PAGE_KEYS.forEach(k => {
+    const v = localStorage.getItem(k);
+    if (v !== null) out[k] = v;
+  });
+  return out;
+}
+
+function applyAllPagesData(pagesObj) {
+  if (!pagesObj || typeof pagesObj !== "object") return;
+  ALL_PAGE_KEYS.forEach(k => {
+    if (pagesObj[k] !== undefined) {
+      localStorage.setItem(k, pagesObj[k]);
+    }
+  });
 }
 
 function scheduleFbPush(stateObj) {
@@ -183,32 +226,7 @@ async function loadStateFromIndexedDb() {
 
 function defaultState() {
   return {
-    habits: [
-      {
-        id: "h1",
-        name: "Move 30 min",
-        category: "Health",
-        targetPerWeek: 3,
-        subtasks: [],
-        createdAt: todayISO()
-      },
-      {
-        id: "h2",
-        name: "Read 10 pages",
-        category: "Learning",
-        targetPerWeek: 4,
-        subtasks: [],
-        createdAt: todayISO()
-      },
-      {
-        id: "h3",
-        name: "Mindful check‑in",
-        category: "Mind",
-        targetPerWeek: 5,
-        subtasks: [],
-        createdAt: todayISO()
-      }
-    ],
+    habits: [],
     checkins: {},
     subcheckins: {},
     notes: [],
@@ -1419,8 +1437,19 @@ function initTheme() {
   // Single color scheme — no theme switching needed
 }
 
+function buildFullBackup() {
+  return {
+    // Core habit state
+    ...state,
+    // All other pages data
+    _allPages: collectAllPagesData(),
+    _backupVersion: 2,
+    _exportedAt: new Date().toISOString()
+  };
+}
+
 function downloadBackupFile(filename) {
-  const blob = new Blob([JSON.stringify(state, null, 2)], {
+  const blob = new Blob([JSON.stringify(buildFullBackup(), null, 2)], {
     type: "application/json"
   });
   const url = URL.createObjectURL(blob);
@@ -1620,18 +1649,8 @@ function initEvents() {
 
   if (els.backupDownload) {
     els.backupDownload.addEventListener("click", () => {
-      const blob = new Blob([JSON.stringify(state, null, 2)], {
-        type: "application/json"
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
       const stamp = todayISO().replace(/-/g, "");
-      a.href = url;
-      a.download = `habit-rings-backup-${stamp}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+      downloadBackupFile(`habit-rings-backup-${stamp}.json`);
     });
   }
 
@@ -1648,13 +1667,22 @@ function initEvents() {
         try {
           const parsed = JSON.parse(reader.result);
           if (!parsed || typeof parsed !== "object") throw new Error("bad");
+
+          // Restore all other pages data if present (v2 backup)
+          if (parsed._allPages) {
+            applyAllPagesData(parsed._allPages);
+            delete parsed._allPages;
+          }
+          delete parsed._backupVersion;
+          delete parsed._exportedAt;
+
           if (!Array.isArray(parsed.habits) || !parsed.checkins) {
             throw new Error("missing keys");
           }
           applyParsedStateToApp(parsed);
         } catch (err) {
           console.error("Failed to restore backup", err);
-          alert("Could not read this backup file.");
+          alert("Could not read this backup file. Make sure it's a valid Habit Rings backup.");
         } finally {
           e.target.value = "";
         }
@@ -1688,7 +1716,6 @@ function initFirebaseSyncUI() {
   const userIdEl   = document.getElementById("firebase-user-id-input");
   const copyBtnEl  = document.getElementById("firebase-copy-id");
   const syncNowEl  = document.getElementById("firebase-sync-now");
-  const statusEl   = document.getElementById("firebase-sync-status");
 
   if (!toggleEl) return; // not on dashboard page
 
@@ -1709,7 +1736,6 @@ function initFirebaseSyncUI() {
     localStorage.setItem(FIREBASE_SYNC_KEY, _fbSyncEnabled ? "1" : "0");
 
     if (_fbSyncEnabled) {
-      // Auto-generate ID if empty
       if (!userIdEl.value.trim()) {
         const newId = generateUserId();
         userIdEl.value = newId;
@@ -1728,45 +1754,50 @@ function initFirebaseSyncUI() {
     }
   });
 
+  userIdEl.addEventListener("input", () => {
+    refreshUI();
+  });
+
   userIdEl.addEventListener("change", () => {
     const val = userIdEl.value.trim();
     if (!val) return;
     _fbUserId = val;
     localStorage.setItem(FIREBASE_USER_KEY, val);
-    _fbListenerActive = false; // reset listener for new ID
+    _fbListenerActive = false;
+    _fbDb = null; // force reconnect
     refreshUI();
-    updateSyncStatus("ID updated — click Sync Now", "");
+    updateSyncStatus("ID saved — click Sync Now to pull data", "syncing");
   });
 
   copyBtnEl.addEventListener("click", () => {
-    if (!userIdEl.value.trim()) return;
-    navigator.clipboard.writeText(userIdEl.value.trim()).then(() => {
+    const val = userIdEl.value.trim();
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
       copyBtnEl.textContent = "Copied!";
       setTimeout(() => { copyBtnEl.textContent = "Copy ID"; }, 2000);
     });
   });
 
   syncNowEl.addEventListener("click", async () => {
-    if (!_fbUserId) return;
+    const val = userIdEl.value.trim();
+    if (!val) return;
+    _fbUserId = val;
+    localStorage.setItem(FIREBASE_USER_KEY, val);
     updateSyncStatus("⟳ Syncing…", "syncing");
     try {
       const remote = await pullStateFromFirebase();
       if (remote) {
-        const localVersion = Number(localStorage.getItem(DATA_VERSION_KEY) || 0);
-        const remoteVersion = Number(remote._version || 0);
-        if (remoteVersion > localVersion) {
-          applyParsedStateToApp(remote);
-          updateSyncStatus("✓ Pulled latest from cloud", "ok");
-        } else {
-          await pushStateToFirebase(state);
-          updateSyncStatus("✓ Pushed local to cloud", "ok");
-        }
+        // Always apply remote when user explicitly clicks Sync Now
+        applyParsedStateToApp(remote);
+        updateSyncStatus("✓ Data synced from cloud", "ok");
       } else {
+        // Nothing in cloud yet — push local up
         await pushStateToFirebase(state);
-        updateSyncStatus("✓ Uploaded to cloud", "ok");
+        updateSyncStatus("✓ Uploaded local data to cloud", "ok");
       }
       if (!_fbListenerActive) startFirebaseListener();
     } catch (e) {
+      console.error("Sync failed", e);
       updateSyncStatus("⚠ Sync failed — check connection", "error");
     }
   });

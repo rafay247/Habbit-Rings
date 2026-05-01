@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Habit Rings — Calendar</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
@@ -418,6 +418,34 @@
           grid-template-columns: 1fr;
         }
       }
+
+      @media (max-width: 480px) {
+        .calendar-shell { gap: 10px; }
+        .calendar-hero { padding: 12px; }
+        .calendar-hero h1 { font-size: 26px; }
+        .calendar-hero__eyebrow { font-size: 10px; }
+        .calendar-toolbar { padding: 10px 12px; gap: 8px; }
+        .calendar-toolbar__group { width: 100%; justify-content: space-between; }
+        .calendar-btn { flex: 1; text-align: center; font-size: 11px; padding: 7px 8px; }
+        .calendar-year { font-size: 18px; min-width: 60px; }
+        .calendar-event-panel { padding: 12px; }
+        .calendar-event-panel__title { font-size: 16px; }
+        .calendar-input, .calendar-textarea { padding: 9px 11px; font-size: 12px; }
+        .calendar-textarea { min-height: 70px; }
+        .calendar-grid { gap: 8px; }
+        .month-card { padding: 8px; border-radius: 14px; }
+        .month-card__name { font-size: 12px; }
+        .month-card__hint { font-size: 10px; }
+        .month-weekdays { margin-top: 8px; gap: 2px; }
+        .month-days { gap: 2px; margin-top: 6px; }
+        .month-weekdays span { font-size: 8px; }
+        .day-btn { font-size: 9px; border-radius: 6px; }
+        .day-btn.selected::after,
+        .day-btn.has-event:not(.selected)::after { width: 4px; height: 4px; bottom: 2px; }
+        .calendar-status { padding: 10px 12px; border-radius: 14px; }
+        .calendar-status__value { font-size: 18px; }
+        .calendar-selection { font-size: 11px; }
+      }
     </style>
   </head>
   <body>
@@ -428,12 +456,12 @@
             <span class="brand-dot"></span>
             <span class="brand-name">Habit Rings</span>
           </div>
-          <nav class="header-nav" style="display:flex;gap:8px;margin:0 24px;">
-            <a href="index.html" class="chip chip-outline" style="text-decoration:none;">Dashboard</a>
-            <a href="notes.html" class="chip chip-outline" style="text-decoration:none;">Notes</a>
-            <a href="calendar.html" class="chip chip-outline" style="background:var(--bg-soft);border-color:var(--border);text-decoration:none;">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline" style="text-decoration:none;">Books</a>
-            <a href="technology.html" class="chip chip-outline" style="text-decoration:none;">Technology</a>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline chip-active">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="technology.html" class="chip chip-outline">Technology</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
