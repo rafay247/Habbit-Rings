@@ -226,7 +226,10 @@
                     box-shadow 0.18s ease;
         animation: noteIn 0.3s ease both;
         position: relative;
-        touch-action: none;
+        touch-action: auto;
+      }
+      @media (pointer: coarse) {
+        .note-card { cursor: default; touch-action: auto; }
       }
       @keyframes noteIn {
         from { opacity: 0; transform: translateY(10px) scale(0.98); }
@@ -1043,7 +1046,8 @@
           card.className = 'note-card' + (note.pinned?' pinned':'');
           card.dataset.id = note.id;
           card.style.cssText = `background:${p.bg};color:${p.txt};--note-pin-color:${p.pin};animation-delay:${i*0.035}s;`;
-          card.draggable = true;
+          // Only enable drag on non-touch devices
+          card.draggable = !window.matchMedia('(pointer: coarse)').matches;
 
           /* top bar */
           const bar = document.createElement('div');
@@ -1145,8 +1149,15 @@
       }
 
       function bindDragAndDrop() {
+        // Disable all drag-to-reorder on touch/mobile devices
+        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
         const cards = masonry.querySelectorAll('.note-card');
         cards.forEach(card => {
+          if (isTouchDevice) {
+            // Remove draggable so cards don't accidentally trigger drag on mobile
+            card.draggable = false;
+            return;
+          }
           card.addEventListener('dragstart', onNativeDragStart);
           card.addEventListener('dragover', onNativeDragOver);
           card.addEventListener('drop', onNativeDrop);

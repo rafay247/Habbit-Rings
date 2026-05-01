@@ -1297,8 +1297,20 @@ blockquote.header-quote {
 }
 
 /* ── Responsive ── */
+/* ── Dashboard: move utilities card to bottom on mobile ── */
 @media (max-width: 900px) {
-  .app-main { grid-template-columns: 1fr; }
+  .app-main {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+  .grid-lhs { order: 1; display: contents; } /* flatten lhs children into app-main flow */
+  .grid-rhs { order: 2; display: contents; } /* flatten rhs children into app-main flow */
+  .card-today    { order: 1; }
+  .card-heatmap  { order: 2; }
+  .card-kpi      { order: 3; }
+  .card-categories { order: 4; }
+  .card-utilities { order: 99; } /* always last on mobile */
 }
 
 @media (max-width: 720px) {

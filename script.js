@@ -59,10 +59,11 @@ async function pushStateToFirebase(stateObj) {
     if (!db) return;
     const { ref, set } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     _fbIgnoreNextRemote = true;
-    // Push habit state + all other page data in one write
+    // Use the same timestamp that DATA_VERSION_KEY uses so listener comparison is consistent
+    const syncedAt = Number(localStorage.getItem(DATA_VERSION_KEY) || Date.now());
     const fullPayload = {
       ...stateObj,
-      _syncedAt: Date.now(),
+      _syncedAt: syncedAt,
       _allPages: collectAllPagesData()
     };
     await set(ref(db, fbUserPath()), fullPayload);
@@ -101,20 +102,36 @@ async function startFirebaseListener() {
     if (!db) return;
     const { ref, onValue } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     _fbListenerActive = true;
+    let isFirstCall = true; // skip the immediate fire on attach (already handled by init pull)
+
     onValue(ref(db, fbUserPath()), (snap) => {
       if (!snap.exists()) return;
+
+      // Skip the first immediate callback — init() already pulled on startup
+      if (isFirstCall) { isFirstCall = false; return; }
+
+      // Skip if we just pushed this ourselves (echo prevention)
       if (_fbIgnoreNextRemote) { _fbIgnoreNextRemote = false; return; }
+
       const remote = snap.val();
+
+      // Restore all-pages data (notes, calendar, books, tech)
       if (remote._allPages) {
         applyAllPagesData(remote._allPages);
         delete remote._allPages;
       }
+
+      const remoteSyncedAt = Number(remote._syncedAt || 0);
       delete remote._syncedAt;
-      const localVersion = Number(localStorage.getItem(DATA_VERSION_KEY) || 0);
-      const remoteVersion = Number(remote._version || 0);
-      if (remoteVersion > localVersion) {
+
+      // Use wall-clock time: whichever device saved most recently wins
+      const localSyncedAt = Number(localStorage.getItem(DATA_VERSION_KEY) || 0);
+
+      if (remoteSyncedAt > localSyncedAt) {
         applyParsedStateToApp(remote);
-        updateSyncStatus("✓ Synced from another device", "ok");
+        updateSyncStatus("✓ Live update from another device", "ok");
+        // Fade status after 3s
+        setTimeout(() => updateSyncStatus("✓ Synced", "ok"), 3000);
       }
     });
   } catch (e) {
