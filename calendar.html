@@ -40,7 +40,7 @@
       .calendar-hero__stats {
         flex: 0 1 auto;
         display: grid;
-        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        grid-template-columns: repeat(4, minmax(160px, 1fr));
         gap: 14px;
         align-items: stretch;
       }
@@ -400,7 +400,7 @@
 
       @media (max-width: 620px) {
         .calendar-hero__stats {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, 1fr);
           width: 100%;
         }
 
@@ -485,6 +485,16 @@
               <div class="calendar-status__value" id="today-events-count">0</div>
               <div class="calendar-status__list" id="today-events-list"></div>
               <div class="calendar-status__empty" id="today-events-empty">No events for today.</div>
+            </div>
+            <div class="calendar-status">
+              <div class="calendar-status__label">Days Left in Month</div>
+              <div class="calendar-status__value" id="days-left-month" style="color:var(--accent);">–</div>
+              <div class="calendar-status__empty" id="days-left-month-label" style="margin-top:6px;"></div>
+            </div>
+            <div class="calendar-status">
+              <div class="calendar-status__label">Days Left in Year</div>
+              <div class="calendar-status__value" id="days-left-year" style="color:var(--gold);">–</div>
+              <div class="calendar-status__empty" id="days-left-year-label" style="margin-top:6px;"></div>
             </div>
           </div>
         </div>
@@ -652,6 +662,46 @@
           `).join('');
         }
 
+        function renderDaysLeft() {
+          const now = today;
+          const y = now.getFullYear();
+          const m = now.getMonth();
+          const d = now.getDate();
+
+          // Days left in month (not counting today)
+          const daysInMonth = new Date(y, m + 1, 0).getDate();
+          const daysLeftMonth = daysInMonth - d;
+
+          // Days left in year (not counting today)
+          const endOfYear = new Date(y, 11, 31);
+          const startOfToday = new Date(y, m, d);
+          const daysLeftYear = Math.round((endOfYear - startOfToday) / 86400000);
+
+          const monthEl = document.getElementById('days-left-month');
+          const monthLabelEl = document.getElementById('days-left-month-label');
+          const yearEl = document.getElementById('days-left-year');
+          const yearLabelEl = document.getElementById('days-left-year-label');
+
+          if (monthEl) {
+            monthEl.textContent = daysLeftMonth;
+            if (monthLabelEl) {
+              const monthName = now.toLocaleDateString('en-US', { month: 'long' });
+              monthLabelEl.textContent = daysLeftMonth === 0
+                ? `Last day of ${monthName}!`
+                : `days until end of ${monthName}`;
+            }
+          }
+
+          if (yearEl) {
+            yearEl.textContent = daysLeftYear;
+            if (yearLabelEl) {
+              yearLabelEl.textContent = daysLeftYear === 0
+                ? "Last day of the year!"
+                : `days until Dec 31, ${y}`;
+            }
+          }
+        }
+
         function renderEventPanel() {
           eventPanelDateLabelEl.textContent = selectedDate ? `Event for ${formatDateLabel(selectedDate)}` : 'Add event for a date';
           if (!selectedDate) {
@@ -718,6 +768,7 @@
           if (!months.length) {
             grid.innerHTML = '<div class="calendar-empty">No months are visible in this mode for the selected year. Try <strong>Show full</strong> or switch back to the current year.</div>';
             renderTodayEvents();
+            renderDaysLeft();
             renderEventPanel();
             return;
           }
@@ -728,6 +779,7 @@
 
           grid.innerHTML = months.map(month => renderMonth(month, weekdayMarkup)).join('');
           renderTodayEvents();
+          renderDaysLeft();
           renderEventPanel();
         }
 
