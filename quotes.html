@@ -1037,23 +1037,48 @@
         const STORAGE_KEY = 'habit-rings-books-tabs-v2';
         const CATEGORY_STORAGE_KEY = 'habit-rings-books-categories-v1';
         const READ_BOOKS_STORAGE_KEY = 'habit-rings-read-books-v1';
+        const MIGRATION_KEY = 'habit-rings-books-migrated-v3';
         const DEFAULT_READ_BOOKS = [];
-        const TAB_INFO = {
-          mindset_personal_development:    { title: 'Mindset & Personal Development',    defaultText: '' },
-          self_learning_personal_growth:   { title: 'Self-Learning & Personal Growth',   defaultText: '' },
-          success_wealth_building:         { title: 'Success & Wealth Building',         defaultText: '' },
-          business_entrepreneurship:       { title: 'Business & Entrepreneurship',       defaultText: '' },
-          communication_influence:         { title: 'Communication & Influence',         defaultText: '' },
-          psychology_subconscious_mind:    { title: 'Psychology & Subconscious Mind',    defaultText: '' },
-          habits_productivity:             { title: 'Habits & Productivity',             defaultText: '' },
-          trading_investing:               { title: 'Trading & Investing',               defaultText: '' },
-          economics_finance_theory:        { title: 'Economics & Finance Theory',        defaultText: '' },
-          sales:                           { title: 'Sales',                             defaultText: '' },
-          human_behavior:                  { title: 'Human Behavior',                   defaultText: '' }
-        };
+        // TAB_INFO kept only for title lookup on old data — no longer used as defaults
+        const TAB_INFO = {};
+
+        // ── One-time migration: wipe old hardcoded default categories ──────────
+        const OLD_DEFAULT_IDS = new Set([
+          'mindset_personal_development', 'self_learning_personal_growth',
+          'success_wealth_building', 'business_entrepreneurship',
+          'communication_influence', 'psychology_subconscious_mind',
+          'habits_productivity', 'trading_investing',
+          'economics_finance_theory', 'sales', 'human_behavior'
+        ]);
+
+        if (!localStorage.getItem(MIGRATION_KEY)) {
+          try {
+            const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (Array.isArray(parsed)) {
+              // Keep only user-created categories (those not in the old default set)
+              const userCategories = parsed.filter(c => !OLD_DEFAULT_IDS.has(c?.id));
+              localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(userCategories));
+              // Also clean up state keys for removed categories
+              const stateRaw = localStorage.getItem(STORAGE_KEY);
+              if (stateRaw) {
+                const stateObj = JSON.parse(stateRaw);
+                OLD_DEFAULT_IDS.forEach(id => { delete stateObj[id]; });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(stateObj));
+              }
+            } else {
+              // No saved categories at all — just write empty array
+              localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify([]));
+            }
+          } catch (e) {
+            localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify([]));
+          }
+          localStorage.setItem(MIGRATION_KEY, '1');
+        }
+        // ──────────────────────────────────────────────────────────────────────
 
         let categories = loadCategories();
-        let activeTab = categories[0]?.id || 'mindset_personal_development';
+        let activeTab = categories[0]?.id || '';
         let state = loadState();
         let readBooks = loadReadBooks();
         let draggedCategoryId = null;
@@ -1094,27 +1119,20 @@
         const readBookModalCloseEl = document.getElementById('read-book-modal-close');
 
         function loadCategories() {
-          const defaultCategories = Object.entries(TAB_INFO).map(([id, info]) => ({ id, title: info.title }));
           try {
             const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
             const parsed = raw ? JSON.parse(raw) : null;
-            if (!Array.isArray(parsed) || !parsed.length) return defaultCategories;
-
+            // No defaults — start empty if nothing saved
+            if (!Array.isArray(parsed)) return [];
             const seen = new Set();
-            const normalized = parsed
+            return parsed
               .map(item => ({
                 id: typeof item?.id === 'string' ? item.id : '',
                 title: typeof item?.title === 'string' ? item.title.trim() : ''
               }))
               .filter(item => item.id && item.title && !seen.has(item.id) && seen.add(item.id));
-
-            defaultCategories.forEach(item => {
-              if (!seen.has(item.id)) normalized.push(item);
-            });
-
-            return normalized;
           } catch {
-            return defaultCategories;
+            return [];
           }
         }
 
@@ -1122,20 +1140,15 @@
           try {
             const raw = localStorage.getItem(STORAGE_KEY);
             const parsed = raw ? JSON.parse(raw) : {};
+            // Load saved text for each category, default to empty string
             return categories.reduce((acc, category) => {
-              const key = category.id;
-              const fallback = TAB_INFO[key]?.defaultText || '';
-              acc[key] = typeof parsed[key] === 'string' && parsed[key].trim()
-                ? parsed[key]
-                : fallback;
+              acc[category.id] = typeof parsed[category.id] === 'string'
+                ? parsed[category.id]
+                : '';
               return acc;
             }, {});
           } catch {
-            return categories.reduce((acc, category) => {
-              const key = category.id;
-              acc[key] = TAB_INFO[key]?.defaultText || '';
-              return acc;
-            }, {});
+            return {};
           }
         }
 
@@ -1175,7 +1188,7 @@
         }
 
         function getCategoryTitle(id) {
-          return categories.find(category => category.id === id)?.title || TAB_INFO[id]?.title || 'Category';
+          return categories.find(category => category.id === id)?.title || 'Category';
         }
 
         function getBooksForCategory(categoryId) {
@@ -1327,6 +1340,10 @@
         }
 
         function renderTabs() {
+          if (categories.length === 0) {
+            tabsEl.innerHTML = `<div style="font-size:12px;color:var(--text-dim);padding:10px 4px;line-height:1.6;">No categories yet.<br>Add one above to get started.</div>`;
+            return;
+          }
           tabsEl.innerHTML = categories.map(category => `
             <div
               class="quotes-tab-row${category.id === activeTab ? ' active' : ''}"
@@ -1470,7 +1487,7 @@
 
         function render() {
           if (!categories.some(category => category.id === activeTab)) {
-            activeTab = categories[0]?.id || 'mindset_personal_development';
+            activeTab = categories[0]?.id || '';
           }
           renderTabs();
           renderReadBookCategoryInput();
@@ -1502,9 +1519,21 @@
             item.addEventListener('dragleave', onReadBookDragLeave);
             item.addEventListener('dragend', onReadBookDragEnd);
           });
-          titleEl.textContent = getCategoryTitle(activeTab);
-          editorEl.value = state[activeTab] || '';
-          metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
+
+          // Show empty state when no categories exist
+          if (!activeTab || categories.length === 0) {
+            titleEl.textContent = 'No category selected';
+            editorEl.value = '';
+            editorEl.disabled = true;
+            editorEl.placeholder = 'Add a category on the left to get started.';
+            metaEl.textContent = '';
+          } else {
+            editorEl.disabled = false;
+            editorEl.placeholder = 'Add your book notes here...';
+            titleEl.textContent = getCategoryTitle(activeTab);
+            editorEl.value = state[activeTab] || '';
+            metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
+          }
         }
 
         tabsEl.addEventListener('click', event => {
