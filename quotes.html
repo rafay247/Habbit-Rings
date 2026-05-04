@@ -174,6 +174,16 @@
         margin-bottom: 14px;
       }
 
+      .quotes-read-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .quotes-read-header h2 { margin-bottom: 0; }
+
       .quotes-layout {
         display: grid;
         grid-template-columns: 280px minmax(0, 1fr);
@@ -276,9 +286,17 @@
 
       .quotes-read-item__top {
         display: flex;
-        align-items: start;
+        align-items: center;
         justify-content: space-between;
         gap: 8px;
+      }
+
+      .quotes-read-item__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        flex: 1;
       }
 
       .quotes-read-item__open {
@@ -295,11 +313,32 @@
       .quotes-read-item__title {
         display: block;
         font-family: 'Lexend', sans-serif;
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.25;
         color: var(--text);
         word-break: break-word;
       }
+
+      .quotes-read-item__cat {
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 0.02em;
+      }
+
+      .quotes-read-unmark {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+        white-space: nowrap;
+      }
+      .quotes-read-unmark:hover { border-color: var(--red); color: var(--red); }
 
       .quotes-read-delete {
         flex-shrink: 0;
@@ -582,25 +621,260 @@
         font-size: 20px;
       }
 
-      .quotes-editor {
-        width: 100%;
-        min-height: 380px;
-        margin-top: 14px;
-        padding: 16px;
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,0.1);
-        background: rgba(20, 26, 20, 0.94);
+      /* ── Book list (replaces textarea) ── */
+      .quotes-book-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 10px 0 14px;
+        max-height: 420px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+      .quotes-book-list:empty::after {
+        content: 'No books yet. Add one below.';
+        font-size: 12px;
+        color: var(--text-dim);
+        padding: 10px 0;
+        display: block;
+      }
+      .quotes-book-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.07);
+        background: rgba(20,26,20,0.96);
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .quotes-book-item:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+      .quotes-book-item.is-read { opacity: 0.75; }
+      .quotes-book-item.is-read .quotes-book-title { text-decoration: line-through; color: var(--text-muted); }
+      .quotes-book-check {
+        width: 18px; height: 18px;
+        border-radius: 5px;
+        appearance: none; -webkit-appearance: none;
+        border: 1.5px solid var(--border-strong);
+        background: var(--bg-raised);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.15s, border-color 0.15s;
+        position: relative;
+      }
+      .quotes-book-check:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .quotes-book-check:checked::after {
+        content: '';
+        position: absolute;
+        top: 2px; left: 5px;
+        width: 5px; height: 8px;
+        border: 2px solid #fff;
+        border-top: none; border-left: none;
+        transform: rotate(45deg);
+      }
+      .quotes-book-title {
+        flex: 1;
+        font-size: 13px;
         color: var(--text);
-        resize: vertical;
-        font-family: 'Inter', sans-serif;
+        line-height: 1.4;
+        word-break: break-word;
+      }
+      .quotes-book-delete {
+        width: 24px; height: 24px;
+        border-radius: 7px;
+        border: 1px solid rgba(255,255,255,0.07);
+        background: transparent;
+        color: var(--text-dim);
         font-size: 14px;
-        line-height: 1.7;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0;
+        transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .quotes-book-item:hover .quotes-book-delete { opacity: 1; }
+      .quotes-book-delete:hover { color: var(--red); border-color: rgba(255,123,114,0.3); }
+      @media (pointer: coarse) { .quotes-book-delete { opacity: 1; } }
+
+      .quotes-add-book-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      @media (max-width: 480px) { .quotes-add-book-form { grid-template-columns: 1fr; } }
+
+      /* ── Book item body (title + moral preview) ── */
+      .quotes-book-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .quotes-book-moral-preview {
+        font-size: 11px;
+        color: var(--text-dim);
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
       }
 
-      .quotes-editor:focus {
-        outline: none;
-        border-color: var(--books-accent-strong);
+      /* ── Moral button ── */
+      .quotes-book-moral-btn {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.15s;
       }
+      .quotes-book-moral-btn.has-moral {
+        font-size: 14px;
+        padding: 2px 6px;
+        background: transparent;
+        border-color: transparent;
+        color: var(--text-muted);
+      }
+      .quotes-book-item:hover .quotes-book-moral-btn { opacity: 1; }
+      @media (pointer: coarse) { .quotes-book-moral-btn { opacity: 1; } }
+
+      /* ── Moral editor overlay ── */
+      .moral-editor-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+      }
+      .moral-editor-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .moral-editor-panel {
+        width: min(480px, 100%);
+        background: rgba(14, 20, 14, 0.98);
+        border: 1px solid var(--border-strong);
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transform: translateY(12px) scale(0.97);
+        transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+      }
+      .moral-editor-overlay.open .moral-editor-panel {
+        transform: translateY(0) scale(1);
+      }
+      .moral-editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .moral-editor-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-muted);
+      }
+      .moral-editor-close {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
+        font-size: 16px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .moral-editor-close:hover { border-color: var(--red); color: var(--red); }
+      .moral-editor-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.3;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+      .moral-editor-textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.65;
+        transition: border-color 0.15s;
+      }
+      .moral-editor-textarea:focus {
+        outline: none;
+        border-color: var(--accent-border);
+      }
+      .moral-editor-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .moral-editor-hint {
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      .moral-editor-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .moral-editor-btn {
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .moral-editor-btn--ghost {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+      }
+      .moral-editor-btn--ghost:hover { background: var(--bg-raised); }
+      .moral-editor-btn--primary {
+        border: 1px solid var(--accent-border);
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+      }
+      .moral-editor-btn--primary:hover { background: var(--accent-muted); }
 
       .quotes-meta {
         font-family: 'Inter', sans-serif;
@@ -945,39 +1219,35 @@
           <div class="quotes-main">
             <div class="quotes-panel">
               <div class="quotes-panel-header">
-                <h2 id="quotes-panel-title">Mindset & Personal Development</h2>
-                <div class="quotes-meta" id="quotes-meta">Saved automatically.</div>
+                <h2 id="quotes-panel-title">Select a category</h2>
+                <div class="quotes-meta" id="quotes-meta"></div>
               </div>
-            <textarea
-              id="quotes-editor"
-              class="quotes-editor"
-              spellcheck="false"
-              placeholder="Add your book notes here..."
-            ></textarea>
+              <!-- Book list for selected category -->
+              <div id="quotes-book-list" class="quotes-book-list"></div>
+              <!-- Add book form -->
+              <form class="quotes-add-book-form" id="quotes-add-book-form">
+                <input
+                  id="quotes-add-book-input"
+                  class="quotes-read-input"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Add a book title…"
+                  autocomplete="off"
+                />
+                <button class="quotes-read-add" type="submit">+ Add</button>
+              </form>
             </div>
           </div>
         </div>
       </section>
 
       <section class="quotes-workspace glass quotes-read-section" id="books-read-section" hidden>
+        <div class="quotes-read-header">
           <h2>Read Books</h2>
-          <form class="quotes-read-form" id="books-read-form">
-            <input
-              id="books-read-input"
-              class="quotes-read-input"
-              type="text"
-              maxlength="120"
-              placeholder="Book"
-              autocomplete="off"
-            />
-            <select
-              id="books-read-category-input"
-              class="quotes-read-category-input"
-            ></select>
-            <button class="quotes-read-add" type="submit">Add Read Book</button>
-          </form>
-          <div class="quotes-read-filters" id="books-read-filters"></div>
-          <div class="quotes-read-grid" id="books-read-list"></div>
+          <span class="quotes-meta" id="read-books-meta"></span>
+        </div>
+        <div class="quotes-read-filters" id="books-read-filters"></div>
+        <div class="quotes-read-grid" id="books-read-list"></div>
       </section>
 
       <div class="quotes-modal" id="read-book-modal">
@@ -1023,6 +1293,31 @@
       </div>
     </div>
 
+    <!-- ── Moral Editor Overlay ── -->
+    <div class="moral-editor-overlay" id="moral-editor-overlay">
+      <div class="moral-editor-panel">
+        <div class="moral-editor-header">
+          <div class="moral-editor-label">📝 Moral / Key Lesson</div>
+          <button class="moral-editor-close" id="moral-editor-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="moral-editor-title" id="moral-editor-title"></div>
+        <textarea
+          id="moral-editor-textarea"
+          class="moral-editor-textarea"
+          maxlength="500"
+          placeholder="What's the key lesson or moral from this book?"
+          spellcheck="false"
+        ></textarea>
+        <div class="moral-editor-footer">
+          <span class="moral-editor-hint">Ctrl+Enter to save</span>
+          <div class="moral-editor-actions">
+            <button class="moral-editor-btn moral-editor-btn--ghost" id="moral-editor-cancel" type="button">Cancel</button>
+            <button class="moral-editor-btn moral-editor-btn--primary" id="moral-editor-save" type="button">Save Moral</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       (function () {
         const todayEl = document.getElementById('today-label');
@@ -1034,13 +1329,94 @@
           });
         }
 
-        const STORAGE_KEY = 'habit-rings-books-tabs-v2';
+        const STORAGE_KEY = 'habit-rings-books-v4';          // new key — structured data
         const CATEGORY_STORAGE_KEY = 'habit-rings-books-categories-v1';
         const READ_BOOKS_STORAGE_KEY = 'habit-rings-read-books-v1';
-        const MIGRATION_KEY = 'habit-rings-books-migrated-v3';
+        const MIGRATION_KEY = 'habit-rings-books-migrated-v5';
         const DEFAULT_READ_BOOKS = [];
-        // TAB_INFO kept only for title lookup on old data — no longer used as defaults
         const TAB_INFO = {};
+
+        // ── Seed data (loaded once if nothing saved) ──────────────────────────
+        const SEED_DATA = [
+          { name: "Mindset & Self Growth", books: [
+            { title: "Mindset", read: true },
+            { title: "The Magic of Thinking Big", read: true },
+            { title: "Think and Grow Rich", read: true },
+            { title: "Who Moved My Cheese?", read: true },
+            { title: "The Art of Not Giving a F*ck", read: true },
+            { title: "The Power of Now", read: true },
+            { title: "You Can Heal Your Life", read: true },
+            { title: "The Alchemist", read: true },
+            { title: "Attitude is Everything", read: false },
+            { title: "Believe in Yourself", read: false },
+            { title: "Win Your Inner Battle", read: false },
+            { title: "The Psychology of Winning", read: false },
+            { title: "The Courage to Be Disliked", read: false },
+            { title: "Ikigai", read: false },
+            { title: "Man's Search for Meaning", read: false },
+            { title: "Do Epic Shit", read: false }
+          ]},
+          { name: "Psychology & Thinking", books: [
+            { title: "Thinking, Fast and Slow", read: false }, { title: "Think Again", read: false },
+            { title: "Clear Thinking", read: false }, { title: "The Intelligence Trap", read: false },
+            { title: "Chatter", read: false }, { title: "Wiser", read: false }, { title: "Outliers", read: false }
+          ]},
+          { name: "Money, Wealth & Finance", books: [
+            { title: "Rich Dad Poor Dad", read: false }, { title: "The Psychology of Money", read: false },
+            { title: "The Millionaire Fastlane", read: true }, { title: "The Richest Man in Babylon", read: false },
+            { title: "The Simple Path to Wealth", read: false }, { title: "Just Keep Buying", read: false },
+            { title: "Main Street Millionaire", read: false }, { title: "Secret of the Millionaire Mind", read: false },
+            { title: "The Algebra of Money", read: false }
+          ]},
+          { name: "Business & Strategy", books: [
+            { title: "Good to Great", read: false }, { title: "Zero to One", read: false },
+            { title: "$100 Startup", read: false }, { title: "Rework", read: false },
+            { title: "The Challenger Sale", read: false }, { title: "Build Don't Talk", read: false },
+            { title: "Trillion Dollar Coach", read: false }
+          ]},
+          { name: "Productivity & Discipline", books: [
+            { title: "Atomic Habits", read: false },
+            { title: "The Power of Discipline", read: true },
+            { title: "The 12 Week Year", read: true },
+            { title: "Getting Things Done", read: false }, { title: "Finish What You Start", read: false },
+            { title: "Do It Today", read: false }, { title: "Deep Work", read: false },
+            { title: "Hyperfocus", read: false }, { title: "The 5 AM Club", read: false },
+            { title: "The Miracle Morning", read: false }, { title: "The Compound Effect", read: false },
+            { title: "The Practicing Mind", read: false }
+          ]},
+          { name: "Communication & Social Skills", books: [
+            { title: "How to Win Friends and Influence People", read: true },
+            { title: "How to Talk to Anyone", read: true },
+            { title: "Read People Like a Book", read: true },
+            { title: "The Art of Public Speaking", read: true },
+            { title: "Talk Like TED", read: false }, { title: "Crucial Conversations", read: false },
+            { title: "You're Not Listening", read: false }, { title: "The Culture Map", read: false }
+          ]},
+          { name: "Sales & Marketing", books: [
+            { title: "To Sell Is Human", read: false }, { title: "Sell to Big Companies", read: false },
+            { title: "SPIN Selling", read: false }, { title: "Pitch Anything", read: false },
+            { title: "The Psychology of Selling", read: false }, { title: "Made to Stick", read: false },
+            { title: "The Sales Acceleration Formula", read: false },
+            { title: "Mastering the Complex Sale", read: false }, { title: "How to Sell Anything", read: false }
+          ]},
+          { name: "Trading & Investing", books: [
+            { title: "The Intelligent Investor", read: false }, { title: "Market Wizards", read: false },
+            { title: "The Disciplined Trader", read: false }, { title: "High Probability Trading", read: false },
+            { title: "The Art of Trading", read: false }
+          ]},
+          { name: "Philosophy & Deep Thinking", books: [
+            { title: "Being and Nothingness", read: false }, { title: "The Law of Human Nature", read: false },
+            { title: "Range", read: false }
+          ]},
+          { name: "Habits, Emotions & Inner Work", books: [
+            { title: "Emotional Intelligence", read: true },
+            { title: "The Power of Positive Thinking", read: true },
+            { title: "The Power of Subconscious Mind", read: true },
+            { title: "The Power of No", read: true },
+            { title: "Master Your Emotions", read: false },
+            { title: "Surrounded by Idiots", read: false }
+          ]}
+        ];
 
         // ── One-time migration: wipe old hardcoded default categories ──────────
         const OLD_DEFAULT_IDS = new Set([
@@ -1053,33 +1429,20 @@
 
         if (!localStorage.getItem(MIGRATION_KEY)) {
           try {
-            const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
-            const parsed = raw ? JSON.parse(raw) : null;
-            if (Array.isArray(parsed)) {
-              // Keep only user-created categories (those not in the old default set)
-              const userCategories = parsed.filter(c => !OLD_DEFAULT_IDS.has(c?.id));
-              localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(userCategories));
-              // Also clean up state keys for removed categories
-              const stateRaw = localStorage.getItem(STORAGE_KEY);
-              if (stateRaw) {
-                const stateObj = JSON.parse(stateRaw);
-                OLD_DEFAULT_IDS.forEach(id => { delete stateObj[id]; });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(stateObj));
-              }
-            } else {
-              // No saved categories at all — just write empty array
-              localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify([]));
-            }
-          } catch (e) {
-            localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify([]));
-          }
+            // Clear old category/state keys from previous versions
+            localStorage.removeItem(CATEGORY_STORAGE_KEY);
+            localStorage.removeItem('habit-rings-books-tabs-v2');
+            // Also clear v4 data so seed re-runs with correct read values
+            localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
           localStorage.setItem(MIGRATION_KEY, '1');
         }
         // ──────────────────────────────────────────────────────────────────────
 
-        let categories = loadCategories();
-        let activeTab = categories[0]?.id || '';
-        let state = loadState();
+        let data = loadData();
+        let categories = loadCategories(); // kept for read-books section compatibility
+        let activeTab = data[0]?.id || '';
+        let state = {};      // legacy stub
         let readBooks = loadReadBooks();
         let draggedCategoryId = null;
         let draggedReadBookIndex = null;
@@ -1118,113 +1481,108 @@
         const readBookModalSaveEl = document.getElementById('read-book-modal-save');
         const readBookModalCloseEl = document.getElementById('read-book-modal-close');
 
-        function loadCategories() {
-          try {
-            const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
-            const parsed = raw ? JSON.parse(raw) : null;
-            // No defaults — start empty if nothing saved
-            if (!Array.isArray(parsed)) return [];
-            const seen = new Set();
-            return parsed
-              .map(item => ({
-                id: typeof item?.id === 'string' ? item.id : '',
-                title: typeof item?.title === 'string' ? item.title.trim() : ''
-              }))
-              .filter(item => item.id && item.title && !seen.has(item.id) && seen.add(item.id));
-          } catch {
-            return [];
-          }
+        // ── New structured data model ─────────────────────────────────────────
+        // categories: [{ id, name, books: [{ id, title, read }] }]
+        // Stored in STORAGE_KEY as JSON
+
+        function uid() {
+          return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
         }
 
-        function loadState() {
+        function loadData() {
           try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            const parsed = raw ? JSON.parse(raw) : {};
-            // Load saved text for each category, default to empty string
-            return categories.reduce((acc, category) => {
-              acc[category.id] = typeof parsed[category.id] === 'string'
-                ? parsed[category.id]
-                : '';
-              return acc;
-            }, {});
-          } catch {
-            return {};
-          }
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length) return normalizeData(parsed);
+            }
+          } catch (e) {}
+          // First load — seed with provided data
+          return SEED_DATA.map(cat => ({
+            id: uid(),
+            name: cat.name,
+            books: cat.books.map(b => ({ id: uid(), title: b.title, read: !!b.read }))
+          }));
+        }
+
+        function normalizeData(raw) {
+          return raw.map(cat => ({
+            id: cat.id || uid(),
+            name: typeof cat.name === 'string' ? cat.name : 'Unnamed',
+            books: Array.isArray(cat.books) ? cat.books.map(b => ({
+              id: b.id || uid(),
+              title: typeof b.title === 'string' ? b.title : '',
+              read: !!b.read,
+              moral: typeof b.moral === 'string' ? b.moral : ''
+            })).filter(b => b.title) : []
+          })).filter(cat => cat.name);
+        }
+
+        function saveData() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          // Update counts immediately
+          allBooksCountEl.textContent = String(getTotalBooks());
+          booksReadCountEl.textContent = String(getTotalReadBooks());
+        }
+
+        function getTotalBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.length, 0);
+        }
+
+        function getTotalReadBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.filter(b => b.read).length, 0);
+        }
+
+        function getActiveCat() {
+          return data.find(c => c.id === activeTab) || null;
+        }
+
+        // ── Legacy stubs (used by read-books section) ─────────────────────────
+        function loadCategories() {
+          return data.map(c => ({ id: c.id, title: c.name }));
         }
 
         function loadReadBooks() {
           try {
             const raw = localStorage.getItem(READ_BOOKS_STORAGE_KEY);
             const parsed = raw ? JSON.parse(raw) : null;
-            if (!Array.isArray(parsed) || !parsed.length) return [...DEFAULT_READ_BOOKS];
-            return parsed
-              .map(item => {
-                if (typeof item === 'string') {
-                  return { title: item.trim(), moral: '', category: '' };
-                }
-                return {
-                  title: typeof item?.title === 'string' ? item.title.trim() : '',
-                  moral: typeof item?.moral === 'string' ? item.moral : '',
-                  category: typeof item?.category === 'string' ? item.category.trim() : ''
-                };
-              })
-              .filter(item => item.title);
-          } catch {
-            return [...DEFAULT_READ_BOOKS];
-          }
-        }
-
-        function saveCategories() {
-          localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(categories));
+            if (!Array.isArray(parsed)) return [];
+            return parsed.map(item => ({
+              title: typeof item?.title === 'string' ? item.title.trim() : '',
+              moral: typeof item?.moral === 'string' ? item.moral : '',
+              category: typeof item?.category === 'string' ? item.category.trim() : ''
+            })).filter(item => item.title);
+          } catch { return []; }
         }
 
         function saveReadBooks() {
           localStorage.setItem(READ_BOOKS_STORAGE_KEY, JSON.stringify(readBooks));
         }
 
-        function saveState() {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
-        }
-
         function getCategoryTitle(id) {
-          return categories.find(category => category.id === id)?.title || 'Category';
+          return data.find(c => c.id === id)?.name || 'Category';
         }
 
-        function getBooksForCategory(categoryId) {
-          const raw = state[categoryId] || '';
-          return raw
-            .split('\n')
-            .map(line => line.trim())
-            .filter(Boolean);
-        }
+        function getAllBooksCount() { return getTotalBooks(); }
 
-        function getAllBooksCount() {
-          return categories.reduce((total, category) => total + getBooksForCategory(category.id).length, 0);
-        }
-
-        function normalizeTitle(value) {
-          return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
-        }
-
-        function getBookCategories(title) {
-          const target = normalizeTitle(title);
-          return categories
-            .filter(category => getBooksForCategory(category.id).some(book => normalizeTitle(book) === target))
-            .map(category => category.title);
+        function getBooksForCategory(catId) {
+          return data.find(c => c.id === catId)?.books.map(b => b.title) || [];
         }
 
         function getReadBookCategory(book) {
           if (book?.category) return book.category;
-          const matches = getBookCategories(book?.title || '');
-          return matches[0] || 'Uncategorized';
+          const title = (book?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+          for (const cat of data) {
+            if (cat.books.some(b => b.title.toLowerCase().replace(/[^a-z0-9]+/g, '') === title)) {
+              return cat.name;
+            }
+          }
+          return 'Uncategorized';
         }
 
         function getReadBookFilterOptions() {
           const options = new Set(['All']);
-          readBooks.forEach(book => {
-            options.add(getReadBookCategory(book));
-          });
+          readBooks.forEach(book => options.add(getReadBookCategory(book)));
           return Array.from(options);
         }
 
@@ -1233,9 +1591,12 @@
           return readBooks.filter(book => getReadBookCategory(book) === activeReadBookFilter);
         }
 
+        function saveCategories() {} // no-op, data is in saveData()
+        function saveState() {}      // no-op
+
         function renderReadBookCategoryInput() {
-          const options = categories.map(category => `
-            <option value="${escapeHtml(category.title)}">${escapeHtml(category.title)}</option>
+          const options = data.map(cat => `
+            <option value="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</option>
           `).join('');
           booksReadCategoryInputEl.innerHTML = `
             <option value="">Select category</option>
@@ -1340,32 +1701,22 @@
         }
 
         function renderTabs() {
-          if (categories.length === 0) {
+          if (data.length === 0) {
             tabsEl.innerHTML = `<div style="font-size:12px;color:var(--text-dim);padding:10px 4px;line-height:1.6;">No categories yet.<br>Add one above to get started.</div>`;
             return;
           }
-          tabsEl.innerHTML = categories.map(category => `
+          tabsEl.innerHTML = data.map(cat => `
             <div
-              class="quotes-tab-row${category.id === activeTab ? ' active' : ''}"
-              data-tab="${category.id}"
+              class="quotes-tab-row${cat.id === activeTab ? ' active' : ''}"
+              data-tab="${cat.id}"
               draggable="true"
             >
-              <button
-                class="quotes-tab-open"
-                type="button"
-                data-tab="${category.id}"
-              >
-                <span class="quotes-tab__label">${escapeHtml(category.title)}</span>
-                <span class="quotes-tab__meta">${getBooksForCategory(category.id).length}</span>
+              <button class="quotes-tab-open" type="button" data-tab="${cat.id}">
+                <span class="quotes-tab__label">${escapeHtml(cat.name)}</span>
+                <span class="quotes-tab__meta">${cat.books.length}</span>
               </button>
               <span class="quotes-tab__drag">::</span>
-              <button
-                class="quotes-tab-delete"
-                type="button"
-                data-delete="${category.id}"
-                aria-label="Delete ${escapeHtml(category.title)}"
-                title="Delete category"
-              >×</button>
+              <button class="quotes-tab-delete" type="button" data-delete="${cat.id}" aria-label="Delete ${escapeHtml(cat.name)}" title="Delete category">×</button>
             </div>
           `).join('');
 
@@ -1375,6 +1726,118 @@
             row.addEventListener('drop', onDrop);
             row.addEventListener('dragend', onDragEnd);
           });
+        }
+
+        function renderBookList() {
+          const listEl = document.getElementById('quotes-book-list');
+          const addFormEl = document.getElementById('quotes-add-book-form');
+          if (!listEl) return;
+
+          const cat = getActiveCat();
+          if (!cat) {
+            listEl.innerHTML = '';
+            if (addFormEl) addFormEl.style.display = 'none';
+            return;
+          }
+          if (addFormEl) addFormEl.style.display = '';
+
+          if (cat.books.length === 0) {
+            listEl.innerHTML = '';
+            return;
+          }
+
+          listEl.innerHTML = cat.books.map(book => `
+            <div class="quotes-book-item${book.read ? ' is-read' : ''}" data-book-id="${book.id}">
+              <input
+                type="checkbox"
+                class="quotes-book-check"
+                ${book.read ? 'checked' : ''}
+                data-book-id="${book.id}"
+                aria-label="Mark as read"
+                title="${book.read ? 'Mark as unread' : 'Mark as read'}"
+              />
+              <div class="quotes-book-body">
+                <span class="quotes-book-title">${escapeHtml(book.title)}</span>
+                ${book.moral ? `<span class="quotes-book-moral-preview">${escapeHtml(book.moral)}</span>` : ''}
+              </div>
+              ${book.read ? `
+                <button class="quotes-book-moral-btn${book.moral ? ' has-moral' : ''}" data-book-id="${book.id}" title="${book.moral ? 'Edit moral' : 'Add moral'}">
+                  ${book.moral ? '📝' : '+ Moral'}
+                </button>
+              ` : ''}
+              <button class="quotes-book-delete" data-book-id="${book.id}" title="Remove book" aria-label="Remove ${escapeHtml(book.title)}">×</button>
+            </div>
+          `).join('');
+
+          // Checkbox toggle
+          listEl.querySelectorAll('.quotes-book-check').forEach(cb => {
+            cb.addEventListener('change', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === cb.dataset.bookId);
+              if (!book) return;
+              book.read = cb.checked;
+              saveData();
+              renderBookList();
+              renderTabs();
+            });
+          });
+
+          // Moral button — open inline moral editor
+          listEl.querySelectorAll('.quotes-book-moral-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              openMoralEditor(book, cat);
+            });
+          });
+
+          // Delete book
+          listEl.querySelectorAll('.quotes-book-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              cat.books = cat.books.filter(b => b.id !== btn.dataset.bookId);
+              saveData();
+              renderBookList();
+              renderTabs();
+            });
+          });
+        }
+
+        // ── Moral editor modal ────────────────────────────────────────────────
+        let _moralEditorBook = null;
+        let _moralEditorCat = null;
+
+        function openMoralEditor(book, cat) {
+          _moralEditorBook = book;
+          _moralEditorCat = cat;
+          const overlay = document.getElementById('moral-editor-overlay');
+          const titleEl2 = document.getElementById('moral-editor-title');
+          const textarea = document.getElementById('moral-editor-textarea');
+          if (!overlay) return;
+          titleEl2.textContent = book.title;
+          textarea.value = book.moral || '';
+          overlay.classList.add('open');
+          setTimeout(() => textarea.focus(), 120);
+        }
+
+        function closeMoralEditor() {
+          const overlay = document.getElementById('moral-editor-overlay');
+          if (overlay) overlay.classList.remove('open');
+          _moralEditorBook = null;
+          _moralEditorCat = null;
+        }
+
+        function saveMoral() {
+          if (!_moralEditorBook) return;
+          const textarea = document.getElementById('moral-editor-textarea');
+          _moralEditorBook.moral = textarea.value.trim();
+          saveData();
+          closeMoralEditor();
+          renderBookList();
         }
 
         function escapeHtml(value) {
@@ -1418,13 +1881,13 @@
           const targetId = event.currentTarget.dataset.tab;
           if (!draggedCategoryId || draggedCategoryId === targetId) return;
 
-          const fromIndex = categories.findIndex(category => category.id === draggedCategoryId);
-          const toIndex = categories.findIndex(category => category.id === targetId);
+          const fromIndex = data.findIndex(c => c.id === draggedCategoryId);
+          const toIndex = data.findIndex(c => c.id === targetId);
           if (fromIndex < 0 || toIndex < 0) return;
 
-          const [moved] = categories.splice(fromIndex, 1);
-          categories.splice(toIndex, 0, moved);
-          saveCategories();
+          const [moved] = data.splice(fromIndex, 1);
+          data.splice(toIndex, 0, moved);
+          saveData();
           render();
         }
 
@@ -1485,128 +1948,177 @@
           });
         }
 
-        function render() {
-          if (!categories.some(category => category.id === activeTab)) {
-            activeTab = categories[0]?.id || '';
+        function renderReadBooksSection() {
+          const filtersEl = document.getElementById('books-read-filters');
+          const listEl = document.getElementById('books-read-list');
+          const metaEl2 = document.getElementById('read-books-meta');
+          if (!listEl) return;
+
+          // Collect all read books from data, grouped by category
+          const allRead = [];
+          data.forEach(cat => {
+            cat.books.forEach(book => {
+              if (book.read) allRead.push({ title: book.title, category: cat.name, catId: cat.id, bookId: book.id });
+            });
+          });
+
+          // Update count badge
+          booksReadCountEl.textContent = String(allRead.length);
+          if (metaEl2) metaEl2.textContent = `${allRead.length} book${allRead.length !== 1 ? 's' : ''} read`;
+
+          // Build filter chips from categories that have read books
+          const catsWithRead = [...new Set(allRead.map(b => b.category))];
+          if (filtersEl) {
+            filtersEl.innerHTML = [
+              `<button class="quotes-read-filter${activeReadBookFilter === 'all' ? ' active' : ''}" data-filter="all">
+                <span>All</span>
+                <span class="quotes-read-filter__count">${allRead.length}</span>
+              </button>`,
+              ...catsWithRead.map(cat => {
+                const count = allRead.filter(b => b.category === cat).length;
+                const isActive = activeReadBookFilter === cat;
+                return `<button class="quotes-read-filter${isActive ? ' active' : ''}" data-filter="${escapeHtml(cat)}">
+                  <span>${escapeHtml(cat)}</span>
+                  <span class="quotes-read-filter__count">${count}</span>
+                </button>`;
+              })
+            ].join('');
+
+            filtersEl.querySelectorAll('.quotes-read-filter').forEach(btn => {
+              btn.addEventListener('click', () => {
+                activeReadBookFilter = btn.dataset.filter;
+                renderReadBooksSection();
+              });
+            });
           }
+
+          // Filter list
+          const filtered = activeReadBookFilter === 'all'
+            ? allRead
+            : allRead.filter(b => b.category === activeReadBookFilter);
+
+          if (filtered.length === 0) {
+            listEl.innerHTML = `<div class="quotes-read-empty">${
+              activeReadBookFilter === 'all'
+                ? 'No books marked as read yet. Check the checkbox next to a book in the All Books tab.'
+                : `No read books in "${escapeHtml(activeReadBookFilter)}".`
+            }</div>`;
+            return;
+          }
+
+          listEl.innerHTML = filtered.map(book => `
+            <div class="quotes-read-item" data-book-id="${book.bookId}" data-cat-id="${book.catId}">
+              <div class="quotes-read-item__top">
+                <div class="quotes-read-item__info">
+                  <span class="quotes-read-item__title">${escapeHtml(book.title)}</span>
+                  <span class="quotes-read-item__cat">${escapeHtml(book.category)}</span>
+                </div>
+                <button class="quotes-read-unmark" type="button" data-book-id="${book.bookId}" data-cat-id="${book.catId}" title="Mark as unread">↩ Unread</button>
+              </div>
+            </div>
+          `).join('');
+
+          // Unmark as read
+          listEl.querySelectorAll('.quotes-read-unmark').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = data.find(c => c.id === btn.dataset.catId);
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.read = false;
+              saveData();
+              renderReadBooksSection();
+              // Also refresh book list if that category is active
+              if (activeTab === cat.id) renderBookList();
+              renderTabs();
+            });
+          });
+        }
+
+        function render() {
+          if (!data.some(c => c.id === activeTab)) {
+            activeTab = data[0]?.id || '';
+          }
+          categories = loadCategories(); // keep in sync for read-books section
           renderTabs();
-          renderReadBookCategoryInput();
-          renderReadBookFilters();
+          renderBookList();
           allBooksTabEl.classList.toggle('active', activeSection === 'all');
           readBooksTabEl.classList.toggle('active', activeSection === 'read');
           allBooksSectionEl.hidden = activeSection !== 'all';
           booksReadSectionEl.hidden = activeSection !== 'read';
-          allBooksCountEl.textContent = String(getAllBooksCount());
-          booksReadCountEl.textContent = String(readBooks.length);
-          const filteredReadBooks = getFilteredReadBooks();
-          booksReadListEl.innerHTML = filteredReadBooks.length ? filteredReadBooks.map(book => {
-            const index = readBooks.indexOf(book);
-            return `
-            <div class="quotes-read-item" data-index="${index}" draggable="true">
-              <div class="quotes-read-item__top">
-                <button class="quotes-read-item__open" type="button" data-index="${index}">
-                  <span class="quotes-read-item__title">${escapeHtml(book.title)}</span>
-                </button>
-                <button class="quotes-read-delete" type="button" data-index="${index}" aria-label="Delete ${escapeHtml(book.title)}">×</button>
-              </div>
-            </div>
-          `;
-          }).join('') : `<div class="quotes-read-empty">${activeReadBookFilter === 'all' ? 'No read books added yet.' : `No books found in ${escapeHtml(activeReadBookFilter)}.`}</div>`;
-          booksReadListEl.querySelectorAll('.quotes-read-item').forEach(item => {
-            item.addEventListener('dragstart', onReadBookDragStart);
-            item.addEventListener('dragover', onReadBookDragOver);
-            item.addEventListener('drop', onReadBookDrop);
-            item.addEventListener('dragleave', onReadBookDragLeave);
-            item.addEventListener('dragend', onReadBookDragEnd);
-          });
+          allBooksCountEl.textContent = String(getTotalBooks());
+          booksReadCountEl.textContent = String(getTotalReadBooks());
 
-          // Show empty state when no categories exist
-          if (!activeTab || categories.length === 0) {
-            titleEl.textContent = 'No category selected';
-            editorEl.value = '';
-            editorEl.disabled = true;
-            editorEl.placeholder = 'Add a category on the left to get started.';
-            metaEl.textContent = '';
-          } else {
-            editorEl.disabled = false;
-            editorEl.placeholder = 'Add your book notes here...';
-            titleEl.textContent = getCategoryTitle(activeTab);
-            editorEl.value = state[activeTab] || '';
-            metaEl.textContent = `Saved automatically for ${getCategoryTitle(activeTab)}.`;
-          }
+          // ── Read Books tab: pull all read:true books from data ──────────────
+          renderReadBooksSection();
+
+          const cat = getActiveCat();
+          titleEl.textContent = cat ? cat.name : 'Select a category';
+          metaEl.textContent = cat ? `${cat.books.length} book${cat.books.length !== 1 ? 's' : ''} · ${cat.books.filter(b => b.read).length} read` : '';
         }
 
+        // ── Tab click: select or delete ───────────────────────────────────────
         tabsEl.addEventListener('click', event => {
-          // Delete button
           const deleteBtn = event.target.closest('.quotes-tab-delete');
           if (deleteBtn) {
             const id = deleteBtn.dataset.delete;
             if (!id) return;
-            const cat = categories.find(c => c.id === id);
-            const bookCount = getBooksForCategory(id).length;
-            const label = cat ? cat.title : id;
-            const msg = bookCount > 0
-              ? `Delete "${label}"? It has ${bookCount} book${bookCount > 1 ? 's' : ''} listed. This cannot be undone.`
-              : `Delete "${label}"? This cannot be undone.`;
+            const cat = data.find(c => c.id === id);
+            if (!cat) return;
+            const msg = cat.books.length > 0
+              ? `Delete "${cat.name}"? It has ${cat.books.length} book${cat.books.length > 1 ? 's' : ''}. This cannot be undone.`
+              : `Delete "${cat.name}"? This cannot be undone.`;
             if (!confirm(msg)) return;
-            categories = categories.filter(c => c.id !== id);
-            delete state[id];
-            if (activeTab === id) {
-              activeTab = categories[0]?.id || '';
-            }
-            saveCategories();
-            saveState();
+            data = data.filter(c => c.id !== id);
+            if (activeTab === id) activeTab = data[0]?.id || '';
+            saveData();
             render();
             return;
           }
-
-          // Open/select tab
           const openBtn = event.target.closest('.quotes-tab-open');
           if (!openBtn) return;
           activeTab = openBtn.dataset.tab;
           render();
         });
 
-        allBooksTabEl.addEventListener('click', () => {
-          activeSection = 'all';
-          render();
-        });
+        allBooksTabEl.addEventListener('click', () => { activeSection = 'all'; render(); });
+        readBooksTabEl.addEventListener('click', () => { activeSection = 'read'; render(); });
 
-        readBooksTabEl.addEventListener('click', () => {
-          activeSection = 'read';
-          render();
-        });
-
+        // ── Add category ──────────────────────────────────────────────────────
         categoryFormEl.addEventListener('submit', event => {
           event.preventDefault();
-          const title = categoryInputEl.value.trim();
-          if (!title) return;
-
-          const baseId = slugify(title);
-          const id = ensureUniqueId(baseId);
-          categories.push({ id, title });
-          if (!(id in state)) state[id] = '';
-          activeTab = id;
-          saveCategories();
-          saveState();
+          const name = categoryInputEl.value.trim();
+          if (!name) return;
+          const newCat = { id: uid(), name, books: [] };
+          data.push(newCat);
+          activeTab = newCat.id;
+          saveData();
           categoryFormEl.reset();
           render();
           categoryInputEl.focus();
         });
 
-        booksReadFormEl.addEventListener('submit', event => {
-          event.preventDefault();
-          const title = booksReadInputEl.value.trim();
-          const category = booksReadCategoryInputEl.value.trim();
-          if (!title) return;
-          readBooks.unshift({ title, moral: '', category });
-          saveReadBooks();
-          booksReadFormEl.reset();
-          activeReadBookFilter = 'all';
-          activeSection = 'read';
-          render();
-          booksReadInputEl.focus();
-        });
+        // ── Add book to active category ───────────────────────────────────────
+        const addBookFormEl = document.getElementById('quotes-add-book-form');
+        const addBookInputEl = document.getElementById('quotes-add-book-input');
+        if (addBookFormEl) {
+          addBookFormEl.addEventListener('submit', event => {
+            event.preventDefault();
+            const cat = getActiveCat();
+            if (!cat) return;
+            const title = addBookInputEl.value.trim();
+            if (!title) return;
+            cat.books.push({ id: uid(), title, read: false });
+            saveData();
+            addBookFormEl.reset();
+            renderBookList();
+            renderTabs();
+            metaEl.textContent = `${cat.books.length} book${cat.books.length !== 1 ? 's' : ''} · ${cat.books.filter(b => b.read).length} read`;
+            addBookInputEl.focus();
+          });
+        }
+
+        // ── Read books section (now driven by data, no manual add form) ────────
 
         booksReadFiltersEl.addEventListener('click', event => {
           const button = event.target.closest('.quotes-read-filter');
@@ -1615,45 +2127,16 @@
           render();
         });
 
-        booksReadListEl.addEventListener('click', event => {
-          const openButton = event.target.closest('.quotes-read-item__open');
-          if (openButton) {
-            const index = Number(openButton.dataset.index);
-            openReadBookModal(index);
-            return;
-          }
-          const button = event.target.closest('.quotes-read-delete');
-          if (!button) return;
-          const index = Number(button.dataset.index);
-          if (!Number.isInteger(index) || index < 0 || index >= readBooks.length) return;
-          readBooks.splice(index, 1);
-          saveReadBooks();
-          if (selectedReadBookIndex === index) closeReadBookModal();
-          if (selectedReadBookIndex !== null && index < selectedReadBookIndex) {
-            selectedReadBookIndex -= 1;
-          }
-          render();
+        // ── Moral editor listeners ────────────────────────────────────────────
+        document.getElementById('moral-editor-save').addEventListener('click', saveMoral);
+        document.getElementById('moral-editor-cancel').addEventListener('click', closeMoralEditor);
+        document.getElementById('moral-editor-close').addEventListener('click', closeMoralEditor);
+        document.getElementById('moral-editor-overlay').addEventListener('click', e => {
+          if (e.target === e.currentTarget) closeMoralEditor();
         });
-
-        editorEl.addEventListener('input', () => {
-          state[activeTab] = editorEl.value;
-          saveState();
-          renderTabs();
-          allBooksCountEl.textContent = String(getAllBooksCount());
-        });
-
-        readBookModalCloseEl.addEventListener('click', closeReadBookModal);
-        readBookModalEditEl.addEventListener('click', enterReadBookEditMode);
-        readBookModalCancelEl.addEventListener('click', exitReadBookEditMode);
-        readBookModalSaveEl.addEventListener('click', saveReadBookChanges);
-        readBookModalMoralInputEl.addEventListener('keydown', event => {
-          if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-            event.preventDefault();
-            saveReadBookChanges();
-          }
-        });
-        readBookModalEl.addEventListener('click', event => {
-          if (event.target === readBookModalEl) closeReadBookModal();
+        document.getElementById('moral-editor-textarea').addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); saveMoral(); }
+          if (e.key === 'Escape') closeMoralEditor();
         });
 
         render();
