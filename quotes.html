@@ -435,6 +435,114 @@
         cursor: pointer;
       }
 
+      /* ── Tab row (wrapper with delete button) ── */
+      .quotes-tab-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.96);
+        border-radius: 12px;
+        padding: 6px 8px 6px 12px;
+        min-height: 46px;
+        transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+        color: var(--text-muted);
+      }
+
+      .quotes-tab-row:hover {
+        transform: translateX(2px);
+        border-color: var(--books-accent-border);
+        color: var(--text);
+      }
+
+      .quotes-tab-row.active {
+        background: var(--books-accent-soft);
+        border-color: var(--books-accent-border);
+        color: var(--gold);
+      }
+
+      .quotes-tab-row.dragging { opacity: 0.6; }
+
+      /* Open/select button inside row */
+      .quotes-tab-open {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 4px 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        text-align: left;
+        line-height: 1.45;
+      }
+
+      /* Delete button */
+      .quotes-tab-delete {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: border-color 0.15s, color 0.15s, background 0.15s, opacity 0.15s;
+      }
+
+      .quotes-tab-row:hover .quotes-tab-delete { opacity: 1; }
+
+      .quotes-tab-delete:hover {
+        border-color: rgba(255, 123, 114, 0.35);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
+        opacity: 1;
+      }
+
+      .quotes-tab__drag {
+        flex-shrink: 0;
+        color: var(--text-dim);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        cursor: grab;
+        padding: 0 2px;
+      }
+
+      .quotes-tab__label {
+        display: block;
+        letter-spacing: -0.01em;
+      }
+
+      .quotes-tab__meta {
+        flex-shrink: 0;
+        margin-left: 6px;
+        min-width: 24px;
+        text-align: center;
+        border-radius: 999px;
+        padding: 2px 6px;
+        font-size: 11px;
+        color: var(--text-dim);
+        background: rgba(255,255,255,0.05);
+      }
+
+      .quotes-tab-row.active .quotes-tab__meta {
+        color: var(--books-accent-label);
+        background: var(--books-accent-fill);
+      }
+
+      /* Keep old .quotes-tab for any legacy references */
       .quotes-tab {
         display: flex;
         align-items: center;
@@ -452,52 +560,6 @@
         text-align: left;
         line-height: 1.45;
         min-height: 46px;
-      }
-
-      .quotes-tab:hover {
-        transform: translateX(2px);
-        border-color: var(--books-accent-border);
-        color: var(--text);
-      }
-
-      .quotes-tab.active {
-        background: var(--books-accent-soft);
-        border-color: var(--books-accent-border);
-        color: var(--gold);
-      }
-
-      .quotes-tab.dragging {
-        opacity: 0.6;
-      }
-
-      .quotes-tab__drag {
-        flex-shrink: 0;
-        margin-left: 10px;
-        color: var(--text-dim);
-        font-size: 14px;
-        letter-spacing: 0.08em;
-      }
-
-      .quotes-tab__label {
-        display: block;
-        letter-spacing: -0.01em;
-      }
-
-      .quotes-tab__meta {
-        flex-shrink: 0;
-        margin-left: 10px;
-        min-width: 28px;
-        text-align: center;
-        border-radius: 999px;
-        padding: 3px 7px;
-        font-size: 11px;
-        color: var(--text-dim);
-        background: rgba(255,255,255,0.05);
-      }
-
-      .quotes-tab.active .quotes-tab__meta {
-        color: var(--books-accent-label);
-        background: var(--books-accent-fill);
       }
 
       .quotes-panel {
@@ -808,7 +870,8 @@
         .quotes-read-item { padding: 10px; }
         .quotes-read-item__title { font-size: 13px; }
         .quotes-tabs { padding: 8px; gap: 4px; }
-        .quotes-tab { padding: 8px 10px; font-size: 11px; min-height: 40px; }
+        .quotes-tab, .quotes-tab-row { padding: 6px 8px; font-size: 11px; min-height: 38px; }
+        .quotes-tab-delete { opacity: 1; } /* always show delete on mobile */
         .quotes-category-form { gap: 6px; }
         .quotes-category-input { padding: 8px 10px; font-size: 12px; }
         .quotes-category-add { padding: 8px 10px; font-size: 12px; }
@@ -1265,23 +1328,35 @@
 
         function renderTabs() {
           tabsEl.innerHTML = categories.map(category => `
-            <button
-              class="quotes-tab${category.id === activeTab ? ' active' : ''}"
+            <div
+              class="quotes-tab-row${category.id === activeTab ? ' active' : ''}"
               data-tab="${category.id}"
-              type="button"
               draggable="true"
             >
-              <span class="quotes-tab__label">${escapeHtml(category.title)}</span>
-              <span class="quotes-tab__meta">${getBooksForCategory(category.id).length}</span>
+              <button
+                class="quotes-tab-open"
+                type="button"
+                data-tab="${category.id}"
+              >
+                <span class="quotes-tab__label">${escapeHtml(category.title)}</span>
+                <span class="quotes-tab__meta">${getBooksForCategory(category.id).length}</span>
+              </button>
               <span class="quotes-tab__drag">::</span>
-            </button>
+              <button
+                class="quotes-tab-delete"
+                type="button"
+                data-delete="${category.id}"
+                aria-label="Delete ${escapeHtml(category.title)}"
+                title="Delete category"
+              >×</button>
+            </div>
           `).join('');
 
-          tabsEl.querySelectorAll('.quotes-tab').forEach(tab => {
-            tab.addEventListener('dragstart', onDragStart);
-            tab.addEventListener('dragover', onDragOver);
-            tab.addEventListener('drop', onDrop);
-            tab.addEventListener('dragend', onDragEnd);
+          tabsEl.querySelectorAll('.quotes-tab-row').forEach(row => {
+            row.addEventListener('dragstart', onDragStart);
+            row.addEventListener('dragover', onDragOver);
+            row.addEventListener('drop', onDrop);
+            row.addEventListener('dragend', onDragEnd);
           });
         }
 
@@ -1433,9 +1508,33 @@
         }
 
         tabsEl.addEventListener('click', event => {
-          const button = event.target.closest('.quotes-tab');
-          if (!button) return;
-          activeTab = button.dataset.tab;
+          // Delete button
+          const deleteBtn = event.target.closest('.quotes-tab-delete');
+          if (deleteBtn) {
+            const id = deleteBtn.dataset.delete;
+            if (!id) return;
+            const cat = categories.find(c => c.id === id);
+            const bookCount = getBooksForCategory(id).length;
+            const label = cat ? cat.title : id;
+            const msg = bookCount > 0
+              ? `Delete "${label}"? It has ${bookCount} book${bookCount > 1 ? 's' : ''} listed. This cannot be undone.`
+              : `Delete "${label}"? This cannot be undone.`;
+            if (!confirm(msg)) return;
+            categories = categories.filter(c => c.id !== id);
+            delete state[id];
+            if (activeTab === id) {
+              activeTab = categories[0]?.id || '';
+            }
+            saveCategories();
+            saveState();
+            render();
+            return;
+          }
+
+          // Open/select tab
+          const openBtn = event.target.closest('.quotes-tab-open');
+          if (!openBtn) return;
+          activeTab = openBtn.dataset.tab;
           render();
         });
 
