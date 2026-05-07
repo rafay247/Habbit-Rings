@@ -146,12 +146,58 @@ const ALL_PAGE_KEYS = [
   "habit-rings-calendar-selection-v1",
   "habit-rings-calendar-x-marks-v1",
   "habit-rings-calendar-events-v1",
+  "habit-rings-books-v4",
   "habit-rings-books-tabs-v2",
   "habit-rings-books-categories-v1",
   "habit-rings-read-books-v1",
   "habit-rings-tech-categories-v1",
   "habit-rings-tech-docs-v1"
 ];
+
+function buildBooksBackupMeta() {
+  const raw = localStorage.getItem("habit-rings-books-v4");
+  if (!raw) {
+    return {
+      tracked: true,
+      storageKey: "habit-rings-books-v4",
+      totalBooks: 0,
+      readBooks: 0,
+      unreadBooks: 0
+    };
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error("invalid books payload");
+
+    let totalBooks = 0;
+    let readBooks = 0;
+
+    parsed.forEach((category) => {
+      if (!Array.isArray(category?.books)) return;
+      totalBooks += category.books.length;
+      readBooks += category.books.filter((book) => !!book?.read).length;
+    });
+
+    return {
+      tracked: true,
+      storageKey: "habit-rings-books-v4",
+      totalBooks,
+      readBooks,
+      unreadBooks: Math.max(0, totalBooks - readBooks)
+    };
+  } catch (error) {
+    console.error("Failed to summarize books backup data", error);
+    return {
+      tracked: true,
+      storageKey: "habit-rings-books-v4",
+      totalBooks: 0,
+      readBooks: 0,
+      unreadBooks: 0,
+      parseError: true
+    };
+  }
+}
 
 function collectAllPagesData() {
   const out = {};
@@ -1460,7 +1506,10 @@ function buildFullBackup() {
     ...state,
     // All other pages data
     _allPages: collectAllPagesData(),
-    _backupVersion: 2,
+    _backupMeta: {
+      books: buildBooksBackupMeta()
+    },
+    _backupVersion: 3,
     _exportedAt: new Date().toISOString()
   };
 }
@@ -1690,6 +1739,7 @@ function initEvents() {
             applyAllPagesData(parsed._allPages);
             delete parsed._allPages;
           }
+          delete parsed._backupMeta;
           delete parsed._backupVersion;
           delete parsed._exportedAt;
 
@@ -2065,4 +2115,3 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSandTimer(1); // reset sand to full top
   }
 });
-

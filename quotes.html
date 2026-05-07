@@ -109,6 +109,32 @@
         flex-wrap: wrap;
       }
 
+      .quotes-top-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        color: var(--text-muted);
+      }
+
+      .quotes-top-stat__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-top-stat__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+        color: var(--text);
+      }
+
       .quotes-top-tab {
         display: inline-flex;
         align-items: center;
@@ -1111,6 +1137,16 @@
           align-items: flex-start;
         }
 
+        .quotes-top-tabs {
+          width: 100%;
+        }
+
+        .quotes-top-tab,
+        .quotes-top-stat {
+          flex: 1 1 100%;
+          justify-content: space-between;
+        }
+
         .quotes-layout {
           grid-template-columns: 1fr;
         }
@@ -1130,8 +1166,10 @@
         .quotes-hero h1 { font-size: 24px; }
         .quotes-hero__actions { width: 100%; }
         .quotes-top-tabs { width: 100%; }
-        .quotes-top-tab { flex: 1; justify-content: center; padding: 8px 8px; font-size: 11px; }
-        .quotes-top-tab__value { font-size: 16px; }
+        .quotes-top-tab,
+        .quotes-top-stat { flex: 1 1 100%; justify-content: space-between; padding: 8px 10px; font-size: 11px; }
+        .quotes-top-tab__value,
+        .quotes-top-stat__value { font-size: 16px; }
         .quotes-workspace { padding: 12px; }
         .quotes-panel { padding: 12px; }
         .quotes-panel h2 { font-size: 16px; }
@@ -1195,6 +1233,10 @@
               <span class="quotes-top-tab__label">Books Read</span>
               <span class="quotes-top-tab__value" id="books-read-count">0</span>
             </button>
+            <div class="quotes-top-stat" aria-label="Unread books">
+              <span class="quotes-top-stat__label">Unread Books</span>
+              <span class="quotes-top-stat__value" id="books-unread-count">0</span>
+            </div>
           </div>
         </div>
       </section>
@@ -1462,6 +1504,7 @@
         const readBooksTabEl = document.getElementById('read-books-tab');
         const allBooksSectionEl = document.getElementById('quotes-all-section');
         const booksReadCountEl = document.getElementById('books-read-count');
+        const booksUnreadCountEl = document.getElementById('books-unread-count');
         const booksReadSectionEl = document.getElementById('books-read-section');
         const booksReadFormEl = document.getElementById('books-read-form');
         const booksReadInputEl = document.getElementById('books-read-input');
@@ -1523,6 +1566,7 @@
           // Update counts immediately
           allBooksCountEl.textContent = String(getTotalBooks());
           booksReadCountEl.textContent = String(getTotalReadBooks());
+          booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
         }
 
         function getTotalBooks() {
@@ -1531,6 +1575,10 @@
 
         function getTotalReadBooks() {
           return data.reduce((sum, cat) => sum + cat.books.filter(b => b.read).length, 0);
+        }
+
+        function getTotalUnreadBooks() {
+          return getTotalBooks() - getTotalReadBooks();
         }
 
         function getActiveCat() {
@@ -2048,6 +2096,7 @@
           booksReadSectionEl.hidden = activeSection !== 'read';
           allBooksCountEl.textContent = String(getTotalBooks());
           booksReadCountEl.textContent = String(getTotalReadBooks());
+          booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
 
           // ── Read Books tab: pull all read:true books from data ──────────────
           renderReadBooksSection();
