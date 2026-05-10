@@ -264,6 +264,51 @@
         border-width: 2px;
         border-color: var(--note-pin-color, rgba(100,100,200,0.4));
       }
+      .note-card.beast-mode {
+        border-width: 2px;
+        border-color: rgba(143, 28, 28, 0.55);
+      }
+      .note-card.beast-mode.beast-done {
+        border-color: rgba(30, 112, 62, 0.55);
+      }
+      .note-card.beast-mode::before {
+        content: "High Priority";
+        position: absolute;
+        top: 9px;
+        right: 10px;
+        z-index: 2;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(120, 18, 18, 0.14);
+        color: #7f1d1d;
+        font-family: 'Inter', sans-serif;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .note-card.beast-mode.beast-done::before {
+        content: "Done";
+        background: rgba(22, 101, 52, 0.14);
+        color: #14532d;
+      }
+      .note-card.beast-mode .note-card-title {
+        padding-right: 96px;
+      }
+      .beast-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 8px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(0,0,0,0.08);
+        font-family: 'Inter', sans-serif;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
 
       .note-card-body { padding: 16px 18px 10px; }
 
@@ -685,6 +730,50 @@
       .editor-mode-btn svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2; fill: none; }
       .editor-mode-btn:hover { opacity: 0.85; background: rgba(0,0,0,0.06); }
       .editor-mode-btn.active { opacity: 1; background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.25); }
+      .editor-beast-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        border-radius: 9px;
+        border: 1.5px solid rgba(0,0,0,0.15);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        opacity: 0.62;
+        transition: all 0.13s;
+      }
+      .editor-beast-control:hover,
+      .editor-beast-control.active {
+        opacity: 1;
+        background: rgba(127, 29, 29, 0.10);
+        border-color: rgba(127, 29, 29, 0.28);
+      }
+      .editor-beast-control input {
+        accent-color: #b91c1c;
+      }
+      .editor-beast-days {
+        width: 64px;
+        padding: 6px 8px;
+        border-radius: 9px;
+        border: 1.5px solid rgba(0,0,0,0.15);
+        background: transparent;
+        color: inherit;
+        font: 700 12px 'Inter', sans-serif;
+      }
+      .editor-beast-hint {
+        display: none;
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #7f1d1d;
+        opacity: 0.78;
+      }
+      .editor-beast-hint.show {
+        display: block;
+      }
 
       .editor-save-btn {
         font-family: 'Lexend', sans-serif;
@@ -744,7 +833,8 @@
             <a href="notes.html" class="chip chip-outline chip-active">Notes</a>
             <a href="calendar.html" class="chip chip-outline">Calendar</a>
             <a href="quotes.html" class="chip chip-outline">Books</a>
-            <a href="technology.html" class="chip chip-outline">Technology</a>
+            <a href="english.html" class="chip chip-outline">English</a>
+            <a href="technology.html" class="chip chip-outline">Knowledge base</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -892,6 +982,13 @@
               Checklist
             </button>
 
+            <label class="editor-beast-control" id="editor-beast-control" title="High-priority checklist note">
+              <input type="checkbox" id="editor-beast-toggle" />
+              Beast mode
+            </label>
+            <input class="editor-beast-days" id="editor-beast-days" type="number" min="1" max="365" value="7" title="Days" aria-label="Beast mode days" />
+            <span class="editor-beast-hint" id="editor-beast-hint">Beast mode only allows todos. Add at least one todo item.</span>
+
             <!-- Pin -->
             <button class="editor-icon-btn" id="editor-pin-btn" title="Pin note">
               <svg viewBox="0 0 16 16"><path d="M8 2v5l2 2 2-2V2H6l2 2zM8 9v5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -935,6 +1032,8 @@
       let editorColor = 'sand';
       let editorPinned = false;
       let editorMode = 'prose'; // 'prose' | 'checklist'
+      let editorBeastMode = false;
+      let editorBeastDays = 7;
       let dragSession = null;
 
       /* ── DOM ── */
@@ -949,6 +1048,10 @@
       const addItemB  = document.getElementById('add-checklist-item');
       const colorRow  = document.getElementById('color-wash-row');
       const modeBtnEl = document.getElementById('editor-mode-toggle');
+      const beastControlEl = document.getElementById('editor-beast-control');
+      const beastToggleEl = document.getElementById('editor-beast-toggle');
+      const beastDaysEl = document.getElementById('editor-beast-days');
+      const beastHintEl = document.getElementById('editor-beast-hint');
       const pinBtnEl  = document.getElementById('editor-pin-btn');
       const delBtnEl  = document.getElementById('editor-delete-btn');
       const saveBtnEl = document.getElementById('editor-save-btn');
@@ -987,13 +1090,26 @@
             color: PALETTE[note?.color] ? note.color : 'sand',
             pinned: !!note?.pinned,
             mode: note?.mode === 'checklist' ? 'checklist' : 'prose',
+            beastMode: !!note?.beastMode,
+            beastDays: clampDays(note?.beastDays),
             createdAt,
             updatedAt,
             order: Number.isFinite(note?.order) ? Number(note.order) : index
           };
         });
       }
+      function clampDays(value) {
+        const days = Number(value);
+        if (!Number.isFinite(days)) return 7;
+        return Math.min(365, Math.max(1, Math.round(days)));
+      }
+      function isBeastDone(note) {
+        return !!note?.beastMode && Array.isArray(note.checklist) && note.checklist.length > 0 && note.checklist.every(item => item.done);
+      }
       function compareNotes(a, b) {
+        const aHot = a.beastMode && !isBeastDone(a);
+        const bHot = b.beastMode && !isBeastDone(b);
+        if (Number(bHot) !== Number(aHot)) return Number(bHot) - Number(aHot);
         if (!!b.pinned !== !!a.pinned) return Number(b.pinned) - Number(a.pinned);
         if ((a.order ?? 0) !== (b.order ?? 0)) return (a.order ?? 0) - (b.order ?? 0);
         return (b.updatedAt || 0) - (a.updatedAt || 0);
@@ -1041,9 +1157,14 @@
         }
 
         list.forEach((note, i) => {
-          const p = PALETTE[note.color] || PALETTE.sand;
+          const beastDone = isBeastDone(note);
+          const p = note.beastMode
+            ? (beastDone
+              ? { bg: '#BFE4C9', bar: '#2F9E5D', txt: '#102A19', pin: 'rgba(30,112,62,0.55)' }
+              : { bg: '#F1B8B8', bar: '#B91C1C', txt: '#3B0A0A', pin: 'rgba(143,28,28,0.62)' })
+            : (PALETTE[note.color] || PALETTE.sand);
           const card = document.createElement('div');
-          card.className = 'note-card' + (note.pinned?' pinned':'');
+          card.className = 'note-card' + (note.pinned?' pinned':'') + (note.beastMode?' beast-mode':'') + (beastDone?' beast-done':'');
           card.dataset.id = note.id;
           card.style.cssText = `background:${p.bg};color:${p.txt};--note-pin-color:${p.pin};animation-delay:${i*0.035}s;`;
           // Only enable drag on non-touch devices
@@ -1057,6 +1178,9 @@
           /* body */
           let bodyInner = '';
           if (note.title) bodyInner += `<div class="note-card-title">${esc(note.title)}</div>`;
+          if (note.beastMode) {
+            bodyInner += `<div class="beast-meta">${beastDone ? 'All todos complete' : 'Beast mode'} · ${clampDays(note.beastDays)} day${clampDays(note.beastDays) === 1 ? '' : 's'}</div>`;
+          }
           if (note.mode === 'checklist' && note.checklist?.length) {
             bodyInner += '<ul class="note-checklist">';
             note.checklist.forEach((item, idx) => {
@@ -1108,6 +1232,7 @@
             const n = notes.find(x => x.id === cb.dataset.nid);
             if (n?.checklist[+cb.dataset.idx]) {
               n.checklist[+cb.dataset.idx].done = cb.checked;
+              if (n.beastMode) n.updatedAt = Date.now();
               persist(); render();
             }
           });
@@ -1341,11 +1466,23 @@
         editorColor = note?.color || 'sand';
         editorPinned = !!note?.pinned;
         editorMode = note?.mode || 'prose';
+        editorBeastMode = !!note?.beastMode;
+        editorBeastDays = clampDays(note?.beastDays);
 
         applyEditorPalette();
         pinBtnEl.classList.toggle('active', editorPinned);
+        beastToggleEl.checked = editorBeastMode;
+        beastDaysEl.value = editorBeastDays;
+        beastControlEl.classList.toggle('active', editorBeastMode);
+        beastDaysEl.style.display = editorBeastMode ? '' : 'none';
+        beastHintEl.classList.remove('show');
         delBtnEl.style.display = id ? '' : 'none';
 
+        if (editorBeastMode) {
+          editorPinned = true;
+          editorMode = 'checklist';
+          pinBtnEl.classList.add('active');
+        }
         setMode(editorMode);
 
         /* populate checklist */
@@ -1369,7 +1506,9 @@
       }
 
       function applyEditorPalette() {
-        const p = PALETTE[editorColor] || PALETTE.sand;
+        const p = editorBeastMode
+          ? { bg: '#F1B8B8', bar: '#B91C1C', txt: '#3B0A0A' }
+          : (PALETTE[editorColor] || PALETTE.sand);
         panel.style.background = p.bg;
         panel.style.color = p.txt;
         edBar.style.background = p.bar;
@@ -1392,6 +1531,7 @@
           }
           if (!clUl.children.length) addClItem('', false);
         } else {
+          if (editorBeastMode) return setMode('checklist');
           contentEl.style.display = '';
           fmtTbr.style.display = '';
           clWrap.style.display = 'none';
@@ -1424,23 +1564,31 @@
 
       function saveNote() {
         const title = titleInp.value.trim();
-        const content = editorMode === 'prose' ? contentEl.innerHTML.trim() : '';
-        const checklist = editorMode === 'checklist'
+        const finalMode = editorBeastMode ? 'checklist' : editorMode;
+        const content = finalMode === 'prose' ? contentEl.innerHTML.trim() : '';
+        const checklist = finalMode === 'checklist'
           ? [...clUl.querySelectorAll('.note-editor-checklist-item')].map(li => ({
               text: li.querySelector('input[type="text"]').value.trim(),
               done: li.querySelector('input[type="checkbox"]').checked
             })).filter(i => i.text)
           : [];
 
+        if (editorBeastMode && !checklist.length) {
+          beastHintEl.classList.add('show');
+          if (!clUl.children.length) addClItem('', false);
+          clUl.querySelector('input[type="text"]')?.focus();
+          return;
+        }
+
         if (!title && !content && !checklist.length) { closeEditor(); return; }
 
         if (editingId) {
           const note = notes.find(n=>n.id===editingId);
-          if (note) Object.assign(note, { title, content, checklist, color: editorColor, pinned: editorPinned, mode: editorMode, updatedAt: Date.now() });
+          if (note) Object.assign(note, { title, content, checklist, color: editorColor, pinned: editorBeastMode ? true : editorPinned, mode: finalMode, beastMode: editorBeastMode, beastDays: clampDays(editorBeastDays), updatedAt: Date.now() });
         } else {
-          const samePinned = notes.filter(note => !!note.pinned === editorPinned);
+          const samePinned = notes.filter(note => !!note.pinned === (editorBeastMode ? true : editorPinned));
           const nextOrder = samePinned.length ? Math.max(...samePinned.map(note => note.order ?? 0)) + 1 : 0;
-          notes.push({ id: uid(), title, content, checklist, color: editorColor, pinned: editorPinned, mode: editorMode, createdAt: Date.now(), updatedAt: Date.now(), order: nextOrder });
+          notes.push({ id: uid(), title, content, checklist, color: editorColor, pinned: editorBeastMode ? true : editorPinned, mode: finalMode, beastMode: editorBeastMode, beastDays: clampDays(editorBeastDays), createdAt: Date.now(), updatedAt: Date.now(), order: nextOrder });
         }
         persist(); closeEditor(); render();
       }
@@ -1474,11 +1622,31 @@
       });
 
       pinBtnEl.addEventListener('click', () => {
+        if (editorBeastMode) return;
         editorPinned = !editorPinned;
         pinBtnEl.classList.toggle('active', editorPinned);
       });
 
       modeBtnEl.addEventListener('click', () => setMode(editorMode === 'prose' ? 'checklist' : 'prose'));
+
+      beastToggleEl.addEventListener('change', () => {
+        editorBeastMode = beastToggleEl.checked;
+        beastControlEl.classList.toggle('active', editorBeastMode);
+        beastDaysEl.style.display = editorBeastMode ? '' : 'none';
+        beastHintEl.classList.remove('show');
+        if (editorBeastMode) {
+          editorPinned = true;
+          editorMode = 'checklist';
+          pinBtnEl.classList.add('active');
+          setMode('checklist');
+        }
+        applyEditorPalette();
+      });
+
+      beastDaysEl.addEventListener('input', () => {
+        editorBeastDays = clampDays(beastDaysEl.value);
+        beastDaysEl.value = editorBeastDays;
+      });
 
       addItemB.addEventListener('click', () => {
         addClItem('', false);

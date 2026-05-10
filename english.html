@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habit Rings — English</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .english-shell {
+        max-width: 1080px;
+      }
+
+      .english-coming-soon {
+        min-height: 62vh;
+        display: grid;
+        place-items: center;
+        padding: 28px;
+      }
+
+      .english-card {
+        width: min(100%, 640px);
+        padding: 44px 28px;
+        text-align: center;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+      }
+
+      .english-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding: 7px 12px;
+        border-radius: var(--radius-pill);
+        background: var(--accent-soft);
+        color: var(--accent-muted);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .english-card h1 {
+        font-size: clamp(36px, 8vw, 72px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+        margin-bottom: 14px;
+      }
+
+      .english-card p {
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell english-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="english.html" class="chip chip-outline chip-active">English</a>
+            <a href="technology.html" class="chip chip-outline">Knowledge base</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="english-coming-soon">
+        <section class="english-card">
+          <div class="english-eyebrow">English Practice</div>
+          <h1>Coming Soon</h1>
+          <p>This section is being prepared for English learning, practice, and progress tracking.</p>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const todayEl = document.getElementById('today-label');
+      if (todayEl) {
+        todayEl.textContent = new Date().toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+    </script>
+  </body>
+</html>
