@@ -139,9 +139,108 @@
         outline: none;
       }
 
+      .tech-subcategory-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tech-subcategory-label,
+      .tech-subcategory-input {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        border-radius: 999px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .tech-subcategory-label {
+        padding: 7px 10px;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border: 1px solid var(--accent-border);
+      }
+
+      .tech-subcategory-input {
+        width: min(100%, 260px);
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text);
+        padding: 7px 12px;
+      }
+
+      .tech-subcategory-add {
+        min-height: 30px;
+        border-radius: 999px;
+        border: 1px solid var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 7px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .tech-subcategory-add:hover {
+        background: rgba(63, 185, 80, 0.16);
+      }
+
+      .tech-subcategory-tabs {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .tech-subcategory-tab {
+        min-height: 30px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text-muted);
+        padding: 7px 11px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .tech-subcategory-tab.is-active {
+        border-color: var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .tech-subcategory-delete {
+        margin-left: 6px;
+        color: var(--text-dim);
+      }
+
+      .tech-subcategory-tab:hover .tech-subcategory-delete {
+        color: #ff7b72;
+      }
+
+      .tech-subcategory-input::placeholder {
+        color: var(--text-dim);
+      }
+
+      .tech-subcategory-input:focus {
+        outline: none;
+        border-color: var(--accent-border);
+      }
+
       .tech-toolbar {
         display: flex;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         align-items: center;
         gap: 6px;
         padding: 10px;
@@ -198,6 +297,10 @@
       .tech-select {
         cursor: pointer;
         min-width: 116px;
+      }
+
+      .tech-select--size {
+        min-width: 96px;
       }
 
       .tech-doc__meta {
@@ -519,6 +622,8 @@
         .tech-doc { border-radius: 14px; }
         .tech-doc__top { padding: 10px 10px 8px; gap: 8px; }
         .tech-title-input { font-size: 17px; }
+        .tech-subcategory-input { width: 100%; }
+        .tech-subcategory-add { width: 100%; justify-content: center; }
         .tech-toolbar { padding: 5px; gap: 3px; }
         .tech-tool { padding: 4px 6px; font-size: 10px; min-height: 28px; border-radius: 8px; }
         .tech-select { min-height: 28px; font-size: 10px; min-width: 80px; padding: 4px 6px; }
@@ -614,6 +719,21 @@
                   autocomplete="off"
                 />
 
+                <div class="tech-subcategory-row">
+                  <span class="tech-subcategory-label">Sub-category</span>
+                  <input
+                    id="tech-subcategory-input"
+                    class="tech-subcategory-input"
+                    type="text"
+                    maxlength="48"
+                    placeholder="Add badge"
+                    autocomplete="off"
+                  />
+                  <button class="tech-subcategory-add" id="tech-subcategory-add" type="button">Add</button>
+                </div>
+
+                <div class="tech-subcategory-tabs" id="tech-subcategory-tabs"></div>
+
                 <div class="tech-toolbar" id="tech-toolbar">
                   <select class="tech-select" id="tech-block-format">
                     <option value="p">Paragraph</option>
@@ -622,6 +742,15 @@
                     <option value="h3">Heading 3</option>
                     <option value="blockquote">Quote</option>
                   </select>
+                  <select class="tech-select tech-select--size" id="tech-text-size" title="Text size">
+                    <option value="14">Small</option>
+                    <option value="17" selected>Normal</option>
+                    <option value="20">Large</option>
+                    <option value="24">XL</option>
+                    <option value="30">Title</option>
+                  </select>
+                  <button class="tech-tool tech-tool--icon" type="button" data-action="size-down" aria-label="Decrease text size" title="Decrease text size">A-</button>
+                  <button class="tech-tool tech-tool--icon" type="button" data-action="size-up" aria-label="Increase text size" title="Increase text size">A+</button>
                   <button class="tech-tool" type="button" data-cmd="bold">Bold</button>
                   <button class="tech-tool" type="button" data-cmd="italic">Italic</button>
                   <button class="tech-tool" type="button" data-cmd="underline">Underline</button>
@@ -670,24 +799,31 @@
         const TECH_DOCS_KEY = 'habit-rings-tech-docs-v1';
         const DEFAULT_CATEGORIES = [];
         const DEFAULT_DOCS = {};
+        const TEXT_SIZE_OPTIONS = [14, 17, 20, 24, 30];
 
         let categories = loadCategories();
         let docs = loadDocs();
         let activeCategoryId = categories[0]?.id || null;
+        let activeSubcategoryId = null;
         let saveTimer = null;
 
         const categoryFormEl = document.getElementById('tech-category-form');
         const categoryInputEl = document.getElementById('tech-category-input');
         const categoriesEl = document.getElementById('tech-categories');
         const titleInputEl = document.getElementById('tech-title-input');
+        const subcategoryInputEl = document.getElementById('tech-subcategory-input');
+        const subcategoryAddEl = document.getElementById('tech-subcategory-add');
+        const subcategoryTabsEl = document.getElementById('tech-subcategory-tabs');
         const editorEl = document.getElementById('tech-editor');
         const toolbarEl = document.getElementById('tech-toolbar');
         const blockFormatEl = document.getElementById('tech-block-format');
+        const textSizeEl = document.getElementById('tech-text-size');
         const activeCategoryEl = document.getElementById('tech-active-category');
         const selectionStateEl = document.getElementById('tech-selection-state');
         const categoryCountEl = document.getElementById('tech-category-count');
         const wordCountEl = document.getElementById('tech-word-count');
         const lastEditedEl = document.getElementById('tech-last-edited');
+        let savedEditorRange = null;
 
         function loadCategories() {
           try {
@@ -715,9 +851,26 @@
                 content: `<h1>${escapeHtml(category.title)}</h1><p>Start documenting your information here.</p>`
               };
               const current = parsed[category.id] || {};
+              const subcategories = normalizeSubcategories(current.subcategories);
+              const legacySubcategory = typeof current.subcategory === 'string' ? current.subcategory.trim() : '';
+              if (legacySubcategory && !subcategories.length) {
+                subcategories.push({
+                  id: ensureUniqueSubcategoryId({ subcategories }, slugify(legacySubcategory)),
+                  title: legacySubcategory,
+                  content: typeof current.content === 'string' && current.content.trim()
+                    ? current.content
+                    : `<h1>${escapeHtml(legacySubcategory)}</h1><p>Start documenting your information here.</p>`,
+                  updatedAt: typeof current.updatedAt === 'number' ? current.updatedAt : Date.now()
+                });
+              }
+              const activeSubId = typeof current.activeSubcategoryId === 'string' && subcategories.some(subcategory => subcategory.id === current.activeSubcategoryId)
+                ? current.activeSubcategoryId
+                : (legacySubcategory && subcategories[0]?.id) || null;
               acc[category.id] = {
                 title: typeof current.title === 'string' && current.title.trim() ? current.title : fallback.title,
                 content: typeof current.content === 'string' && current.content.trim() ? current.content : fallback.content,
+                subcategories,
+                activeSubcategoryId: activeSubId,
                 updatedAt: typeof current.updatedAt === 'number' ? current.updatedAt : Date.now()
               };
               return acc;
@@ -727,6 +880,8 @@
               acc[category.id] = DEFAULT_DOCS[category.id] || {
                 title: category.title,
                 content: `<h1>${escapeHtml(category.title)}</h1><p>Start documenting your information here.</p>`,
+                subcategories: [],
+                activeSubcategoryId: null,
                 updatedAt: Date.now()
               };
               return acc;
@@ -766,9 +921,58 @@
           return id;
         }
 
+        function normalizeSubcategories(value) {
+          if (!Array.isArray(value)) return [];
+          return value
+            .map(item => ({
+              id: typeof item?.id === 'string' ? item.id : '',
+              title: typeof item?.title === 'string' ? item.title.trim() : '',
+              content: typeof item?.content === 'string' ? item.content : '',
+              updatedAt: typeof item?.updatedAt === 'number' ? item.updatedAt : Date.now()
+            }))
+            .filter(item => item.id && item.title);
+        }
+
+        function ensureUniqueSubcategoryId(doc, baseId) {
+          let id = baseId || `subcategory_${Date.now().toString(36)}`;
+          let count = 2;
+          while ((doc.subcategories || []).some(subcategory => subcategory.id === id)) {
+            id = `${baseId}_${count}`;
+            count += 1;
+          }
+          return id;
+        }
+
         function getActiveDoc() {
           if (!activeCategoryId) return null;
           return docs[activeCategoryId] || null;
+        }
+
+        function getActiveSubcategory(doc) {
+          if (!doc || !activeSubcategoryId) return null;
+          return (doc.subcategories || []).find(subcategory => subcategory.id === activeSubcategoryId) || null;
+        }
+
+        function getActiveEditorContent(doc) {
+          const subcategory = getActiveSubcategory(doc);
+          return subcategory ? subcategory.content : doc?.content || '';
+        }
+
+        function getDocWordCount(doc) {
+          if (!doc) return 0;
+          const mainWords = getWordCountFromHtml(doc.content || '');
+          const subcategoryWords = (doc.subcategories || []).reduce((total, subcategory) => {
+            return total + getWordCountFromHtml(subcategory.content || '');
+          }, 0);
+          return mainWords + subcategoryWords;
+        }
+
+        function getDocUpdatedAt(doc) {
+          if (!doc) return null;
+          return Math.max(
+            doc.updatedAt || 0,
+            ...(doc.subcategories || []).map(subcategory => subcategory.updatedAt || 0)
+          );
         }
 
         function getWordCountFromHtml(html) {
@@ -788,10 +992,12 @@
 
         function updateMeta() {
           const doc = getActiveDoc();
+          const categoryTitle = categories.find(category => category.id === activeCategoryId)?.title || 'No category selected';
+          const subcategoryTitle = getActiveSubcategory(doc)?.title;
           categoryCountEl.textContent = String(categories.length);
           wordCountEl.textContent = String(getWordCountFromHtml(editorEl.innerHTML));
-          lastEditedEl.textContent = formatTimestamp(doc?.updatedAt);
-          activeCategoryEl.textContent = categories.find(category => category.id === activeCategoryId)?.title || 'No category selected';
+          lastEditedEl.textContent = formatTimestamp(getActiveSubcategory(doc)?.updatedAt || doc?.updatedAt);
+          activeCategoryEl.textContent = subcategoryTitle ? `${categoryTitle} / ${subcategoryTitle}` : categoryTitle;
         }
 
         let dragSrcId = null;
@@ -807,7 +1013,7 @@
                 </div>
                 <button class="tech-category__open" type="button" data-category="${category.id}">
                   <span class="tech-category__title">${escapeHtml(category.title)}</span>
-                  <span class="tech-category__meta">${getWordCountFromHtml(doc.content)} words · ${formatTimestamp(doc.updatedAt)}</span>
+                  <span class="tech-category__meta">${getDocWordCount(doc)} words · ${formatTimestamp(getDocUpdatedAt(doc))}</span>
                 </button>
                 <button class="tech-category__delete" type="button" data-delete="${category.id}" aria-label="Delete ${escapeHtml(category.title)}">×</button>
               </div>
@@ -861,16 +1067,42 @@
           });
         }
 
+        function renderSubcategoryTabs(doc) {
+          if (!doc) {
+            subcategoryTabsEl.innerHTML = '';
+            return;
+          }
+          const tabs = [
+            `<button class="tech-subcategory-tab${!activeSubcategoryId ? ' is-active' : ''}" type="button" data-subcategory="">Main</button>`,
+            ...(doc.subcategories || []).map(subcategory => `
+              <button class="tech-subcategory-tab${subcategory.id === activeSubcategoryId ? ' is-active' : ''}" type="button" data-subcategory="${subcategory.id}">
+                ${escapeHtml(subcategory.title)}
+                <span class="tech-subcategory-delete" data-delete-subcategory="${subcategory.id}" aria-label="Delete ${escapeHtml(subcategory.title)}">×</span>
+              </button>
+            `)
+          ];
+          subcategoryTabsEl.innerHTML = tabs.join('');
+        }
+
         function renderDocument() {
           const doc = getActiveDoc();
+          savedEditorRange = null;
           if (!doc) {
             titleInputEl.value = '';
+            subcategoryInputEl.value = '';
+            activeSubcategoryId = null;
+            subcategoryTabsEl.innerHTML = '';
             editorEl.innerHTML = '';
             updateMeta();
             return;
           }
+          activeSubcategoryId = (doc.subcategories || []).some(subcategory => subcategory.id === doc.activeSubcategoryId)
+            ? doc.activeSubcategoryId
+            : null;
           titleInputEl.value = doc.title || '';
-          editorEl.innerHTML = doc.content || '';
+          subcategoryInputEl.value = '';
+          editorEl.innerHTML = getActiveEditorContent(doc);
+          renderSubcategoryTabs(doc);
           updateMeta();
         }
 
@@ -885,11 +1117,19 @@
         function persistActiveDoc() {
           if (!activeCategoryId) return;
           const title = titleInputEl.value.trim() || categories.find(category => category.id === activeCategoryId)?.title || 'Untitled Document';
-          docs[activeCategoryId] = {
-            title,
-            content: editorEl.innerHTML,
-            updatedAt: Date.now()
-          };
+          const doc = docs[activeCategoryId] || { content: '', subcategories: [], updatedAt: Date.now() };
+          doc.title = title;
+          doc.subcategories = normalizeSubcategories(doc.subcategories);
+          doc.activeSubcategoryId = activeSubcategoryId;
+          const activeSubcategory = getActiveSubcategory(doc);
+          if (activeSubcategory) {
+            activeSubcategory.content = editorEl.innerHTML;
+            activeSubcategory.updatedAt = Date.now();
+          } else {
+            doc.content = editorEl.innerHTML;
+            doc.updatedAt = Date.now();
+          }
+          docs[activeCategoryId] = doc;
           saveDocs();
           updateMeta();
           renderCategories();
@@ -902,6 +1142,22 @@
 
         function focusEditor() {
           editorEl.focus();
+          restoreEditorSelection();
+        }
+
+        function rememberEditorSelection() {
+          const selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0) return;
+          const range = selection.getRangeAt(0);
+          if (!editorEl.contains(range.commonAncestorContainer)) return;
+          savedEditorRange = range.cloneRange();
+        }
+
+        function restoreEditorSelection() {
+          if (!savedEditorRange) return;
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(savedEditorRange);
         }
 
         function applyBlockFormat(value) {
@@ -943,6 +1199,61 @@
           scheduleSave();
         }
 
+        function normalizeFontSize(size) {
+          editorEl.querySelectorAll('font[size="7"]').forEach(fontEl => {
+            const span = document.createElement('span');
+            span.innerHTML = fontEl.innerHTML;
+            span.style.fontSize = `${size}px`;
+            fontEl.replaceWith(span);
+          });
+        }
+
+        function applyTextSize(size) {
+          const numericSize = Number(size);
+          if (!TEXT_SIZE_OPTIONS.includes(numericSize)) return;
+          textSizeEl.value = String(numericSize);
+          focusEditor();
+          document.execCommand('fontSize', false, '7');
+          normalizeFontSize(numericSize);
+          rememberEditorSelection();
+          scheduleSave();
+        }
+
+        function adjustTextSize(direction) {
+          const currentSize = Number(textSizeEl.value) || 17;
+          const currentIndex = Math.max(0, TEXT_SIZE_OPTIONS.indexOf(currentSize));
+          const nextIndex = Math.min(
+            TEXT_SIZE_OPTIONS.length - 1,
+            Math.max(0, currentIndex + direction)
+          );
+          applyTextSize(TEXT_SIZE_OPTIONS[nextIndex]);
+        }
+
+        function saveSubcategoryBadge() {
+          if (!activeCategoryId) return;
+          const title = subcategoryInputEl.value.trim();
+          if (!title) return;
+          persistActiveDoc();
+          const doc = getActiveDoc();
+          if (!doc) return;
+          doc.subcategories = normalizeSubcategories(doc.subcategories);
+          const id = ensureUniqueSubcategoryId(doc, slugify(title));
+          doc.subcategories.push({
+            id,
+            title,
+            content: `<h1>${escapeHtml(title)}</h1><p>Start documenting your information here.</p>`,
+            updatedAt: Date.now()
+          });
+          activeSubcategoryId = id;
+          doc.activeSubcategoryId = id;
+          subcategoryInputEl.value = '';
+          saveDocs();
+          renderDocument();
+          renderCategories();
+          selectionStateEl.textContent = 'Sub-category added';
+          focusEditor();
+        }
+
         categoryFormEl.addEventListener('submit', event => {
           event.preventDefault();
           const title = categoryInputEl.value.trim();
@@ -952,9 +1263,12 @@
           docs[id] = {
             title,
             content: `<h1>${escapeHtml(title)}</h1><p>Start documenting your information here.</p>`,
+            subcategories: [],
+            activeSubcategoryId: null,
             updatedAt: Date.now()
           };
           activeCategoryId = id;
+          activeSubcategoryId = null;
           saveCategories();
           saveDocs();
           categoryFormEl.reset();
@@ -988,7 +1302,49 @@
         });
 
         titleInputEl.addEventListener('input', scheduleSave);
+        subcategoryInputEl.addEventListener('input', scheduleSave);
+        subcategoryAddEl.addEventListener('click', saveSubcategoryBadge);
+        subcategoryInputEl.addEventListener('keydown', event => {
+          if (event.key !== 'Enter') return;
+          event.preventDefault();
+          saveSubcategoryBadge();
+        });
+        subcategoryTabsEl.addEventListener('click', event => {
+          const deleteButton = event.target.closest('[data-delete-subcategory]');
+          if (deleteButton) {
+            event.stopPropagation();
+            persistActiveDoc();
+            const doc = getActiveDoc();
+            if (!doc) return;
+            const deleteId = deleteButton.dataset.deleteSubcategory;
+            doc.subcategories = (doc.subcategories || []).filter(subcategory => subcategory.id !== deleteId);
+            if (activeSubcategoryId === deleteId) {
+              activeSubcategoryId = null;
+            }
+            doc.activeSubcategoryId = activeSubcategoryId;
+            saveDocs();
+            renderDocument();
+            renderCategories();
+            selectionStateEl.textContent = 'Sub-category removed';
+            return;
+          }
+
+          const tab = event.target.closest('[data-subcategory]');
+          if (!tab) return;
+          persistActiveDoc();
+          const doc = getActiveDoc();
+          if (!doc) return;
+          activeSubcategoryId = tab.dataset.subcategory || null;
+          doc.activeSubcategoryId = activeSubcategoryId;
+          saveDocs();
+          renderDocument();
+          selectionStateEl.textContent = activeSubcategoryId ? 'Sub-category selected' : 'Main category selected';
+          focusEditor();
+        });
         editorEl.addEventListener('input', scheduleSave);
+        editorEl.addEventListener('input', rememberEditorSelection);
+        editorEl.addEventListener('keyup', rememberEditorSelection);
+        editorEl.addEventListener('mouseup', rememberEditorSelection);
 
         editorEl.addEventListener('focus', () => {
           selectionStateEl.textContent = 'Editing document';
@@ -1001,6 +1357,10 @@
         blockFormatEl.addEventListener('change', () => {
           applyBlockFormat(blockFormatEl.value);
           scheduleSave();
+        });
+
+        textSizeEl.addEventListener('change', () => {
+          applyTextSize(textSizeEl.value);
         });
 
         toolbarEl.addEventListener('click', event => {
@@ -1024,6 +1384,14 @@
           }
           if (action === 'highlight') {
             toggleHighlight();
+            return;
+          }
+          if (action === 'size-down') {
+            adjustTextSize(-1);
+            return;
+          }
+          if (action === 'size-up') {
+            adjustTextSize(1);
             return;
           }
           if (!cmd) return;
