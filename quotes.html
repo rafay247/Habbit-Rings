@@ -190,6 +190,10 @@
         display: none;
       }
 
+      .quotes-goat-section[hidden] {
+        display: none;
+      }
+
       .quotes-all-section[hidden] {
         display: none;
       }
@@ -677,6 +681,10 @@
       .quotes-book-item:hover { border-color: var(--border-strong); background: var(--bg-hover); }
       .quotes-book-item.is-read { opacity: 0.75; }
       .quotes-book-item.is-read .quotes-book-title { text-decoration: line-through; color: var(--text-muted); }
+      .quotes-book-item.is-goat {
+        border-color: rgba(227, 179, 65, 0.42);
+        background: rgba(46, 35, 10, 0.42);
+      }
       .quotes-book-check {
         width: 18px; height: 18px;
         border-radius: 5px;
@@ -776,6 +784,39 @@
       }
       .quotes-book-item:hover .quotes-book-moral-btn { opacity: 1; }
       @media (pointer: coarse) { .quotes-book-moral-btn { opacity: 1; } }
+
+      .quotes-book-goat-btn {
+        flex-shrink: 0;
+        min-width: 32px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid rgba(227, 179, 65, 0.28);
+        background: rgba(227, 179, 65, 0.08);
+        color: rgba(227, 179, 65, 0.72);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 800;
+        transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+      }
+      .quotes-book-goat-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(227, 179, 65, 0.5);
+        color: #e3b341;
+      }
+      .quotes-book-goat-btn.active {
+        background: rgba(227, 179, 65, 0.2);
+        border-color: rgba(227, 179, 65, 0.62);
+        color: #e3b341;
+      }
+      .quotes-goat-empty {
+        padding: 22px;
+        border-radius: 16px;
+        border: 1px dashed rgba(227, 179, 65, 0.28);
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+      }
 
       /* ── Moral editor overlay ── */
       .moral-editor-overlay {
@@ -1234,6 +1275,10 @@
               <span class="quotes-top-tab__label">Books Read</span>
               <span class="quotes-top-tab__value" id="books-read-count">0</span>
             </button>
+            <button class="quotes-top-tab" id="goat-books-tab" type="button">
+              <span class="quotes-top-tab__label">GOAT Books</span>
+              <span class="quotes-top-tab__value" id="goat-books-count">0</span>
+            </button>
             <div class="quotes-top-stat" aria-label="Unread books">
               <span class="quotes-top-stat__label">Unread Books</span>
               <span class="quotes-top-stat__value" id="books-unread-count">0</span>
@@ -1291,6 +1336,15 @@
         </div>
         <div class="quotes-read-filters" id="books-read-filters"></div>
         <div class="quotes-read-grid" id="books-read-list"></div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-read-section quotes-goat-section" id="goat-books-section" hidden>
+        <div class="quotes-read-header">
+          <h2>GOAT Books</h2>
+          <span class="quotes-meta" id="goat-books-meta"></span>
+        </div>
+        <div class="quotes-read-filters" id="goat-books-filters"></div>
+        <div class="quotes-read-grid" id="goat-books-list"></div>
       </section>
 
       <div class="quotes-modal" id="read-book-modal">
@@ -1492,6 +1546,7 @@
         let activeSection = 'all';
         let selectedReadBookIndex = null;
         let activeReadBookFilter = 'all';
+        let activeGoatBookFilter = 'all';
         let isReadBookEditing = false;
 
         const tabsEl = document.getElementById('quotes-tabs');
@@ -1503,10 +1558,16 @@
         const allBooksTabEl = document.getElementById('all-books-tab');
         const allBooksCountEl = document.getElementById('all-books-count');
         const readBooksTabEl = document.getElementById('read-books-tab');
+        const goatBooksTabEl = document.getElementById('goat-books-tab');
+        const goatBooksCountEl = document.getElementById('goat-books-count');
         const allBooksSectionEl = document.getElementById('quotes-all-section');
         const booksReadCountEl = document.getElementById('books-read-count');
         const booksUnreadCountEl = document.getElementById('books-unread-count');
         const booksReadSectionEl = document.getElementById('books-read-section');
+        const goatBooksSectionEl = document.getElementById('goat-books-section');
+        const goatBooksFiltersEl = document.getElementById('goat-books-filters');
+        const goatBooksListEl = document.getElementById('goat-books-list');
+        const goatBooksMetaEl = document.getElementById('goat-books-meta');
         const booksReadFormEl = document.getElementById('books-read-form');
         const booksReadInputEl = document.getElementById('books-read-input');
         const booksReadCategoryInputEl = document.getElementById('books-read-category-input');
@@ -1526,7 +1587,7 @@
         const readBookModalCloseEl = document.getElementById('read-book-modal-close');
 
         // ── New structured data model ─────────────────────────────────────────
-        // categories: [{ id, name, books: [{ id, title, read }] }]
+        // categories: [{ id, name, books: [{ id, title, read, goat }] }]
         // Stored in STORAGE_KEY as JSON
 
         function uid() {
@@ -1545,7 +1606,7 @@
           return SEED_DATA.map(cat => ({
             id: uid(),
             name: cat.name,
-            books: cat.books.map(b => ({ id: uid(), title: b.title, read: !!b.read }))
+            books: cat.books.map(b => ({ id: uid(), title: b.title, read: !!b.read, goat: !!b.goat }))
           }));
         }
 
@@ -1557,6 +1618,7 @@
               id: b.id || uid(),
               title: typeof b.title === 'string' ? b.title : '',
               read: !!b.read,
+              goat: !!b.goat,
               moral: typeof b.moral === 'string' ? b.moral : ''
             })).filter(b => b.title) : []
           })).filter(cat => cat.name);
@@ -1567,6 +1629,7 @@
           // Update counts immediately
           allBooksCountEl.textContent = String(getTotalBooks());
           booksReadCountEl.textContent = String(getTotalReadBooks());
+          goatBooksCountEl.textContent = String(getTotalGoatBooks());
           booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
         }
 
@@ -1580,6 +1643,10 @@
 
         function getTotalUnreadBooks() {
           return getTotalBooks() - getTotalReadBooks();
+        }
+
+        function getTotalGoatBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.filter(b => b.goat).length, 0);
         }
 
         function getActiveCat() {
@@ -1796,7 +1863,7 @@
           }
 
           listEl.innerHTML = cat.books.map(book => `
-            <div class="quotes-book-item${book.read ? ' is-read' : ''}" data-book-id="${book.id}">
+            <div class="quotes-book-item${book.read ? ' is-read' : ''}${book.goat ? ' is-goat' : ''}" data-book-id="${book.id}">
               <input
                 type="checkbox"
                 class="quotes-book-check"
@@ -1814,6 +1881,9 @@
                   ${book.moral ? '📝' : '+ Moral'}
                 </button>
               ` : ''}
+              <button class="quotes-book-goat-btn${book.goat ? ' active' : ''}" data-book-id="${book.id}" title="${book.goat ? 'Remove from GOAT' : 'Add to GOAT'}" aria-label="${book.goat ? 'Remove from GOAT' : 'Add to GOAT'}">
+                ${book.goat ? '★' : '☆'}
+              </button>
               <button class="quotes-book-delete" data-book-id="${book.id}" title="Remove book" aria-label="Remove ${escapeHtml(book.title)}">×</button>
             </div>
           `).join('');
@@ -1829,6 +1899,20 @@
               saveData();
               renderBookList();
               renderTabs();
+              renderGoatBooksSection();
+            });
+          });
+
+          listEl.querySelectorAll('.quotes-book-goat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.goat = !book.goat;
+              saveData();
+              renderBookList();
+              renderGoatBooksSection();
             });
           });
 
@@ -1852,6 +1936,7 @@
               saveData();
               renderBookList();
               renderTabs();
+              renderGoatBooksSection();
             });
           });
         }
@@ -2077,9 +2162,99 @@
               book.read = false;
               saveData();
               renderReadBooksSection();
+              renderGoatBooksSection();
               // Also refresh book list if that category is active
               if (activeTab === cat.id) renderBookList();
               renderTabs();
+            });
+          });
+        }
+
+        function collectGoatBooks() {
+          const allGoat = [];
+          data.forEach(cat => {
+            cat.books.forEach(book => {
+              if (book.goat) {
+                allGoat.push({
+                  title: book.title,
+                  category: cat.name,
+                  catId: cat.id,
+                  bookId: book.id,
+                  read: !!book.read,
+                  moral: book.moral || ''
+                });
+              }
+            });
+          });
+          return allGoat;
+        }
+
+        function renderGoatBooksSection() {
+          const allGoat = collectGoatBooks();
+          if (goatBooksCountEl) goatBooksCountEl.textContent = String(allGoat.length);
+          if (goatBooksMetaEl) goatBooksMetaEl.textContent = `${allGoat.length} GOAT book${allGoat.length !== 1 ? 's' : ''}`;
+          if (!goatBooksListEl) return;
+
+          const catsWithGoat = [...new Set(allGoat.map(b => b.category))];
+          if (goatBooksFiltersEl) {
+            goatBooksFiltersEl.innerHTML = [
+              `<button class="quotes-read-filter${activeGoatBookFilter === 'all' ? ' active' : ''}" data-filter="all">
+                <span>All</span>
+                <span class="quotes-read-filter__count">${allGoat.length}</span>
+              </button>`,
+              ...catsWithGoat.map(cat => {
+                const count = allGoat.filter(b => b.category === cat).length;
+                const isActive = activeGoatBookFilter === cat;
+                return `<button class="quotes-read-filter${isActive ? ' active' : ''}" data-filter="${escapeHtml(cat)}">
+                  <span>${escapeHtml(cat)}</span>
+                  <span class="quotes-read-filter__count">${count}</span>
+                </button>`;
+              })
+            ].join('');
+
+            goatBooksFiltersEl.querySelectorAll('.quotes-read-filter').forEach(btn => {
+              btn.addEventListener('click', () => {
+                activeGoatBookFilter = btn.dataset.filter;
+                renderGoatBooksSection();
+              });
+            });
+          }
+
+          const filtered = activeGoatBookFilter === 'all'
+            ? allGoat
+            : allGoat.filter(b => b.category === activeGoatBookFilter);
+
+          if (filtered.length === 0) {
+            goatBooksListEl.innerHTML = `<div class="quotes-goat-empty">${
+              activeGoatBookFilter === 'all'
+                ? 'No GOAT books yet. Tap the ☆ button beside any book to add it here.'
+                : `No GOAT books in "${escapeHtml(activeGoatBookFilter)}".`
+            }</div>`;
+            return;
+          }
+
+          goatBooksListEl.innerHTML = filtered.map(book => `
+            <div class="quotes-read-item" data-book-id="${book.bookId}" data-cat-id="${book.catId}">
+              <div class="quotes-read-item__top">
+                <div class="quotes-read-item__info">
+                  <span class="quotes-read-item__title">★ ${escapeHtml(book.title)}</span>
+                  <span class="quotes-read-item__cat">${escapeHtml(book.category)}${book.read ? ' · Read' : ''}</span>
+                </div>
+                <button class="quotes-read-unmark" type="button" data-book-id="${book.bookId}" data-cat-id="${book.catId}" title="Remove from GOAT">Remove</button>
+              </div>
+            </div>
+          `).join('');
+
+          goatBooksListEl.querySelectorAll('.quotes-read-unmark').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = data.find(c => c.id === btn.dataset.catId);
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.goat = false;
+              saveData();
+              renderGoatBooksSection();
+              if (activeTab === cat.id) renderBookList();
             });
           });
         }
@@ -2093,14 +2268,18 @@
           renderBookList();
           allBooksTabEl.classList.toggle('active', activeSection === 'all');
           readBooksTabEl.classList.toggle('active', activeSection === 'read');
+          goatBooksTabEl.classList.toggle('active', activeSection === 'goat');
           allBooksSectionEl.hidden = activeSection !== 'all';
           booksReadSectionEl.hidden = activeSection !== 'read';
+          goatBooksSectionEl.hidden = activeSection !== 'goat';
           allBooksCountEl.textContent = String(getTotalBooks());
           booksReadCountEl.textContent = String(getTotalReadBooks());
+          goatBooksCountEl.textContent = String(getTotalGoatBooks());
           booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
 
           // ── Read Books tab: pull all read:true books from data ──────────────
           renderReadBooksSection();
+          renderGoatBooksSection();
 
           const cat = getActiveCat();
           titleEl.textContent = cat ? cat.name : 'Select a category';
@@ -2133,6 +2312,7 @@
 
         allBooksTabEl.addEventListener('click', () => { activeSection = 'all'; render(); });
         readBooksTabEl.addEventListener('click', () => { activeSection = 'read'; render(); });
+        goatBooksTabEl.addEventListener('click', () => { activeSection = 'goat'; render(); });
 
         // ── Add category ──────────────────────────────────────────────────────
         categoryFormEl.addEventListener('submit', event => {
@@ -2158,7 +2338,7 @@
             if (!cat) return;
             const title = addBookInputEl.value.trim();
             if (!title) return;
-            cat.books.push({ id: uid(), title, read: false });
+            cat.books.push({ id: uid(), title, read: false, goat: false });
             saveData();
             addBookFormEl.reset();
             renderBookList();
