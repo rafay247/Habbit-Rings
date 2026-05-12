@@ -1,5 +1,6 @@
 const STORAGE_KEY = "habit-rings-data-v1";
 const DATA_VERSION_KEY = "habit-rings-data-version";
+const ENGLISH_REVISION_KEY = "habit-rings-english-revision-v1";
 const DEFAULT_REMINDER_TIME = "20:00";
 const IDB_NAME = "habit-rings-db";
 const IDB_STORE = "kv";
@@ -482,6 +483,10 @@ function cacheEls() {
   els.todayLabel = document.getElementById("today-label");
   els.quoteText = document.getElementById("quote-text");
   els.quoteAuthor = document.getElementById("quote-author");
+  els.wordDay = document.getElementById("header-word");
+  els.wordDayTerm = document.getElementById("word-day-term");
+  els.wordDayMeaning = document.getElementById("word-day-meaning");
+  els.wordDaySentences = document.getElementById("word-day-sentences");
   els.datePicker = document.getElementById("date-picker");
   els.habitList = document.getElementById("habit-list");
   els.addHabit = document.getElementById("add-habit");
@@ -1021,6 +1026,47 @@ function renderDailyQuote() {
     els.quoteText.textContent = raw;
     if (els.quoteAuthor) els.quoteAuthor.textContent = "";
   }
+}
+
+function loadEnglishWords() {
+  try {
+    const raw = localStorage.getItem(ENGLISH_REVISION_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (!parsed || !Array.isArray(parsed.words)) return [];
+    return parsed.words.filter((item) => item && item.word && item.meaning);
+  } catch {
+    return [];
+  }
+}
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value || "";
+  return div.innerHTML;
+}
+
+function renderWordOfTheDay() {
+  if (!els.wordDayTerm || !els.wordDayMeaning) return;
+  const words = loadEnglishWords();
+  if (!words.length) {
+    els.wordDayTerm.textContent = "Open English";
+    els.wordDayMeaning.textContent = "Add words in the English section to revise them here.";
+    if (els.wordDaySentences) els.wordDaySentences.innerHTML = "";
+    return;
+  }
+
+  const index = dayOfYear(new Date()) % words.length;
+  const word = words[index];
+  els.wordDayTerm.textContent = word.word || "Word";
+  els.wordDayMeaning.textContent = word.meaning || "";
+
+  if (!els.wordDaySentences) return;
+  const sentences = [word.sentence1, word.sentence2, word.sentence3]
+    .map((value) => (value || "").trim())
+    .filter(Boolean);
+  els.wordDaySentences.innerHTML = sentences
+    .map((sentence) => `<li>${escapeHtml(sentence)}</li>`)
+    .join("");
 }
 
 function renderNotes() {
@@ -1902,6 +1948,7 @@ async function init() {
   ui.heatmapYear = new Date().getFullYear();
 
   renderDailyQuote();
+  renderWordOfTheDay();
   renderTodayLabel();
   renderHabitsForSelectedDate();
 

@@ -3,35 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Habit Rings — English</title>
+    <title>Habit Rings - English</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="style.css" />
     <style>
       .english-shell {
-        max-width: 1080px;
+        max-width: 1180px;
       }
 
-      .english-coming-soon {
-        min-height: 62vh;
+      .english-main {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .english-hero {
+        padding: 22px;
         display: grid;
-        place-items: center;
-        padding: 28px;
-      }
-
-      .english-card {
-        width: min(100%, 640px);
-        padding: 44px 28px;
-        text-align: center;
-        background: var(--bg-primary);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-xl);
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: end;
+        border-radius: 22px;
       }
 
       .english-eyebrow {
         display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 16px;
+        align-self: flex-start;
+        margin-bottom: 12px;
         padding: 7px 12px;
         border-radius: var(--radius-pill);
         background: var(--accent-soft);
@@ -42,17 +40,466 @@
         text-transform: uppercase;
       }
 
-      .english-card h1 {
-        font-size: clamp(36px, 8vw, 72px);
-        line-height: 0.95;
-        letter-spacing: -0.06em;
-        margin-bottom: 14px;
+      .english-hero h1 {
+        font-size: clamp(30px, 5vw, 48px);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        margin-bottom: 10px;
       }
 
-      .english-card p {
+      .english-hero p {
+        max-width: 68ch;
         color: var(--text-muted);
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.7;
+      }
+
+      .english-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(92px, 1fr));
+        gap: 10px;
+      }
+
+      .english-stat {
+        min-width: 104px;
+        padding: 13px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.88);
+      }
+
+      .english-stat__label {
+        color: var(--text-dim);
+        font-size: 10px;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .english-stat__value {
+        display: block;
+        margin-top: 8px;
+        color: var(--accent);
+        font-family: 'Lexend', sans-serif;
+        font-size: 23px;
+      }
+
+      .english-workspace {
+        display: grid;
+        grid-template-columns: 230px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .english-sidebar,
+      .english-panel {
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.82);
+      }
+
+      .english-sidebar {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: sticky;
+        top: 14px;
+      }
+
+      .english-tab {
+        width: 100%;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .english-tab.is-active {
+        border-color: var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .english-tab-count {
+        color: var(--text-dim);
+        font-size: 11px;
+      }
+
+      .english-panel {
+        min-height: 64vh;
+        overflow: hidden;
+      }
+
+      .english-panel__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .english-panel h2 {
+        font-size: 22px;
+        letter-spacing: -0.03em;
+        margin-bottom: 6px;
+      }
+
+      .english-panel__hint {
+        color: var(--text-muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .english-search {
+        width: min(100%, 260px);
+        min-height: 38px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text);
+        padding: 9px 12px;
+        font: 500 12px 'Inter', sans-serif;
+      }
+
+      .english-search:focus,
+      .english-input:focus,
+      .english-textarea:focus {
+        outline: none;
+        border-color: var(--accent-border);
+      }
+
+      .english-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 16px 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02);
+      }
+
+      .english-form[data-section="words"] {
+        grid-template-columns: minmax(120px, 0.75fr) minmax(180px, 1.2fr) auto auto;
+        align-items: end;
+      }
+
+      .english-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .english-field--wide {
+        grid-column: 1 / -1;
+      }
+
+      .english-example-toggle {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: end;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        padding: 10px 12px;
+        font: 700 12px 'Inter', sans-serif;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .english-example-toggle input {
+        accent-color: var(--accent);
+      }
+
+      .english-word-examples {
+        grid-column: 1 / -1;
+        display: none;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .english-word-examples.is-open {
+        display: grid;
+      }
+
+      .english-field label {
+        color: var(--text-dim);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .english-input,
+      .english-textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text);
+        padding: 10px 12px;
+        font: 500 12.5px 'Inter', sans-serif;
+      }
+
+      .english-textarea {
+        min-height: 74px;
+        resize: vertical;
+        line-height: 1.55;
+      }
+
+      .english-add {
+        min-height: 40px;
+        align-self: end;
+        border-radius: 12px;
+        border: 1px solid var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 10px 14px;
+        font: 700 12px 'Inter', sans-serif;
+        cursor: pointer;
+      }
+
+      .english-form[data-section="words"] .english-add,
+      .english-form[data-section="words"] .english-cancel-edit {
+        min-height: 38px;
+        padding: 9px 13px;
+        white-space: nowrap;
+      }
+
+      .english-add:hover {
+        background: rgba(63, 185, 80, 0.16);
+      }
+
+      .english-cancel-edit {
+        min-height: 40px;
+        align-self: end;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        padding: 10px 14px;
+        font: 700 12px 'Inter', sans-serif;
+        cursor: pointer;
+      }
+
+      .english-list {
+        padding: 16px 18px 20px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .english-list.is-word-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+      }
+
+      .english-item {
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        padding: 14px;
+      }
+
+      .english-item__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .english-item__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .english-item__tag {
+        display: inline-flex;
+        margin-top: 6px;
+        padding: 4px 8px;
+        border-radius: var(--radius-pill);
+        background: rgba(255,255,255,0.04);
+        color: var(--text-dim);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .english-item__body {
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+
+      .english-sentences {
+        margin: 8px 0 0 18px;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .english-word-row {
+        padding: 8px 10px;
+      }
+
+      .english-word-row .english-item__head {
+        align-items: center;
+        margin-bottom: 0;
+      }
+
+      .english-word-summary {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .english-word-row .english-item__title {
+        font-size: 14px;
+      }
+
+      .english-word-row .english-item__tag {
+        margin-top: 0;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+        line-height: 1.45;
+        text-transform: none;
+      }
+
+      .english-word-row .english-sentences {
+        display: none;
+        margin: 9px 0 2px 18px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .english-word-row.is-open .english-sentences {
+        display: block;
+      }
+
+      .english-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .english-mini-btn {
+        min-width: 30px;
+        min-height: 30px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font: 700 14px 'Inter', sans-serif;
+        cursor: pointer;
+      }
+
+      .english-mini-btn svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      .english-mini-btn:hover {
+        border-color: var(--accent-border);
+        color: var(--accent);
+      }
+
+      .english-mini-btn.is-done {
+        border-color: var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .english-empty {
+        padding: 18px;
+        border-radius: 14px;
+        border: 1px dashed rgba(255,255,255,0.12);
+        color: var(--text-dim);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 860px) {
+        .english-hero,
+        .english-workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .english-stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .english-sidebar {
+          position: static;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .english-hero,
+        .english-workspace {
+          padding: 12px;
+        }
+
+        .english-sidebar,
+        .english-form {
+          grid-template-columns: 1fr;
+        }
+
+        .english-word-examples {
+          grid-template-columns: 1fr;
+        }
+
+        .english-panel__top {
+          flex-direction: column;
+        }
+
+        .english-search {
+          width: 100%;
+        }
+
+        .english-word-summary {
+          grid-template-columns: 1fr;
+          gap: 3px;
+        }
+      }
+
+      @media (max-width: 1040px) {
+        .english-list.is-word-list {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -78,24 +525,705 @@
         </div>
       </header>
 
-      <main class="english-coming-soon">
-        <section class="english-card">
-          <div class="english-eyebrow">English Practice</div>
-          <h1>Coming Soon</h1>
-          <p>This section is being prepared for English learning, practice, and progress tracking.</p>
+      <main class="english-main">
+        <section class="english-hero glass">
+          <div>
+            <div class="english-eyebrow">Revision Lab</div>
+            <h1>English practice</h1>
+            <p>Build a personal revision bank for words, live conversations, modal verbs, and grammar rules. Add entries manually, or paste material you want me to organize later.</p>
+          </div>
+          <div class="english-stats">
+            <div class="english-stat">
+              <span class="english-stat__label">Words</span>
+              <span class="english-stat__value" id="stat-words">0</span>
+            </div>
+            <div class="english-stat">
+              <span class="english-stat__label">Scenarios</span>
+              <span class="english-stat__value" id="stat-scenarios">0</span>
+            </div>
+            <div class="english-stat">
+              <span class="english-stat__label">Modals</span>
+              <span class="english-stat__value" id="stat-modals">0</span>
+            </div>
+            <div class="english-stat">
+              <span class="english-stat__label">Rules</span>
+              <span class="english-stat__value" id="stat-rules">0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="english-workspace glass">
+          <aside class="english-sidebar" id="english-tabs"></aside>
+
+          <section class="english-panel">
+            <div class="english-panel__top">
+              <div>
+                <h2 id="section-title">Words</h2>
+                <p class="english-panel__hint" id="section-hint"></p>
+              </div>
+              <input class="english-search" id="english-search" type="search" placeholder="Search revision..." autocomplete="off" />
+            </div>
+
+            <form class="english-form" id="english-form"></form>
+            <div class="english-list" id="english-list"></div>
+          </section>
         </section>
       </main>
     </div>
 
     <script>
-      const todayEl = document.getElementById('today-label');
-      if (todayEl) {
-        todayEl.textContent = new Date().toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric'
+      (function () {
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          todayEl.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        const STORAGE_KEY = 'habit-rings-english-revision-v1';
+        const sections = {
+          words: {
+            label: 'Words',
+            title: 'Words',
+            hint: 'Add words quickly. Use the examples toggle only when you want to attach three revision sentences.',
+            empty: 'No words yet. Add a word and a short meaning.',
+            fields: [
+              { id: 'word', label: 'Word', type: 'input', placeholder: 'e.g. inevitable', required: true },
+              { id: 'meaning', label: 'Meaning', type: 'input', placeholder: 'Short meaning in your own words', required: true }
+            ],
+            exampleFields: [
+              { id: 'sentence1', label: 'Sentence 1', type: 'input', placeholder: 'Simple sentence' },
+              { id: 'sentence2', label: 'Sentence 2', type: 'input', placeholder: 'Work or daily-life sentence' },
+              { id: 'sentence3', label: 'Sentence 3', type: 'input', placeholder: 'A question or conversation sentence' }
+            ]
+          },
+          scenarios: {
+            label: 'Scenario / Live conversation',
+            title: 'Scenario / Live conversation',
+            hint: 'Store useful real-life conversations: interviews, meetings, calls, shops, travel, or difficult moments.',
+            empty: 'No scenarios yet. Add a situation and the lines you want to revise.',
+            fields: [
+              { id: 'scenario', label: 'Scenario', type: 'input', placeholder: 'e.g. Asking for project deadline', required: true },
+              { id: 'conversation', label: 'Conversation / script', type: 'textarea', placeholder: 'A: Could you clarify the deadline?\nB: We need it by Friday.\nA: I can deliver the first draft tomorrow.', required: true },
+              { id: 'takeaway', label: 'Useful phrase', type: 'input', placeholder: 'e.g. Could you clarify...?' }
+            ]
+          },
+          modals: {
+            label: 'Modal Verbs',
+            title: 'Modal Verbs',
+            hint: 'Revise can, could, may, might, must, should, would, have to, and similar structures by use case.',
+            empty: 'No modal verbs yet. Add one modal pattern with its use and examples.',
+            fields: [
+              { id: 'modal', label: 'Modal / pattern', type: 'input', placeholder: 'e.g. should have + V3', required: true },
+              { id: 'use', label: 'Use', type: 'input', placeholder: 'e.g. regret or criticism about the past', required: true },
+              { id: 'examples', label: 'Examples', type: 'textarea', placeholder: 'I should have called earlier.\nYou should have checked the file first.', required: true }
+            ]
+          },
+          rules: {
+            label: 'Rules',
+            title: 'Rules',
+            hint: 'Keep grammar rules short: the rule, one clear pattern, and a quick example for revision.',
+            empty: 'No rules yet. Add a grammar rule you want to revisit.',
+            fields: [
+              { id: 'rule', label: 'Rule name', type: 'input', placeholder: 'e.g. Present perfect for experience', required: true },
+              { id: 'pattern', label: 'Pattern', type: 'input', placeholder: 'Subject + have/has + V3', required: true },
+              { id: 'note', label: 'Explanation and example', type: 'textarea', placeholder: 'Use it for life experience without exact time.\nExample: I have visited Lahore many times.', required: true }
+            ]
+          }
+        };
+
+        const SEEDED_WORDS = [
+          ['Abandon', 'To leave something completely', 'He decided to abandon the plan because it was too risky.', 'The captain gave the order to abandon the ship.', 'Never abandon your dreams just because things get tough.'],
+          ['Analyze', 'To examine something carefully', 'We need to analyze the problem before making a decision.', 'Scientists analyzed the data to find a cure.', 'You should analyze your spending habits to save money.'],
+          ['Capacity', 'Ability or amount something can hold or do', 'This phone has enough capacity to store many apps.', 'The stadium has a seating capacity of 50,000 people.', 'She has an amazing capacity for learning new languages.'],
+          ['Adorable', 'Very cute or lovable', 'The baby looks adorable in that dress.', 'That puppy playing in the park is absolutely adorable.', 'They live in an adorable little cottage by the sea.'],
+          ['Advocate', 'To support or speak in favor of something', 'She strongly advocates regular exercise for good health.', 'The organization advocates for animal rights.', "As a lawyer, he must advocate for his client's best interests."],
+          ['Brief', 'Short in time or length', 'Please give me a brief explanation of the plan.', 'We had a brief meeting to discuss the schedule.', 'Keep your introduction brief so we can start on time.'],
+          ['Collaborate', 'To work together with others', 'We need to collaborate to solve this problem faster.', 'Designers and developers collaborate on this project.', 'Remote teams can collaborate easily using online tools.'],
+          ['Commute', 'To travel regularly between home and work', 'She commutes to work every morning at 8 a.m.', 'Long commutes can be tiring.', 'He prefers working from home to avoid commuting.'],
+          ['Compelling', 'Very interesting or convincing', 'The movie has a compelling story.', 'He gave a compelling argument during the meeting.', 'Her compelling speech motivated everyone.'],
+          ['Consequence', 'A result or effect of an action', 'Every decision has a consequence.', 'Skipping practice had serious consequences for the team.', "He didn't think about the consequences before acting."],
+          ['Constructive', 'Helpful and positive', 'She gave constructive feedback on my work.', "Let's have a constructive discussion instead of arguing.", 'His advice was honest but constructive.'],
+          ['Contrast', 'To show the difference between two things', 'The teacher asked us to contrast the two ideas.', 'His calm nature contrasts with her energy.', 'The bright wall contrasts with the dark furniture.'],
+          ['Crucial', 'Extremely important', 'Communication is crucial for team success.', "It's crucial to arrive on time for the interview.", 'Sleep is crucial for good health.'],
+          ['Debate', 'A formal discussion with different opinions', 'The candidates will debate important issues tonight.', 'We had a long debate about the best strategy.', 'The topic sparked debate in the office.'],
+          ['Determine', 'To decide or find out something', 'We need to determine the cause of the problem.', 'The test results will determine the next step.', 'She determined to improve her skills.'],
+          ['Diligent', 'Hard-working and careful', 'She is diligent in completing her tasks on time.', 'A diligent student reviews notes every day.', 'His diligent effort paid off.'],
+          ['Dispose', 'To get rid of something', 'Please dispose of the waste properly.', 'He disposed of the old files safely.', 'The company must dispose of chemicals carefully.'],
+          ['Distinction', 'A clear difference between two things', 'There is a clear distinction between fact and opinion.', 'She graduated with distinction.', 'Understanding the distinction is important.'],
+          ['Diverse', 'Including many different types', 'Our team is diverse in skills and experience.', 'The city has a diverse population.', 'A diverse diet is good for health.'],
+          ['Dominant', 'Stronger or more powerful than others', 'English is the dominant language in the meeting.', 'The dominant team won the match easily.', 'His dominant personality stood out.'],
+          ['Efficient', 'Working well without wasting time or effort', 'This machine is very efficient.', 'She found an efficient way to finish the task.', 'Efficient planning saves time.'],
+          ['Elaborate', 'To explain in more detail', 'Could you elaborate on your idea?', 'She elaborated on the plan during the meeting.', 'He refused to elaborate further.'],
+          ['Enthusiasm', 'Strong interest or excitement', 'She showed great enthusiasm for the project.', 'His enthusiasm motivated the team.', 'Children learn better with enthusiasm.'],
+          ['Equivalent', 'Equal in value or meaning', 'One dollar is not equivalent to one euro.', 'This course is equivalent to a diploma.', 'The two answers are equivalent.'],
+          ['Estimate', 'To roughly calculate or guess', 'Can you estimate the cost of the repair?', 'The engineer estimated the time needed.', "It's hard to estimate the final result."],
+          ['Evidence', 'Proof that shows something is true', 'The police found clear evidence.', 'There is no evidence to support the claim.', 'Scientific decisions rely on evidence.'],
+          ['Exaggerate', 'To make something seem bigger or better than it is', "Don't exaggerate the problem.", 'He tends to exaggerate his achievements.', 'She exaggerated the story for fun.'],
+          ['Exceed', 'To go beyond a limit or expectation', 'The cost may exceed our budget.', 'His performance exceeded expectations.', 'Do not exceed the speed limit.'],
+          ['Fanatic', 'A person with extreme enthusiasm', 'He is a fitness fanatic.', "She's a coffee fanatic.", 'Football fanatics filled the stadium.'],
+          ['Fiercely', 'With great intensity or strength', 'They competed fiercely for the position.', 'She fiercely defended her opinion.', 'The sun was shining fiercely.'],
+          ['Flexible', 'Able to change or adapt easily', 'My schedule is flexible this week.', 'She is flexible in her thinking.', 'This material is flexible and strong.'],
+          ['Flinch', 'To react suddenly from fear or pain', "He didn't flinch during the injection.", 'She flinched at the loud noise.', 'Try not to flinch when the ball comes fast.'],
+          ['Function', 'Purpose or the way something works', 'The phone stopped functioning properly.', 'What is the main function of this button?', 'The system must function smoothly.'],
+          ['Generate', 'To produce or create something', 'The company generates new ideas regularly.', 'This machine generates electricity.', 'Good habits generate long-term success.'],
+          ['Grind', 'To work very hard or reduce to small pieces', 'He is grinding to achieve his goals.', 'The machine grinds the coffee beans.', 'Success requires daily grind.'],
+          ['Grit', 'Courage and determination', 'She showed grit during tough times.', 'Grit is essential for long-term success.', 'His grit helped him overcome failure.'],
+          ['Guarantee', 'A promise that something will happen or work', 'I guarantee you will like this book.', 'Nothing can guarantee success overnight.', 'The product comes with a one-year guarantee.'],
+          ['Guilty as charged', 'Admitting full responsibility', 'He smiled and said, "Guilty as charged."', 'I ate the last slice - guilty as charged.', 'She accepted the mistake, guilty as charged.'],
+          ['Habit', 'A regular behavior or routine', 'Reading daily is a good habit.', 'Bad habits are hard to break.', 'He formed a habit of waking up early.'],
+          ['Havoc', 'Widespread damage or chaos', 'The storm caused havoc in the city.', 'A small bug can wreak havoc in the system.', 'His mistake created havoc at work.'],
+          ['Hesitate', 'To pause before doing something', "Don't hesitate to ask for help.", 'She hesitated before answering.', "I hesitate when I'm unsure."],
+          ['I think I should, why not?', 'Expression used to decide casually', 'I think I should try it, why not?', 'He smiled and said, "I think I should apply, why not?"', "It's late, but I think I should go, why not?"],
+          ['Identify', 'To recognize or find something', 'Please identify the main issue.', 'She identified the error quickly.', 'The police identified the suspect.'],
+          ['Illustrate', 'To explain using examples or images', 'The teacher illustrated the concept with a diagram.', 'Let me illustrate this with an example.', 'The chart illustrates the growth clearly.'],
+          ['Impact', 'The strong effect something has', 'The decision had a big impact on us.', 'Technology impacts daily life.', 'His words made a positive impact.'],
+          ['Implement', 'To put a plan into action', 'The company will implement the new policy.', 'We need to implement this solution quickly.', 'The software update was implemented today.'],
+          ['Imply', 'To suggest something without saying it directly', 'His tone implied dissatisfaction.', 'She implied that the deadline was missed.', 'The message implies urgency.'],
+          ['Indicate', 'To show or point out', 'The data indicates growth.', 'The sign indicates the exit.', 'His behavior indicated stress.'],
+          ['Initial', 'First or beginning stage', 'This is the initial step of the process.', 'My initial reaction was surprise.', 'The initial plan needs improvement.'],
+          ['Insight', 'A deep or clear understanding', 'He gave valuable insight during the meeting.', 'This book provides insight into human behavior.', 'Experience brings insight.'],
+          ['Interpret', 'To explain or understand meaning', 'She interpreted the data correctly.', 'People may interpret the message differently.', 'The lawyer interpreted the law clearly.'],
+          ['Investigate', 'To examine something carefully to find facts', 'The police will investigate the case.', 'We need to investigate the issue further.', 'The report investigates market trends.'],
+          ['Logical', 'Based on clear reasoning', 'His explanation was logical.', "Let's take a logical approach.", 'The conclusion seems logical.'],
+          ['Maintain', 'To keep something in good condition or continue it', 'She maintains a healthy routine.', 'Please maintain silence in the hall.', 'The system must be maintained regularly.'],
+          ['Majority', 'More than half of a group', 'The majority agreed with the decision.', 'A majority of voters supported the plan.', 'The majority opinion prevailed.'],
+          ['Manage', 'To control or handle something successfully', 'She manages the team efficiently.', 'He learned how to manage stress.', 'Can you manage this task alone?'],
+          ['Margin', 'The difference or extra amount', 'We won by a small margin.', 'There is little margin for error.', 'The profit margin increased this year.'],
+          ['Modify', 'To make small changes', 'The plan was modified slightly.', 'We need to modify the design.', 'She modified her routine for better results.'],
+          ['Negative', 'Harmful or unfavorable', 'The test result was negative.', 'Negative thinking affects confidence.', 'He received negative feedback.'],
+          ['Objective', 'A goal or something not influenced by feelings', 'The main objective is growth.', 'Try to stay objective during discussions.', 'The report is objective and factual.'],
+          ['Obtain', 'To get or acquire something', 'She obtained permission to leave early.', 'You can obtain information online.', 'He obtained a degree in engineering.'],
+          ['Oppose', 'To disagree with or resist something', 'Many people oppose the decision.', 'She opposed the new policy.', 'The plan was strongly opposed.'],
+          ['Overwhelm', 'To affect someone very strongly', 'The workload overwhelmed him.', 'She felt overwhelmed by emotions.', 'Too many choices can overwhelm people.'],
+          ['Parallel', 'Side by side or similar in nature', 'The two roads run parallel.', 'His career runs parallel to his education.', 'The stories have parallel themes.'],
+          ['Pardon me', 'A polite way to interrupt or apologize', 'Pardon me, could you repeat that?', 'Pardon me for being late.', 'Pardon me, may I pass?'],
+          ['Perspective', 'A way of thinking or point of view', 'Try to see the issue from my perspective.', 'Travel changes your perspective.', 'Her perspective was valuable.'],
+          ['Pinch-me moment', 'An unbelievable or very exciting experience', 'Getting the job felt like a pinch-me moment.', 'Winning the award was a pinch-me moment.', 'Being on stage was a real pinch-me moment.'],
+          ['Precise', 'Exact and accurate', 'Please be precise with the details.', 'The measurements must be precise.', 'She gave a precise answer.'],
+          ['Predict', 'To say what will happen in the future', 'Experts predict heavy rain tomorrow.', "It's hard to predict market trends.", 'The model predicts user behavior.'],
+          ['Priority', 'Something more important than others', 'Health should be your top priority.', 'Meeting the deadline is a priority.', 'Family is my first priority.'],
+          ['Proceed', 'To continue or move forward', 'We can proceed with the plan.', 'Please proceed carefully.', 'The meeting will proceed as scheduled.'],
+          ['Prosperity', 'Success, wealth, or well-being', 'Education leads to prosperity.', 'The country enjoyed economic prosperity.', 'Hard work brings long-term prosperity.'],
+          ['Pursuit', 'The act of trying to achieve something', 'Happiness is a lifelong pursuit.', 'He is in pursuit of excellence.', 'Knowledge is worth the pursuit.'],
+          ['Quote', "To repeat someone's exact words", 'She quoted a famous author.', 'Let me quote the report.', 'He quoted the rule correctly.'],
+          ['Reaction', 'A response to something', 'The news caused a strong reaction.', 'Her reaction was unexpected.', 'Observe the reaction carefully.'],
+          ['Reckless', 'Careless and without thinking about consequences', 'His reckless driving caused an accident.', 'She made a reckless decision under pressure.', 'Reckless behavior can be dangerous.'],
+          ['Reflect', 'To think deeply or show something clearly', 'I need time to reflect on my choices.', 'The mirror reflects light.', 'His actions reflect his values.'],
+          ['Relevant', 'Closely connected or important to the topic', 'Please share relevant information only.', 'Experience is relevant for this job.', 'The data is not relevant anymore.'],
+          ['Resolve', 'To find a solution or decide firmly', 'We need to resolve this issue quickly.', 'She resolved to improve her skills.', 'The conflict was finally resolved.'],
+          ['Resources', 'Supplies or assets used to achieve something', 'The company lacks enough resources.', 'Human resources handle hiring.', 'We must use resources wisely.'],
+          ['Scarcity', 'A shortage or lack of something', 'Water scarcity is a serious problem.', 'Scarcity increases prices.', 'The region suffers from food scarcity.'],
+          ['Shivering', 'Shaking slightly because of cold, fear, or illness', 'She was shivering in the cold wind.', 'He started shivering after the fever.', 'The child stood there shivering.'],
+          ['Significant', 'Important or having a noticeable effect', 'The project made significant progress.', 'There is a significant difference in results.', 'His contribution was significant.'],
+          ['Solution', 'An answer to a problem', 'We finally found a solution.', 'There is no easy solution to this issue.', 'Technology offers smart solutions.'],
+          ['Specific', 'Clear and exact', 'Please give specific details.', 'Be specific about your goals.', 'The instructions were very specific.'],
+          ['Stability', 'The state of being steady or secure', 'Financial stability is important.', 'The company is working toward stability.', 'Emotional stability helps in tough times.'],
+          ['Stay firm', 'To remain strong in your decision', 'Stay firm in your decision.', 'She stayed firm despite criticism.', 'You must stay firm under pressure.'],
+          ['Strategy', 'A plan to achieve a goal', 'We need a strong strategy to win.', 'His business strategy worked well.', 'Planning is part of strategy.'],
+          ['Sufficient', 'Enough for a purpose', 'Is this amount sufficient?', 'He has sufficient experience for the role.', 'Sleep is sufficient for recovery.'],
+          ['Summary', 'A short version of main points', 'Give me a summary of the meeting.', 'The report includes a brief summary.', 'She wrote a clear summary.'],
+          ['Suspend', 'To temporarily stop or pause', 'The meeting was suspended for 10 minutes.', 'His account was suspended.', 'The game was suspended due to rain.'],
+          ['Transfer', 'To move something from one place to another', 'She transferred money to my account.', 'He requested a job transfer.', 'The data was transferred successfully.'],
+          ['Typical', 'Normal or usual for someone or something', "It's typical of him to be late.", 'This weather is typical for winter.', 'That reaction is typical.'],
+          ['Visible', 'Able to be seen clearly', 'The stars are visible tonight.', 'The results are clearly visible.', 'There was visible improvement.'],
+          ['Self-sufficient', 'Able to take care of yourself without help', 'He became financially self-sufficient.', 'A self-sufficient person depends less on others.', 'The village is self-sufficient in food production.'],
+          ['Vague', 'Not clear or specific', 'His explanation was vague.', 'Give me a clear answer, not something vague.', 'The instructions were too vague to follow.'],
+          ['Crude', 'Rough, not refined, or offensive', 'His crude behavior shocked everyone.', 'The oil is still in crude form.', 'That was a crude joke.'],
+          ['Boredom', 'The state of feeling uninterested or tired of something', 'Boredom can reduce productivity.', 'He left the meeting out of boredom.', 'Reading helps fight boredom.'],
+          ['Drill', 'Repeated practice or training', 'We had a fire drill today.', 'Practice the drill until it becomes natural.', 'The coach made us repeat the drill.'],
+          ['Automaticity', 'The ability to do something automatically without conscious effort', 'With practice, speaking English develops automaticity.', 'Typing daily improves automaticity.', 'Automaticity reduces mental effort.'],
+          ['Cramming', 'Studying a lot in a short time before an exam', 'Cramming is not effective for long-term learning.', 'He was cramming all night before the test.', 'Avoid cramming and study consistently.'],
+          ['Retention', 'The ability to remember information', 'Regular revision improves retention.', 'Sleep helps memory retention.', 'The training increased knowledge retention.'],
+          ['Prolong', 'To make something last longer', "Don't prolong the meeting unnecessarily.", 'Medicine can prolong life.', 'He tried to prolong the discussion.'],
+          ['Disguise', 'To hide the real appearance or truth', 'He wore glasses to disguise himself.', 'She disguised her feelings.', 'The spy used a disguise.'],
+          ['Fatigue', 'Extreme tiredness', 'After work, he felt deep fatigue.', 'Fatigue affects performance.', 'Lack of sleep causes fatigue.'],
+          ['Metrics', 'Measurements used to evaluate performance', 'The company tracks key metrics.', 'These metrics show user growth.', 'We use metrics to measure success.'],
+          ['Burnout', 'Physical or mental exhaustion from prolonged stress', 'Long working hours can cause burnout.', 'She took a break to avoid burnout.', 'Burnout reduces productivity.'],
+          ['Exhaustion', 'Extreme tiredness or fatigue', 'After the marathon, he felt total exhaustion.', 'Lack of rest leads to exhaustion.', 'She collapsed from exhaustion.'],
+          ['Monologue', 'A long speech by one person', 'He gave a long monologue during the meeting.', 'The actor performed a powerful monologue.', "The teacher's monologue made the class quiet."],
+          ['Tempered', 'Controlled or balanced', 'His anger was tempered by experience.', 'She gave a tempered response.', 'The leader showed tempered judgment.'],
+          ['Embarrass yourself', 'To make yourself feel ashamed or awkward', "Don't embarrass yourself by lying.", 'He embarrassed himself by forgetting the speech.', "She didn't want to embarrass herself in public."],
+          ['Deliberate', 'Done carefully and intentionally', 'It was a deliberate decision.', 'She spoke in a slow, deliberate way.', 'The mistake was not deliberate.'],
+          ['Tiring', 'Causing fatigue or exhaustion', 'The long meeting was tiring.', 'Traveling all day is tiring.', 'The work became mentally tiring.'],
+          ['Ritual', 'A repeated action done regularly', 'Morning exercise is his ritual.', 'They follow a ritual before the game.', 'Tea time became a daily ritual.'],
+          ['Organic', 'Natural; not artificial or chemical', 'The farm grows organic vegetables.', 'She prefers organic food.', 'The growth was organic, not forced.'],
+          ['Audacity', 'Bold courage, sometimes rude confidence', 'He had the audacity to question the manager.', 'Her audacity impressed everyone.', 'It took audacity to start the company.'],
+          ['Pitfalls', 'Hidden problems or dangers in a situation', 'Every business has potential pitfalls.', 'Avoid the common pitfalls of investing.', 'The guide explained the pitfalls of the plan.'],
+          ['Intimidate', 'To frighten or make someone feel less confident', 'His tone tried to intimidate the team.', "Don't let anyone intimidate you.", 'The large crowd can intimidate new speakers.'],
+          ['Nudge', 'A gentle push or encouragement', 'She gave me a nudge to speak up.', 'The app nudges users to stay active.', 'He nudged the door open.'],
+          ['So do I', 'Used to agree with a positive statement', 'I like coffee, so do I.', 'I enjoy coding, so do I.', 'I want to travel, so do I.'],
+          ['So do you', 'Used to point out someone shares the same action or feeling', 'You like coffee, so do you.', 'You enjoy coding, so do you.', 'You want to travel, so do you.'],
+          ['Intuition', 'Ability to understand something without conscious reasoning', 'Trust your intuition.', 'His intuition was correct.', 'Experience improves intuition.'],
+          ['Bias', 'A tendency to favor one side unfairly', 'The report shows bias.', 'Avoid bias in decision-making.', 'Personal bias affects judgment.'],
+          ['Distorts', 'Twists or changes the true meaning or shape', 'Bias distorts reality.', 'The lens distorts the image.', 'Emotion distorts judgment.'],
+          ['Delusion', 'A false belief despite evidence', 'He lived under a delusion of success.', "It's a delusion to think effort isn't needed.", 'She had no delusion about the risks.'],
+          ['Illusion', 'A false appearance or impression', 'It was just an illusion.', 'The magician created an illusion.', 'Success without effort is an illusion.'],
+          ['Distort', 'To twist or change something from its true meaning', 'Media can distort facts.', "Don't let emotions distort your thinking.", 'The mirror distorts the image.'],
+          ['Rapport', 'A close and positive relationship', 'She built strong rapport with clients.', 'Good teachers create rapport with students.', 'Rapport improves communication.'],
+          ['Parallel (revise)', 'Similar or happening at the same time', 'His career runs parallel to his studies.', 'The two stories are parallel.', 'Their goals are parallel.'],
+          ['Dilute', 'To make something weaker by adding more', 'The company diluted the product quality.', 'Add water to dilute the juice.', 'His message was diluted over time.'],
+          ['Egocentric', 'Thinking only about yourself', 'He is too egocentric to listen to others.', 'Egocentric behavior harms relationships.', 'A leader should not be egocentric.'],
+          ['Even though', 'Despite the fact that (used to show contrast)', 'Even though it was raining, we went out.', 'She smiled even though she was tired.', 'Even though he studied, the test was hard.'],
+          ['Indispensable', 'Absolutely necessary or essential', 'Water is indispensable for life.', 'He is an indispensable member of the team.', 'Good communication is indispensable.'],
+          ['Scattered', 'Spread out or not organized', 'His thoughts were scattered.', 'Books were scattered on the table.', 'The team looked scattered during the game.'],
+          ['Overwhelmed', 'Feeling too much pressure or emotion', 'I felt overwhelmed with work.', 'She was overwhelmed by emotions.', 'Too many tasks can make you overwhelmed.'],
+          ['Abundance', 'A very large quantity of something', 'There is an abundance of opportunities online.', 'The garden has an abundance of flowers.', 'We live in an age of information abundance.'],
+          ['Vulnerable', 'Open to harm or damage', 'Children are vulnerable to illness.', 'He felt vulnerable after the loss.', 'Data can be vulnerable to attacks.'],
+          ['Fragile', 'Easily broken or damaged', 'This glass is fragile.', 'Trust is fragile and easy to lose.', 'The situation is fragile right now.'],
+          ['Leap', 'A big jump or sudden change', 'He took a leap of faith.', 'Technology made a big leap forward.', 'She leaped over the gap.'],
+          ['Prudent', 'Wise and careful in decisions', "It's prudent to save money.", 'He made a prudent investment.', 'A prudent approach avoids risks.'],
+          ['Disguises', 'Things used to hide true identity or appearance', 'He used disguises to avoid being recognized.', 'The spy carried multiple disguises.', 'Her emotions were hidden behind clever disguises.'],
+          ['Fickle', 'Changing feelings or loyalty quickly', 'People can be fickle.', 'The weather here is very fickle.', 'His opinions are fickle.'],
+          ['Amateurs', 'People who do something without professional skill', 'The competition included many amateurs.', 'Amateurs often learn by practice.', 'The event welcomed both amateurs and experts.'],
+          ['Conscience', 'A sense of right and wrong', "His conscience didn't allow him to lie.", 'Listen to your conscience.', 'She acted according to her conscience.'],
+          ['Redemption', 'The act of making something right after a mistake', 'This was his chance for redemption.', 'He worked hard for redemption.', 'The story is about redemption.'],
+          ['Nuances', 'Small subtle differences or details', 'Language has many nuances.', 'He understands the nuances of the market.', 'Pay attention to small nuances.'],
+          ['Cocky', 'Overconfident in a rude way', 'He sounded cocky during the interview.', "Don't be cocky after one success.", 'Her cocky attitude annoyed everyone.'],
+          ['Captivating', 'Very attractive or interesting', 'She gave a captivating performance.', 'The story was captivating.', 'His speech was captivating.'],
+          ['Profound', 'Very deep or meaningful', 'He made a profound statement.', 'The book had a profound impact on me.', 'Her words were simple but profound.'],
+          ['Persuasive', 'Able to convince others', 'His argument was very persuasive.', 'She gave a persuasive presentation.', 'A persuasive message can influence people.'],
+          ['Terrifying', 'Very scary or frightening', 'The movie was terrifying.', 'It was a terrifying experience.', 'The storm looked terrifying.'],
+          ['Mediocrity', 'Average quality, not very good or bad', 'He refused to accept mediocrity.', 'The company moved beyond mediocrity.', 'Mediocrity limits growth.'],
+          ['Rapport', 'A close and positive relationship', 'She built strong rapport with clients.', 'Good leaders create rapport with teams.', 'Rapport improves communication.'],
+          ['Receptive', 'Willing to listen or accept new ideas', 'He is receptive to feedback.', 'The team was receptive to change.', 'Be receptive to new opportunities.'],
+          ['Stimulation', 'Something that increases activity or interest', 'This game provides mental stimulation.', 'Exercise gives physical stimulation.', 'The discussion created intellectual stimulation.'],
+          ['Reinforce', 'To strengthen or support something', 'Practice helps reinforce learning.', 'The teacher reinforced the concept with examples.', 'Positive feedback reinforces good behavior.'],
+          ['Gratification', 'Pleasure or satisfaction', 'He delayed gratification to achieve success.', 'Instant gratification can be harmful.', 'Helping others gives deep gratification.'],
+          ['Inevitable', 'Certain to happen', 'It was inevitable that he would succeed.', 'Change is inevitable.', 'The outcome became inevitable.'],
+          ['Readiness', 'The state of being fully prepared', 'His readiness impressed the team.', 'We checked the system readiness.', 'Readiness is key before launching.'],
+          ['Retrospective', 'Looking back at past events', 'The team held a retrospective meeting.', 'In retrospective, the decision was right.', 'The film is a retrospective of his career.'],
+          ['Cognitive', 'Related to thinking or mental processes', 'Cognitive skills improve with practice.', 'The test measures cognitive ability.', 'Reading boosts cognitive development.'],
+          ['Disguised', 'Hidden or changed to look different', 'His voice was disguised.', 'The truth was disguised in humor.', 'She disguised her feelings well.'],
+          ['Dilute (revise)', 'To make something weaker', 'The message got diluted over time.', 'Add water to dilute the solution.', 'Too many features dilute the product focus.'],
+          ['Vulnerable (revise)', 'Open to harm or risk', 'He felt vulnerable sharing his story.', 'Small businesses are vulnerable to market changes.', 'Data is vulnerable without security.'],
+          ['Acknowledge', 'To accept or recognize something', 'He acknowledged his mistake.', "She acknowledged the team's effort.", 'Please acknowledge the email.'],
+          ['Inevitable', 'Certain to happen', 'Change is inevitable.', 'It was inevitable that they would meet.', 'The result became inevitable.'],
+          ['Perishable', 'Easily spoiled or damaged (especially food)', 'Milk is a perishable item.', 'Keep perishable goods in the fridge.', 'Fruits are highly perishable.'],
+          ['Anticipate', 'To expect or prepare for something', 'We anticipate delays due to traffic.', 'She anticipated the question.', 'The team anticipates strong growth.'],
+          ['Aggressive', 'Forceful or very determined', 'The company used an aggressive strategy.', 'He plays aggressive cricket.', 'Aggressive marketing increased sales.'],
+          ['Adequate', 'Enough or satisfactory for a purpose', 'The resources are adequate for now.', 'He has adequate experience.', 'The room has adequate lighting.'],
+          ['Assessment', 'The act of evaluating something', 'The teacher made an assessment of the work.', 'We need a risk assessment.', 'His performance assessment was positive.'],
+          ['Association', 'A connection between people or ideas', 'There is a strong association between diet and health.', 'He joined a professional association.', 'The word has a negative association.'],
+          ['Assure', 'To make someone confident or certain', 'I assure you everything will be fine.', 'She assured him of her support.', 'He assured the team of success.'],
+          ['Barely', 'Only just or almost not', 'He barely passed the exam.', 'I could barely hear her.', 'They barely made it on time.'],
+          ['Beside', 'Next to or by the side of', 'The bag is beside the chair.', 'She sat beside me.', 'The phone is beside your laptop.'],
+          ['Bind', 'To tie or hold together', 'The contract will bind both parties.', 'She used rope to bind the box.', 'Strong values bind the team.'],
+          ['Certainly', 'Without doubt or definitely', 'I will certainly help you.', 'She will certainly attend the meeting.', 'This is certainly a good idea.'],
+          ['Coalition', 'A group formed for a common purpose', 'The parties formed a coalition.', 'A coalition of companies launched the project.', 'The coalition worked together to win.'],
+          ['Collapse', 'To fall down suddenly or fail', 'The building collapsed after the fire.', 'The plan collapsed due to poor execution.', 'He collapsed from exhaustion.'],
+          ['Commercial', 'Related to business or trade', 'This is a commercial project.', 'The area is mainly commercial.', 'They launched a new commercial campaign.'],
+          ['Consciousness', 'Awareness of surroundings or thoughts', 'He lost consciousness after the fall.', 'Meditation improves consciousness.', 'She regained consciousness quickly.'],
+          ['Conservative', 'Careful, traditional, or avoiding risk', 'He has conservative views.', 'The company took a conservative approach.', 'Investors prefer conservative strategies.'],
+          ['Contemporary', 'Belonging to the present time', 'This is a contemporary issue.', 'She studies contemporary art.', 'The design looks modern and contemporary.'],
+          ['Controversial', 'Causing disagreement or debate', 'The decision was controversial.', 'He made a controversial statement.', 'The topic is highly controversial.'],
+          ['Call off', 'To cancel something', 'They called off the meeting.', 'The game was called off due to rain.', 'We had to call off the trip.'],
+          ['Conventional', 'Based on usual practices or standards', 'This is a conventional approach.', 'He prefers conventional methods.', 'The idea is not conventional.'],
+          ['Conviction', 'A strong belief or opinion', 'She spoke with conviction.', 'He has a strong conviction about success.', 'His conviction inspired others.'],
+          ['Counselor', 'A person who gives advice or guidance', 'The counselor helped him make a decision.', 'She works as a school counselor.', 'Talk to a counselor if you need help.'],
+          ['Critic', 'A person who judges or evaluates something', 'He is a film critic.', 'The critic gave a negative review.', 'She became a harsh critic of the plan.'],
+          ['Crucial', 'Extremely important', 'This step is crucial for success.', 'Communication is crucial in teams.', 'Timing is crucial in this task.'],
+          ['Democratic', 'Related to democracy or equal participation', 'The country follows a democratic system.', 'They made a democratic decision.', 'The process was fair and democratic.'],
+          ['Depict', 'To show or represent something', 'The painting depicts a village.', 'The film depicts real events.', 'The chart depicts growth.'],
+          ['Despite', 'In spite of something', 'Despite the rain, we continued.', 'She succeeded despite difficulties.', 'He smiled despite the pain.'],
+          ['Discrimination', 'Unfair treatment of people', 'The law protects against discrimination.', 'She faced discrimination at work.', 'We must fight discrimination.'],
+          ['Dispute', 'A disagreement or argument', 'The dispute lasted for months.', 'They settled the dispute peacefully.', 'A legal dispute started between the companies.'],
+          ['Distinguish', 'To recognize differences between things', "It's hard to distinguish the twins.", 'Can you distinguish fact from opinion?', 'Experience helps distinguish good ideas.'],
+          ['Effectively', 'In a successful or efficient way', 'She communicates effectively.', 'The team worked effectively together.', 'Time was used effectively.'],
+          ['Embrace', 'To accept something willingly', 'She embraced the new opportunity.', 'We should embrace change.', 'He embraced his responsibilities.'],
+          ['Enforcement', 'The act of making sure rules are followed', 'Strict enforcement of rules is necessary.', 'The law enforcement team arrived quickly.', 'Policy enforcement improved discipline.'],
+          ['Enormous', 'Extremely large or huge', 'The company made enormous profits.', 'He has enormous potential.', 'The project requires enormous effort.'],
+          ['Eventually', 'In the end or after some time', 'He eventually achieved success.', 'The rain eventually stopped.', 'She eventually understood the lesson.'],
+          ['Evolve', 'To develop or change gradually', 'Technology continues to evolve.', 'His thinking evolved over time.', 'The company evolved into a global brand.'],
+          ['Exceed', 'To go beyond a limit or expectation', 'The cost may exceed the budget.', 'Her performance exceeded expectations.', 'Do not exceed the speed limit.'],
+          ['Examine', 'To inspect or study carefully', 'The doctor examined the patient.', 'We need to examine the data closely.', 'The teacher examined our answers.'],
+          ['Expansion', 'The process of becoming larger', 'The company plans international expansion.', 'The expansion of technology changed lives.', 'Road expansion reduced traffic.'],
+          ['Gesture', 'A movement or action expressing meaning', 'His gesture showed respect.', 'She made a friendly gesture.', 'A simple gesture can mean a lot.']
+        ];
+
+        const starterState = {
+          words: SEEDED_WORDS.map(createWordEntry),
+          scenarios: [
+            {
+              id: uid(),
+              done: false,
+              createdAt: Date.now(),
+              scenario: 'Live meeting update',
+              conversation: 'A: Could you give me a quick update?\nB: I have finished the first part, but I need more time for testing.\nA: That is fine. Please send me the progress by evening.',
+              takeaway: 'Could you give me a quick update?'
+            }
+          ],
+          modals: [
+            {
+              id: uid(),
+              done: false,
+              createdAt: Date.now(),
+              modal: 'could',
+              use: 'polite request or past ability',
+              examples: 'Could you review this sentence?\nWhen I was younger, I could memorize words quickly.'
+            }
+          ],
+          rules: [
+            {
+              id: uid(),
+              done: false,
+              createdAt: Date.now(),
+              rule: 'Use examples, not only definitions',
+              pattern: 'Word + meaning + three sentences',
+              note: 'A word becomes easier to revise when it has context. Write one simple sentence, one daily-life sentence, and one conversation sentence.'
+            }
+          ]
+        };
+
+        let state = loadState();
+        let activeSection = localStorage.getItem('habit-rings-english-active-section') || 'words';
+        let editingId = null;
+        const openWordIds = new Set();
+
+        const tabsEl = document.getElementById('english-tabs');
+        const formEl = document.getElementById('english-form');
+        const listEl = document.getElementById('english-list');
+        const searchEl = document.getElementById('english-search');
+        const sectionTitleEl = document.getElementById('section-title');
+        const sectionHintEl = document.getElementById('section-hint');
+        const statEls = {
+          words: document.getElementById('stat-words'),
+          scenarios: document.getElementById('stat-scenarios'),
+          modals: document.getElementById('stat-modals'),
+          rules: document.getElementById('stat-rules')
+        };
+
+        function uid() {
+          return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+        }
+
+        function createWordEntry(seed) {
+          const [word, meaning, sentence1, sentence2, sentence3] = seed;
+          return {
+            id: uid(),
+            done: false,
+            createdAt: Date.now(),
+            word,
+            meaning,
+            sentence1,
+            sentence2,
+            sentence3
+          };
+        }
+
+        function mergeSeededWords(value) {
+          const currentWords = Array.isArray(value.words) ? value.words : [];
+          const knownWords = new Set(currentWords.map(item => normalizeText(item.word).toLowerCase()));
+          const missingWords = SEEDED_WORDS
+            .filter(seed => !knownWords.has(seed[0].toLowerCase()))
+            .map(createWordEntry);
+          return {
+            ...value,
+            words: [...currentWords, ...missingWords]
+          };
+        }
+
+        function loadState() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!parsed || typeof parsed !== 'object') return starterState;
+            const loaded = Object.keys(sections).reduce((acc, key) => {
+              acc[key] = Array.isArray(parsed[key]) ? parsed[key] : [];
+              return acc;
+            }, {});
+            return mergeSeededWords(loaded);
+          } catch {
+            return starterState;
+          }
+        }
+
+        function saveState() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function escapeHtml(value) {
+          const div = document.createElement('div');
+          div.textContent = value || '';
+          return div.innerHTML;
+        }
+
+        function normalizeText(value) {
+          return (value || '').toString().trim();
+        }
+
+        function attrValue(value) {
+          return escapeHtml(value).replace(/"/g, '&quot;');
+        }
+
+        const icons = {
+          eye: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>',
+          eyeOff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 10.6a3 3 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a18.3 18.3 0 0 1-3.2 4.2"/><path d="M6.6 6.6C3.7 8.5 2 12 2 12s3.5 7 10 7a10.8 10.8 0 0 0 4.2-.8"/></svg>',
+          edit: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+          delete: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+        };
+
+        function itemText(item) {
+          return Object.values(item).join(' ').toLowerCase();
+        }
+
+        function renderTabs() {
+          tabsEl.innerHTML = Object.entries(sections).map(([key, section]) => `
+            <button class="english-tab${key === activeSection ? ' is-active' : ''}" type="button" data-section="${key}">
+              <span>${escapeHtml(section.label)}</span>
+              <span class="english-tab-count">${state[key]?.length || 0}</span>
+            </button>
+          `).join('');
+        }
+
+        function renderStats() {
+          Object.keys(sections).forEach(key => {
+            statEls[key].textContent = String(state[key]?.length || 0);
+          });
+        }
+
+        function renderForm() {
+          const section = sections[activeSection];
+          const editingItem = editingId ? (state[activeSection] || []).find(item => item.id === editingId) : null;
+          if (activeSection === 'words') {
+            renderWordsForm(editingItem);
+            return;
+          }
+          formEl.dataset.section = activeSection;
+          formEl.innerHTML = section.fields.map(field => {
+            const required = field.required ? 'required' : '';
+            const value = editingItem?.[field.id] || '';
+            const common = `id="field-${field.id}" name="${field.id}" placeholder="${escapeHtml(field.placeholder)}" ${required}`;
+            if (field.type === 'textarea') {
+              return `
+                <label class="english-field english-field--wide">
+                  <span>${escapeHtml(field.label)}</span>
+                  <textarea class="english-textarea" ${common}>${escapeHtml(value)}</textarea>
+                </label>
+              `;
+            }
+            return `
+              <label class="english-field">
+                <span>${escapeHtml(field.label)}</span>
+                <input class="english-input" type="text" value="${attrValue(value)}" ${common} />
+              </label>
+            `;
+          }).join('') + `
+            <button class="english-add" type="submit">${editingItem ? 'Save changes' : 'Add to revision'}</button>
+            ${editingItem ? '<button class="english-cancel-edit" type="button" id="cancel-edit">Cancel edit</button>' : ''}
+          `;
+        }
+
+        function renderWordsForm(editingItem) {
+          const hasExamples = !!editingItem && ['sentence1', 'sentence2', 'sentence3'].some(key => normalizeText(editingItem[key]));
+          formEl.dataset.section = 'words';
+          formEl.innerHTML = `
+            ${sections.words.fields.map(field => renderInputField(field, editingItem?.[field.id] || '')).join('')}
+            <label class="english-example-toggle">
+              <input type="checkbox" id="word-examples-toggle" ${hasExamples ? 'checked' : ''} />
+              <span>Examples</span>
+            </label>
+            <button class="english-add" type="submit">${editingItem ? 'Save' : 'Add'}</button>
+            ${editingItem ? '<button class="english-cancel-edit" type="button" id="cancel-edit">Cancel</button>' : ''}
+            <div class="english-word-examples${hasExamples ? ' is-open' : ''}" id="word-examples-fields">
+              ${sections.words.exampleFields.map(field => renderInputField(field, editingItem?.[field.id] || '')).join('')}
+            </div>
+          `;
+        }
+
+        function renderInputField(field, value) {
+          const required = field.required ? 'required' : '';
+          const common = `id="field-${field.id}" name="${field.id}" placeholder="${escapeHtml(field.placeholder)}" ${required}`;
+          if (field.type === 'textarea') {
+            return `
+              <label class="english-field english-field--wide">
+                <span>${escapeHtml(field.label)}</span>
+                <textarea class="english-textarea" ${common}>${escapeHtml(value)}</textarea>
+              </label>
+            `;
+          }
+          return `
+            <label class="english-field">
+              <span>${escapeHtml(field.label)}</span>
+              <input class="english-input" type="text" value="${attrValue(value)}" ${common} />
+            </label>
+          `;
+        }
+
+        function renderList() {
+          const section = sections[activeSection];
+          const query = searchEl.value.trim().toLowerCase();
+          const items = (state[activeSection] || []).filter(item => !query || itemText(item).includes(query));
+          listEl.classList.toggle('is-word-list', activeSection === 'words');
+          if (!items.length) {
+            listEl.innerHTML = `<div class="english-empty">${escapeHtml(section.empty)}</div>`;
+            return;
+          }
+          listEl.innerHTML = items.map(item => renderItem(activeSection, item)).join('');
+        }
+
+        function renderItem(sectionKey, item) {
+          if (sectionKey === 'words') {
+            const isOpen = openWordIds.has(item.id);
+            const hasExamples = ['sentence1', 'sentence2', 'sentence3'].some(key => normalizeText(item[key]));
+            return `
+              <article class="english-item english-word-row${isOpen ? ' is-open' : ''}" data-id="${item.id}">
+                ${wordHeader(item, isOpen, hasExamples)}
+                <ol class="english-sentences">
+                  ${['sentence1', 'sentence2', 'sentence3'].filter(key => normalizeText(item[key])).map(key => `<li>${escapeHtml(item[key])}</li>`).join('')}
+                </ol>
+              </article>
+            `;
+          }
+          if (sectionKey === 'scenarios') {
+            return `
+              <article class="english-item" data-id="${item.id}">
+                ${itemHeader(item.scenario, item.takeaway || 'Live practice', item)}
+                <div class="english-item__body">${escapeHtml(item.conversation)}</div>
+              </article>
+            `;
+          }
+          if (sectionKey === 'modals') {
+            return `
+              <article class="english-item" data-id="${item.id}">
+                ${itemHeader(item.modal, item.use, item)}
+                <div class="english-item__body">${escapeHtml(item.examples)}</div>
+              </article>
+            `;
+          }
+          return `
+            <article class="english-item" data-id="${item.id}">
+              ${itemHeader(item.rule, item.pattern, item)}
+              <div class="english-item__body">${escapeHtml(item.note)}</div>
+            </article>
+          `;
+        }
+
+        function wordHeader(item, isOpen, hasExamples) {
+          return `
+            <div class="english-item__head">
+              <div class="english-word-summary">
+                <div class="english-item__title">${escapeHtml(item.word)}</div>
+                <span class="english-item__tag">${escapeHtml(item.meaning || 'Revision')}</span>
+              </div>
+              <div class="english-actions">
+                ${hasExamples ? `<button class="english-mini-btn" type="button" data-action="toggle" title="${isOpen ? 'Hide sentences' : 'Show sentences'}" aria-label="${isOpen ? 'Hide sentences' : 'Show sentences'}">${isOpen ? icons.eyeOff : icons.eye}</button>` : ''}
+                <button class="english-mini-btn" type="button" data-action="edit" title="Edit" aria-label="Edit">${icons.edit}</button>
+                <button class="english-mini-btn" type="button" data-action="delete" title="Delete" aria-label="Delete">${icons.delete}</button>
+              </div>
+            </div>
+          `;
+        }
+
+        function itemHeader(title, tag, item) {
+          return `
+            <div class="english-item__head">
+              <div>
+                <div class="english-item__title">${escapeHtml(title)}</div>
+                <span class="english-item__tag">${escapeHtml(tag || 'Revision')}</span>
+              </div>
+              <div class="english-actions">
+                <button class="english-mini-btn" type="button" data-action="edit" title="Edit" aria-label="Edit">${icons.edit}</button>
+                <button class="english-mini-btn" type="button" data-action="delete" title="Delete" aria-label="Delete">${icons.delete}</button>
+              </div>
+            </div>
+          `;
+        }
+
+        function render() {
+          if (!sections[activeSection]) activeSection = 'words';
+          localStorage.setItem('habit-rings-english-active-section', activeSection);
+          sectionTitleEl.textContent = sections[activeSection].title;
+          sectionHintEl.textContent = sections[activeSection].hint;
+          renderTabs();
+          renderStats();
+          renderForm();
+          renderList();
+        }
+
+        tabsEl.addEventListener('click', event => {
+          const button = event.target.closest('[data-section]');
+          if (!button) return;
+          activeSection = button.dataset.section;
+          editingId = null;
+          searchEl.value = '';
+          render();
         });
-      }
+
+        formEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const entry = editingId
+            ? (state[activeSection] || []).find(item => item.id === editingId)
+            : { id: uid(), done: false, createdAt: Date.now() };
+          if (!entry) return;
+          sections[activeSection].fields.forEach(field => {
+            entry[field.id] = normalizeText(formEl.elements[field.id]?.value);
+          });
+          if (activeSection === 'words') {
+            const includeExamples = document.getElementById('word-examples-toggle')?.checked;
+            sections.words.exampleFields.forEach(field => {
+              entry[field.id] = includeExamples ? normalizeText(formEl.elements[field.id]?.value) : '';
+            });
+          }
+          entry.updatedAt = Date.now();
+          if (!editingId) state[activeSection].unshift(entry);
+          editingId = null;
+          saveState();
+          formEl.reset();
+          render();
+          formEl.querySelector('input, textarea')?.focus();
+        });
+
+        formEl.addEventListener('click', event => {
+          if (event.target.id !== 'cancel-edit') return;
+          editingId = null;
+          render();
+        });
+
+        formEl.addEventListener('change', event => {
+          if (event.target.id !== 'word-examples-toggle') return;
+          document.getElementById('word-examples-fields')?.classList.toggle('is-open', event.target.checked);
+        });
+
+        listEl.addEventListener('click', event => {
+          const button = event.target.closest('[data-action]');
+          if (!button) return;
+          const card = event.target.closest('[data-id]');
+          if (!card) return;
+          const id = card.dataset.id;
+          const items = state[activeSection] || [];
+          const item = items.find(value => value.id === id);
+          if (!item) return;
+          if (button.dataset.action === 'toggle') {
+            if (openWordIds.has(id)) {
+              openWordIds.delete(id);
+            } else {
+              openWordIds.add(id);
+            }
+            renderList();
+            return;
+          }
+          if (button.dataset.action === 'edit') {
+            editingId = id;
+            render();
+            formEl.querySelector('input, textarea')?.focus();
+            return;
+          }
+          if (button.dataset.action === 'delete') {
+            state[activeSection] = items.filter(value => value.id !== id);
+            if (editingId === id) editingId = null;
+          }
+          saveState();
+          render();
+        });
+
+        searchEl.addEventListener('input', renderList);
+
+        saveState();
+        render();
+      })();
     </script>
   </body>
 </html>

@@ -220,6 +220,16 @@
         color: var(--accent);
       }
 
+      .tech-subcategory-tab.drag-over {
+        border-color: var(--accent-border);
+        background: rgba(63, 185, 80, 0.12);
+      }
+
+      .tech-subcategory-tab.dragging-subcategory {
+        opacity: 0.45;
+        cursor: grabbing;
+      }
+
       .tech-subcategory-delete {
         margin-left: 6px;
         color: var(--text-dim);
@@ -1001,6 +1011,7 @@
         }
 
         let dragSrcId = null;
+        let dragSrcSubcategoryId = null;
 
         function renderCategories() {
           categoriesEl.innerHTML = categories.length ? categories.map(category => {
@@ -1075,13 +1086,66 @@
           const tabs = [
             `<button class="tech-subcategory-tab${!activeSubcategoryId ? ' is-active' : ''}" type="button" data-subcategory="">Main</button>`,
             ...(doc.subcategories || []).map(subcategory => `
-              <button class="tech-subcategory-tab${subcategory.id === activeSubcategoryId ? ' is-active' : ''}" type="button" data-subcategory="${subcategory.id}">
+              <button class="tech-subcategory-tab${subcategory.id === activeSubcategoryId ? ' is-active' : ''}" type="button" draggable="true" data-subcategory="${subcategory.id}">
                 ${escapeHtml(subcategory.title)}
                 <span class="tech-subcategory-delete" data-delete-subcategory="${subcategory.id}" aria-label="Delete ${escapeHtml(subcategory.title)}">×</span>
               </button>
             `)
           ];
           subcategoryTabsEl.innerHTML = tabs.join('');
+          wireSubcategoryDrag();
+        }
+
+        function wireSubcategoryDrag() {
+          subcategoryTabsEl.querySelectorAll('.tech-subcategory-tab[draggable="true"]').forEach(tab => {
+            tab.addEventListener('dragstart', event => {
+              dragSrcSubcategoryId = tab.dataset.subcategory;
+              tab.classList.add('dragging-subcategory');
+              event.dataTransfer.effectAllowed = 'move';
+              event.dataTransfer.setData('text/plain', dragSrcSubcategoryId);
+            });
+
+            tab.addEventListener('dragend', () => {
+              tab.classList.remove('dragging-subcategory');
+              subcategoryTabsEl.querySelectorAll('.tech-subcategory-tab').forEach(item => item.classList.remove('drag-over'));
+            });
+
+            tab.addEventListener('dragover', event => {
+              event.preventDefault();
+              event.dataTransfer.dropEffect = 'move';
+              subcategoryTabsEl.querySelectorAll('.tech-subcategory-tab').forEach(item => item.classList.remove('drag-over'));
+              if (tab.dataset.subcategory !== dragSrcSubcategoryId) {
+                tab.classList.add('drag-over');
+              }
+            });
+
+            tab.addEventListener('dragleave', () => {
+              tab.classList.remove('drag-over');
+            });
+
+            tab.addEventListener('drop', event => {
+              event.preventDefault();
+              tab.classList.remove('drag-over');
+              const targetId = tab.dataset.subcategory;
+              if (!dragSrcSubcategoryId || dragSrcSubcategoryId === targetId) return;
+
+              persistActiveDoc();
+              const doc = getActiveDoc();
+              if (!doc) return;
+
+              const srcIdx = (doc.subcategories || []).findIndex(subcategory => subcategory.id === dragSrcSubcategoryId);
+              const targetIdx = (doc.subcategories || []).findIndex(subcategory => subcategory.id === targetId);
+              if (srcIdx === -1 || targetIdx === -1) return;
+
+              const [moved] = doc.subcategories.splice(srcIdx, 1);
+              doc.subcategories.splice(targetIdx, 0, moved);
+              doc.activeSubcategoryId = activeSubcategoryId;
+              saveDocs();
+              renderSubcategoryTabs(doc);
+              renderCategories();
+              selectionStateEl.textContent = 'Sub-categories reordered';
+            });
+          });
         }
 
         function renderDocument() {

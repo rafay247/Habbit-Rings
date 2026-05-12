@@ -141,9 +141,10 @@ body {
 /* Quote (blockquote) */
 blockquote.header-quote {
   margin: 0;
-  padding: 14px 18px 16px;
+  min-height: 118px;
+  padding: 18px 20px;
   background: var(--bg-raised);
-  border-radius: var(--radius-md);
+  border-radius: 18px;
   border-left: 4px solid var(--accent);
   font-size: 15px;
   color: var(--text);
@@ -151,16 +152,19 @@ blockquote.header-quote {
   border-top: 1px solid var(--border);
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .header-quote__text {
   display: block;
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 700;
   font-style: italic;
   letter-spacing: 0.01em;
   color: var(--text);
-  line-height: 1.45;
+  line-height: 1.5;
   quotes: "\201c" "\201d" "\2018" "\2019";
 }
 .header-quote__text::before {
@@ -171,9 +175,9 @@ blockquote.header-quote {
 }
 .header-quote__cite {
   display: block;
-  margin-top: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 800;
   font-style: normal;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -186,25 +190,72 @@ blockquote.header-quote {
 
 /* ── Header quote row (quote + timer side by side) ── */
 .header-quote-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr) 150px;
+  align-items: stretch;
+  gap: 12px;
 }
 .header-quote-row > blockquote.header-quote {
-  flex: 1;
   min-width: 0;
+}
+
+.header-word {
+  min-height: 118px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(63, 185, 80, 0.03);
+}
+
+.header-word__label {
+  color: var(--accent-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-word__term {
+  margin-top: 7px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.header-word__meaning {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.header-word__sentences {
+  margin: 8px 0 0 14px;
+  padding: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.header-word__sentences:empty {
+  display: none;
 }
 
 /* ── Focus Timer Widget ── */
 .focus-timer {
-  flex-shrink: 0;
-  width: 150px;
+  min-height: 118px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 10px;
+  padding: 12px;
   background: var(--bg-raised);
-  border-radius: var(--radius-md);
+  border-radius: 18px;
   border: 1px solid var(--border);
   transition: border-color 0.2s;
 }
@@ -215,13 +266,14 @@ blockquote.header-quote {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
 }
 
 .focus-timer__label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -236,12 +288,13 @@ blockquote.header-quote {
 
 .focus-timer__input {
   width: 100%;
-  border-radius: var(--radius-sm);
+  min-height: 32px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
-  padding: 5px 8px;
-  font-size: 16px;
+  padding: 6px 8px;
+  font-size: 15px;
   font-weight: 600;
   text-align: center;
   font-variant-numeric: tabular-nums;
@@ -268,7 +321,8 @@ blockquote.header-quote {
   width: 100%;
   justify-content: center;
   font-size: 11px;
-  padding: 5px 8px;
+  padding: 7px 8px;
+  border-radius: 12px;
 }
 .focus-timer__start:disabled {
   opacity: 0.4;
@@ -1316,7 +1370,10 @@ blockquote.header-quote {
 @media (max-width: 720px) {
   .app-shell { padding-inline: 10px; }
   .app-header { padding: 12px 12px 10px; }
-  .header-quote-row { flex-direction: column; }
+  .header-quote-row { grid-template-columns: 1fr; }
+  .header-quote-row > blockquote.header-quote,
+  .header-word,
+  .focus-timer { width: 100%; min-height: auto; }
   .focus-timer { width: 100%; }
   .focus-timer__running { flex-direction: row; flex-wrap: wrap; justify-content: center; }
   .rings { gap: 4px; }
