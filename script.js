@@ -1015,16 +1015,37 @@ function habitMeetsWeeklyTarget(habit) {
 
 function renderDailyQuote() {
   if (!els.quoteText) return;
-  const index = dayOfYear(new Date()) % DAILY_QUOTES.length;
-  const raw = DAILY_QUOTES[index];
-  const sep = " — ";
-  const pos = raw.indexOf(sep);
-  if (pos !== -1) {
-    els.quoteText.textContent = raw.slice(0, pos).trim();
-    if (els.quoteAuthor) els.quoteAuthor.textContent = raw.slice(pos + sep.length).trim();
+
+  const QUOTES_STORAGE_KEY = 'habit-rings-custom-quotes';
+  let customQuotes = [];
+  try {
+    const raw = localStorage.getItem(QUOTES_STORAGE_KEY);
+    if (raw) customQuotes = JSON.parse(raw);
+  } catch (e) {}
+
+  let quoteObj;
+  if (customQuotes && customQuotes.length > 0) {
+    const index = dayOfYear(new Date()) % customQuotes.length;
+    quoteObj = customQuotes[index];
   } else {
-    els.quoteText.textContent = raw;
-    if (els.quoteAuthor) els.quoteAuthor.textContent = "";
+    // Fallback to internal DAILY_QUOTES (format: "Text — Author")
+    const index = dayOfYear(new Date()) % DAILY_QUOTES.length;
+    const raw = DAILY_QUOTES[index];
+    const sep = " — ";
+    const pos = raw.indexOf(sep);
+    if (pos !== -1) {
+      quoteObj = {
+        text: raw.slice(0, pos).trim(),
+        author: raw.slice(pos + sep.length).trim()
+      };
+    } else {
+      quoteObj = { text: raw, author: "" };
+    }
+  }
+
+  els.quoteText.textContent = quoteObj.text;
+  if (els.quoteAuthor) {
+    els.quoteAuthor.textContent = quoteObj.author || "";
   }
 }
 

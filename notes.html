@@ -832,9 +832,10 @@
             <a href="index.html" class="chip chip-outline">Dashboard</a>
             <a href="notes.html" class="chip chip-outline chip-active">Notes</a>
             <a href="calendar.html" class="chip chip-outline">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="books.html" class="chip chip-outline">Books</a>
             <a href="english.html" class="chip chip-outline">English</a>
             <a href="technology.html" class="chip chip-outline">Knowledge base</a>
+            <a href="quotes.html" class="chip chip-outline">Quotes</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -1179,7 +1180,14 @@
           let bodyInner = '';
           if (note.title) bodyInner += `<div class="note-card-title">${esc(note.title)}</div>`;
           if (note.beastMode) {
-            bodyInner += `<div class="beast-meta">${beastDone ? 'All todos complete' : 'Beast mode'} · ${clampDays(note.beastDays)} day${clampDays(note.beastDays) === 1 ? '' : 's'}</div>`;
+            const start = new Date(note.createdAt);
+            start.setHours(0,0,0,0);
+            const now = new Date();
+            now.setHours(0,0,0,0);
+            const dayNum = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+            const total = clampDays(note.beastDays);
+            const dayDisplay = dayNum > total ? `Complete (${total}/${total})` : `Day ${dayNum}/${total}`;
+            bodyInner += `<div class="beast-meta">${beastDone ? '✅ Todos complete' : '🔥 ' + dayDisplay}</div>`;
           }
           if (note.mode === 'checklist' && note.checklist?.length) {
             bodyInner += '<ul class="note-checklist">';

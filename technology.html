@@ -310,7 +310,13 @@
       }
 
       .tech-select--size {
-        min-width: 96px;
+        min-width: 80px;
+      }
+
+      .tech-select option {
+        background: #141a14;
+        color: var(--text);
+        padding: 8px;
       }
 
       .tech-doc__meta {
@@ -664,9 +670,10 @@
             <a href="index.html" class="chip chip-outline">Dashboard</a>
             <a href="notes.html" class="chip chip-outline">Notes</a>
             <a href="calendar.html" class="chip chip-outline">Calendar</a>
-            <a href="quotes.html" class="chip chip-outline">Books</a>
+            <a href="books.html" class="chip chip-outline">Books</a>
             <a href="english.html" class="chip chip-outline">English</a>
             <a href="technology.html" class="chip chip-outline chip-active">Knowledge base</a>
+            <a href="quotes.html" class="chip chip-outline">Quotes</a>
           </nav>
           <div class="header-meta">
             <span id="today-label" class="today-label"></span>
@@ -753,11 +760,17 @@
                     <option value="blockquote">Quote</option>
                   </select>
                   <select class="tech-select tech-select--size" id="tech-text-size" title="Text size">
-                    <option value="14">Small</option>
-                    <option value="17" selected>Normal</option>
-                    <option value="20">Large</option>
-                    <option value="24">XL</option>
-                    <option value="30">Title</option>
+                    <option value="12">12px</option>
+                    <option value="14">14px</option>
+                    <option value="16">16px</option>
+                    <option value="17" selected>17px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
+                    <option value="22">22px</option>
+                    <option value="24">24px</option>
+                    <option value="28">28px</option>
+                    <option value="32">32px</option>
+                    <option value="40">40px</option>
                   </select>
                   <button class="tech-tool tech-tool--icon" type="button" data-action="size-down" aria-label="Decrease text size" title="Decrease text size">A-</button>
                   <button class="tech-tool tech-tool--icon" type="button" data-action="size-up" aria-label="Increase text size" title="Increase text size">A+</button>
@@ -809,7 +822,7 @@
         const TECH_DOCS_KEY = 'habit-rings-tech-docs-v1';
         const DEFAULT_CATEGORIES = [];
         const DEFAULT_DOCS = {};
-        const TEXT_SIZE_OPTIONS = [14, 17, 20, 24, 30];
+        const TEXT_SIZE_OPTIONS = [12, 14, 16, 17, 18, 20, 22, 24, 28, 32, 40];
 
         let categories = loadCategories();
         let docs = loadDocs();

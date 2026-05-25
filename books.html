@@ -1,0 +1,2393 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habit Rings — Books</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      html, body { height: 100%; }
+
+      .quotes-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        --gold: var(--accent);
+        --books-accent-soft: var(--accent-soft);
+        --books-accent-border: var(--accent-border);
+        --books-accent-strong: rgba(63, 185, 80, 0.34);
+        --books-accent-ring: rgba(63, 185, 80, 0.08);
+        --books-accent-label: rgba(217, 251, 224, 0.76);
+        --books-accent-fill: rgba(63, 185, 80, 0.18);
+      }
+
+      .quotes-hero,
+      .quotes-workspace {
+        border-radius: 22px;
+      }
+
+      .quotes-hero {
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-hero__copy,
+      .quotes-hero__actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quotes-hero__copy {
+        align-items: flex-start;
+      }
+
+      .quotes-hero__actions {
+        align-items: flex-end;
+      }
+
+      .quotes-chip {
+        display: inline-flex;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--books-accent-soft);
+        color: var(--gold);
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .quotes-hero h1 {
+        margin-top: 10px;
+        font-family: 'Lexend', sans-serif;
+        font-size: clamp(28px, 5vw, 42px);
+        letter-spacing: -0.04em;
+      }
+
+      .quotes-total {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        cursor: pointer;
+        transition: border-color 0.18s, transform 0.18s;
+      }
+
+      .quotes-total:hover {
+        transform: translateY(-1px);
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-total__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-total__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 28px;
+        line-height: 1;
+        color: var(--gold);
+      }
+
+      .quotes-top-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-top-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        color: var(--text-muted);
+      }
+
+      .quotes-top-stat__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-top-stat__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+        color: var(--text);
+      }
+
+      .quotes-top-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, background 0.18s;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+      }
+
+      .quotes-top-tab.active {
+        color: var(--gold);
+        background: var(--books-accent-soft);
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-top-tab__label {
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-dim);
+      }
+
+      .quotes-top-tab.active .quotes-top-tab__label {
+        color: var(--books-accent-label);
+      }
+
+      .quotes-top-tab__value {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .quotes-workspace {
+        padding: 18px;
+      }
+
+      .quotes-read-section {
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-read-section[hidden] {
+        display: none;
+      }
+
+      .quotes-goat-section[hidden] {
+        display: none;
+      }
+
+      .quotes-all-section[hidden] {
+        display: none;
+      }
+
+      .quotes-read-section h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 18px;
+        margin-bottom: 14px;
+      }
+
+      .quotes-read-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .quotes-read-header h2 { margin-bottom: 0; }
+
+      .quotes-layout {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .quotes-sidebar,
+      .quotes-main {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .quotes-read-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(210px, 0.8fr) minmax(180px, 0.7fr);
+        gap: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.06);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
+          rgba(10, 14, 10, 0.42);
+      }
+
+      .quotes-read-input,
+      .quotes-read-category-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.98);
+        color: var(--text);
+        min-height: 48px;
+        padding: 12px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+      }
+
+      .quotes-read-input:focus,
+      .quotes-read-category-input:focus {
+        outline: none;
+        border-color: var(--books-accent-strong);
+        box-shadow: 0 0 0 3px var(--books-accent-ring);
+      }
+
+      .quotes-read-add {
+        border: 1px solid var(--books-accent-border);
+        background: linear-gradient(180deg, rgba(63, 185, 80, 0.18), rgba(63, 185, 80, 0.1));
+        color: var(--gold);
+        border-radius: 14px;
+        min-height: 50px;
+        padding: 12px 16px;
+        width: 100%;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.18s, border-color 0.18s, background 0.18s;
+      }
+
+      .quotes-read-add:hover {
+        transform: translateY(-1px);
+        border-color: var(--books-accent-border);
+        background: linear-gradient(180deg, rgba(63, 185, 80, 0.22), rgba(63, 185, 80, 0.12));
+      }
+
+      .quotes-read-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .quotes-read-item {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--text-muted);
+        cursor: grab;
+        transition: border-color 0.18s, transform 0.18s, opacity 0.18s;
+      }
+
+      .quotes-read-item:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+
+      .quotes-read-item.dragging {
+        opacity: 0.58;
+        transform: scale(0.985);
+      }
+
+      .quotes-read-item.drag-over {
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-read-item__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .quotes-read-item__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        flex: 1;
+      }
+
+      .quotes-read-item__open {
+        flex: 1;
+        min-width: 0;
+        text-align: left;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .quotes-read-item__title {
+        display: block;
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+        line-height: 1.25;
+        color: var(--text);
+        word-break: break-word;
+      }
+
+      .quotes-read-item__cat {
+        font-size: 11px;
+        color: var(--text-dim);
+        letter-spacing: 0.02em;
+      }
+
+      .quotes-read-unmark {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: border-color 0.15s, color 0.15s;
+        white-space: nowrap;
+      }
+      .quotes-read-unmark:hover { border-color: var(--red); color: var(--red); }
+
+      .quotes-read-delete {
+        flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.18s, color 0.18s, background 0.18s;
+      }
+
+      .quotes-read-delete:hover {
+        border-color: rgba(255, 123, 114, 0.28);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
+      }
+
+      .quotes-read-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+        margin-bottom: 16px;
+      }
+
+      .quotes-read-filter {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text-dim);
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, background 0.18s, color 0.18s, transform 0.18s;
+      }
+
+      .quotes-read-filter:hover {
+        transform: translateY(-1px);
+        border-color: var(--books-accent-border);
+        color: var(--text);
+      }
+
+      .quotes-read-filter.active {
+        border-color: var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+      }
+
+      .quotes-read-filter__count {
+        min-width: 22px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        color: var(--text-muted);
+        font-size: 10.5px;
+        line-height: 1.2;
+        text-align: center;
+      }
+
+      .quotes-read-filter.active .quotes-read-filter__count {
+        background: var(--books-accent-fill);
+        color: var(--books-accent-label);
+      }
+
+      .quotes-read-empty {
+        padding: 18px 16px;
+        border-radius: 16px;
+        border: 1px dashed rgba(255,255,255,0.12);
+        color: var(--text-dim);
+        font-size: 13px;
+        background: rgba(255,255,255,0.015);
+      }
+
+      .quotes-tabs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-category-form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.72);
+      }
+
+      .quotes-read-category-input,
+      .quotes-category-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-read-category-input:focus,
+      .quotes-category-input:focus {
+        outline: none;
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-category-add {
+        border: 1px solid var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      /* ── Tab row (wrapper with delete button) ── */
+      .quotes-tab-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.96);
+        border-radius: 12px;
+        padding: 6px 8px 6px 12px;
+        min-height: 46px;
+        transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+        color: var(--text-muted);
+      }
+
+      .quotes-tab-row:hover {
+        transform: translateX(2px);
+        border-color: var(--books-accent-border);
+        color: var(--text);
+      }
+
+      .quotes-tab-row.active {
+        background: var(--books-accent-soft);
+        border-color: var(--books-accent-border);
+        color: var(--gold);
+      }
+
+      .quotes-tab-row.dragging { opacity: 0.6; }
+
+      /* Open/select button inside row */
+      .quotes-tab-open {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        padding: 4px 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        text-align: left;
+        line-height: 1.45;
+      }
+
+      /* Delete button */
+      .quotes-tab-delete {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: border-color 0.15s, color 0.15s, background 0.15s, opacity 0.15s;
+      }
+
+      .quotes-tab-row:hover .quotes-tab-delete { opacity: 1; }
+
+      .quotes-tab-delete:hover {
+        border-color: rgba(255, 123, 114, 0.35);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
+        opacity: 1;
+      }
+
+      .quotes-tab__drag {
+        flex-shrink: 0;
+        color: var(--text-dim);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        cursor: grab;
+        padding: 0 2px;
+      }
+
+      .quotes-tab__label {
+        display: block;
+        letter-spacing: -0.01em;
+      }
+
+      .quotes-tab__meta {
+        flex-shrink: 0;
+        margin-left: 6px;
+        min-width: 24px;
+        text-align: center;
+        border-radius: 999px;
+        padding: 2px 6px;
+        font-size: 11px;
+        color: var(--text-dim);
+        background: rgba(255,255,255,0.05);
+      }
+
+      .quotes-tab-row.active .quotes-tab__meta {
+        color: var(--books-accent-label);
+        background: var(--books-accent-fill);
+      }
+
+      /* Keep old .quotes-tab for any legacy references */
+      .quotes-tab {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid var(--border);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text-muted);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+        text-align: left;
+        line-height: 1.45;
+        min-height: 46px;
+      }
+
+      .quotes-panel {
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.68);
+      }
+
+      .quotes-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .quotes-panel h2 {
+        font-family: 'Lexend', sans-serif;
+        font-size: 20px;
+      }
+
+      /* ── Book list (replaces textarea) ── */
+      .quotes-book-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 10px 0 14px;
+        max-height: 420px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+      .quotes-book-list:empty::after {
+        content: 'No books yet. Add one below.';
+        font-size: 12px;
+        color: var(--text-dim);
+        padding: 10px 0;
+        display: block;
+      }
+      .quotes-book-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.07);
+        background: rgba(20,26,20,0.96);
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .quotes-book-item:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+      .quotes-book-item.is-read { opacity: 0.75; }
+      .quotes-book-item.is-read .quotes-book-title { text-decoration: line-through; color: var(--text-muted); }
+      .quotes-book-item.is-goat {
+        border-color: rgba(227, 179, 65, 0.42);
+        background: rgba(46, 35, 10, 0.42);
+      }
+      .quotes-book-check {
+        width: 18px; height: 18px;
+        border-radius: 5px;
+        appearance: none; -webkit-appearance: none;
+        border: 1.5px solid var(--border-strong);
+        background: var(--bg-raised);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.15s, border-color 0.15s;
+        position: relative;
+      }
+      .quotes-book-check:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .quotes-book-check:checked::after {
+        content: '';
+        position: absolute;
+        top: 2px; left: 5px;
+        width: 5px; height: 8px;
+        border: 2px solid #fff;
+        border-top: none; border-left: none;
+        transform: rotate(45deg);
+      }
+      .quotes-book-title {
+        flex: 1;
+        font-size: 13px;
+        color: var(--text);
+        line-height: 1.4;
+        word-break: break-word;
+      }
+      .quotes-book-delete {
+        width: 24px; height: 24px;
+        border-radius: 7px;
+        border: 1px solid rgba(255,255,255,0.07);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 14px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0;
+        transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .quotes-book-item:hover .quotes-book-delete { opacity: 1; }
+      .quotes-book-delete:hover { color: var(--red); border-color: rgba(255,123,114,0.3); }
+      @media (pointer: coarse) { .quotes-book-delete { opacity: 1; } }
+
+      .quotes-add-book-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin-top: 4px;
+      }
+      @media (max-width: 480px) { .quotes-add-book-form { grid-template-columns: 1fr; } }
+
+      /* ── Book item body (title + moral preview) ── */
+      .quotes-book-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .quotes-book-moral-preview {
+        font-size: 11px;
+        color: var(--text-dim);
+        line-height: 1.4;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+
+      /* ── Moral button ── */
+      .quotes-book-moral-btn {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--accent-border);
+        background: var(--accent-soft);
+        color: var(--accent);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .quotes-book-moral-btn.has-moral {
+        font-size: 14px;
+        padding: 2px 6px;
+        background: transparent;
+        border-color: transparent;
+        color: var(--text-muted);
+      }
+      .quotes-book-item:hover .quotes-book-moral-btn { opacity: 1; }
+      @media (pointer: coarse) { .quotes-book-moral-btn { opacity: 1; } }
+
+      .quotes-book-goat-btn {
+        flex-shrink: 0;
+        min-width: 32px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid rgba(227, 179, 65, 0.28);
+        background: rgba(227, 179, 65, 0.08);
+        color: rgba(227, 179, 65, 0.72);
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 800;
+        transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+      }
+      .quotes-book-goat-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(227, 179, 65, 0.5);
+        color: #e3b341;
+      }
+      .quotes-book-goat-btn.active {
+        background: rgba(227, 179, 65, 0.2);
+        border-color: rgba(227, 179, 65, 0.62);
+        color: #e3b341;
+      }
+      .quotes-goat-empty {
+        padding: 22px;
+        border-radius: 16px;
+        border: 1px dashed rgba(227, 179, 65, 0.28);
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: center;
+      }
+
+      /* ── Moral editor overlay ── */
+      .moral-editor-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+      }
+      .moral-editor-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .moral-editor-panel {
+        width: min(480px, 100%);
+        background: rgba(14, 20, 14, 0.98);
+        border: 1px solid var(--border-strong);
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transform: translateY(12px) scale(0.97);
+        transition: transform 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+      }
+      .moral-editor-overlay.open .moral-editor-panel {
+        transform: translateY(0) scale(1);
+      }
+      .moral-editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .moral-editor-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-muted);
+      }
+      .moral-editor-close {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text-muted);
+        font-size: 16px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: border-color 0.15s, color 0.15s;
+      }
+      .moral-editor-close:hover { border-color: var(--red); color: var(--red); }
+      .moral-editor-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.3;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+      }
+      .moral-editor-textarea {
+        width: 100%;
+        min-height: 280px;
+        resize: vertical;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        line-height: 1.65;
+        transition: border-color 0.15s;
+      }
+      .moral-editor-textarea:focus {
+        outline: none;
+        border-color: var(--accent-border);
+      }
+      .moral-editor-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .moral-editor-hint {
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      .moral-editor-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .moral-editor-btn {
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .moral-editor-btn--ghost {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+      }
+      .moral-editor-btn--ghost:hover { background: var(--bg-raised); }
+      .moral-editor-btn--primary {
+        border: 1px solid var(--accent-border);
+        background: var(--accent);
+        color: #000;
+        font-weight: 600;
+      }
+      .moral-editor-btn--primary:hover { background: var(--accent-muted); }
+
+      .quotes-meta {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      .clickable-goat {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .clickable-goat:hover {
+        transform: translateY(-2px);
+        background: rgba(255,255,255,0.04);
+      }
+
+      .quotes-modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease;
+        z-index: 1000;
+      }
+
+      .quotes-modal.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .quotes-modal__panel {
+        width: min(620px, 100%);
+        max-height: 80vh;
+        overflow: auto;
+        margin-top: 18px;
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(12, 16, 12, 0.96);
+      }
+
+      .quotes-modal__top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .quotes-modal__title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 24px;
+        line-height: 1.15;
+      }
+
+      .quotes-modal__close {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .quotes-modal__section {
+        margin-top: 18px;
+      }
+
+      .quotes-modal__label {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .quotes-modal__value {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--text-muted);
+        white-space: pre-wrap;
+      }
+
+      .quotes-modal__textarea {
+        width: 100%;
+        min-height: 240px;
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 12px 14px;
+        resize: vertical;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .quotes-modal__input-inline,
+      .quotes-modal__select-inline {
+        width: 100%;
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+      }
+
+      .quotes-modal__input-inline:focus,
+      .quotes-modal__select-inline:focus,
+      .quotes-modal__textarea:focus {
+        outline: none;
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-modal__actions {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .quotes-modal__form {
+        margin-top: 8px;
+        display: grid;
+        grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
+      .quotes-modal__search {
+        margin-top: 8px;
+      }
+
+      .quotes-modal__input,
+      .quotes-modal__select,
+      .quotes-modal__search-input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(20, 26, 20, 0.96);
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+      }
+
+      .quotes-modal__input:focus,
+      .quotes-modal__select:focus,
+      .quotes-modal__search-input:focus {
+        outline: none;
+        border-color: var(--books-accent-border);
+      }
+
+      .quotes-modal__add {
+        border: 1px solid var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-modal__button {
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-muted);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .quotes-modal__button--primary {
+        border-color: var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+      }
+
+      .quotes-modal__groups {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .quotes-modal__group {
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02);
+      }
+
+      .quotes-modal__group-title {
+        font-family: 'Lexend', sans-serif;
+        font-size: 14px;
+        color: var(--text);
+      }
+
+      .quotes-modal__book-list {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .quotes-modal__book-chip {
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(20, 26, 20, 0.96);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .quotes-modal__book-empty {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+
+      @media (max-width: 760px) {
+        .quotes-hero,
+        .quotes-workspace,
+        .quotes-panel,
+        .quotes-read-section {
+          padding: 18px;
+        }
+
+        .quotes-hero__actions {
+          align-items: flex-start;
+        }
+
+        .quotes-top-tabs {
+          width: 100%;
+        }
+
+        .quotes-top-tab,
+        .quotes-top-stat {
+          flex: 1 1 100%;
+          justify-content: space-between;
+        }
+
+        .quotes-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .quotes-read-form {
+          grid-template-columns: 1fr;
+        }
+
+        .quotes-modal__form {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .quotes-shell { gap: 10px; }
+        .quotes-hero { padding: 12px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .quotes-hero h1 { font-size: 24px; }
+        .quotes-hero__actions { width: 100%; }
+        .quotes-top-tabs { width: 100%; }
+        .quotes-top-tab,
+        .quotes-top-stat { flex: 1 1 100%; justify-content: space-between; padding: 8px 10px; font-size: 11px; }
+        .quotes-top-tab__value,
+        .quotes-top-stat__value { font-size: 16px; }
+        .quotes-workspace { padding: 12px; }
+        .quotes-panel { padding: 12px; }
+        .quotes-panel h2 { font-size: 16px; }
+        .quotes-editor { min-height: 200px; font-size: 13px; padding: 12px; }
+        .quotes-read-section { padding: 12px; }
+        .quotes-read-section h2 { font-size: 16px; }
+        .quotes-read-input, .quotes-read-category-input { min-height: 42px; font-size: 12px; }
+        .quotes-read-add { min-height: 42px; font-size: 12px; }
+        .quotes-read-grid { grid-template-columns: 1fr; gap: 8px; }
+        .quotes-read-item { padding: 10px; }
+        .quotes-read-item__title { font-size: 13px; }
+        .quotes-tabs { padding: 8px; gap: 4px; }
+        .quotes-tab, .quotes-tab-row { padding: 6px 8px; font-size: 11px; min-height: 38px; }
+        .quotes-tab-delete { opacity: 1; } /* always show delete on mobile */
+        .quotes-category-form { gap: 6px; }
+        .quotes-category-input { padding: 8px 10px; font-size: 12px; }
+        .quotes-category-add { padding: 8px 10px; font-size: 12px; }
+        .quotes-modal { align-items: flex-end; padding: 0; }
+        .quotes-modal__panel { width: 100%; border-radius: 20px 20px 0 0; margin-top: 0; padding: 16px; }
+        .quotes-modal__title { font-size: 18px; }
+        .quotes-read-filters { gap: 4px; }
+        .quotes-read-filter { font-size: 10px; padding: 5px 8px; }
+        .quotes-total { padding: 8px 12px; }
+        .quotes-total__value { font-size: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell quotes-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="books.html" class="chip chip-outline chip-active">Books</a>
+            <a href="english.html" class="chip chip-outline">English</a>
+            <a href="technology.html" class="chip chip-outline">Knowledge base</a>
+            <a href="quotes.html" class="chip chip-outline">Quotes</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <section class="quotes-hero glass">
+        <div class="quotes-hero__copy">
+          <span class="quotes-chip">Book Library</span>
+          <h1>Books Library</h1>
+        </div>
+        <div class="quotes-hero__actions">
+          <div class="quotes-top-tabs">
+            <button class="quotes-top-tab active" id="all-books-tab" type="button">
+              <span class="quotes-top-tab__label">All Books</span>
+              <span class="quotes-top-tab__value" id="all-books-count">0</span>
+            </button>
+            <button class="quotes-top-tab" id="read-books-tab" type="button">
+              <span class="quotes-top-tab__label">Books Read</span>
+              <span class="quotes-top-tab__value" id="books-read-count">0</span>
+            </button>
+            <button class="quotes-top-tab" id="goat-books-tab" type="button">
+              <span class="quotes-top-tab__label">GOAT Books</span>
+              <span class="quotes-top-tab__value" id="goat-books-count">0</span>
+            </button>
+            <div class="quotes-top-stat" aria-label="Unread books">
+              <span class="quotes-top-stat__label">Unread Books</span>
+              <span class="quotes-top-stat__value" id="books-unread-count">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-all-section" id="quotes-all-section">
+        <div class="quotes-layout">
+          <div class="quotes-sidebar">
+            <form class="quotes-category-form" id="quotes-category-form">
+              <input
+                id="quotes-category-input"
+                class="quotes-category-input"
+                type="text"
+                maxlength="80"
+                placeholder="Add new category"
+                autocomplete="off"
+              />
+              <button class="quotes-category-add" type="submit">Add Category</button>
+            </form>
+            <div class="quotes-tabs" id="quotes-tabs"></div>
+          </div>
+
+          <div class="quotes-main">
+            <div class="quotes-panel">
+              <div class="quotes-panel-header">
+                <h2 id="quotes-panel-title">Select a category</h2>
+                <div class="quotes-meta" id="quotes-meta"></div>
+              </div>
+              <!-- Book list for selected category -->
+              <div id="quotes-book-list" class="quotes-book-list"></div>
+              <!-- Add book form -->
+              <form class="quotes-add-book-form" id="quotes-add-book-form">
+                <input
+                  id="quotes-add-book-input"
+                  class="quotes-read-input"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Add a book title…"
+                  autocomplete="off"
+                />
+                <button class="quotes-read-add" type="submit">+ Add</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-read-section" id="books-read-section" hidden>
+        <div class="quotes-read-header">
+          <h2>Read Books</h2>
+          <span class="quotes-meta" id="read-books-meta"></span>
+        </div>
+        <div class="quotes-read-filters" id="books-read-filters"></div>
+        <div class="quotes-read-grid" id="books-read-list"></div>
+      </section>
+
+      <section class="quotes-workspace glass quotes-read-section quotes-goat-section" id="goat-books-section" hidden>
+        <div class="quotes-read-header">
+          <h2>GOAT Books</h2>
+          <span class="quotes-meta" id="goat-books-meta"></span>
+        </div>
+        <div class="quotes-read-filters" id="goat-books-filters"></div>
+        <div class="quotes-read-grid" id="goat-books-list"></div>
+      </section>
+
+      <div class="quotes-modal" id="read-book-modal">
+        <div class="quotes-modal__panel">
+          <div class="quotes-modal__top">
+            <div class="quotes-modal__title" id="read-book-modal-title">Book</div>
+            <button class="quotes-modal__close" id="read-book-modal-close" type="button">×</button>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Category</div>
+            <div class="quotes-modal__value" id="read-book-modal-category">Uncategorized</div>
+            <select class="quotes-modal__select-inline" id="read-book-modal-category-input" hidden></select>
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Book</div>
+            <div class="quotes-modal__value" id="read-book-modal-book">Book</div>
+            <input
+              class="quotes-modal__input-inline"
+              id="read-book-modal-title-input"
+              type="text"
+              maxlength="120"
+              placeholder="Book name"
+              hidden
+            />
+          </div>
+          <div class="quotes-modal__section">
+            <div class="quotes-modal__label">Moral</div>
+            <div class="quotes-modal__value" id="read-book-modal-moral">No moral added yet.</div>
+            <textarea
+              class="quotes-modal__textarea"
+              id="read-book-modal-moral-input"
+              placeholder="Add the moral or lesson from this book..."
+              hidden
+            ></textarea>
+            <div class="quotes-modal__actions">
+              <button class="quotes-modal__button" id="read-book-modal-edit" type="button">Edit Book</button>
+              <button class="quotes-modal__button" id="read-book-modal-cancel" type="button" hidden>Cancel</button>
+              <button class="quotes-modal__button quotes-modal__button--primary" id="read-book-modal-save" type="button" hidden>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Moral Editor Overlay ── -->
+    <div class="moral-editor-overlay" id="moral-editor-overlay">
+      <div class="moral-editor-panel">
+        <div class="moral-editor-header">
+          <div class="moral-editor-label">📝 Moral / Key Lesson</div>
+          <button class="moral-editor-close" id="moral-editor-close" type="button" aria-label="Close">×</button>
+        </div>
+        <div class="moral-editor-title" id="moral-editor-title"></div>
+        <textarea
+          id="moral-editor-textarea"
+          class="moral-editor-textarea"
+          placeholder="What's the key lesson or moral from this book?"
+          spellcheck="false"
+        ></textarea>
+        <div class="moral-editor-footer">
+          <span class="moral-editor-hint">Ctrl+Enter to save</span>
+          <div class="moral-editor-actions">
+            <button class="moral-editor-btn moral-editor-btn--ghost" id="moral-editor-cancel" type="button">Cancel</button>
+            <button class="moral-editor-btn moral-editor-btn--primary" id="moral-editor-save" type="button">Save Moral</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const todayEl = document.getElementById('today-label');
+        if (todayEl) {
+          todayEl.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        const STORAGE_KEY = 'habit-rings-books-v4';          // new key — structured data
+        const CATEGORY_STORAGE_KEY = 'habit-rings-books-categories-v1';
+        const READ_BOOKS_STORAGE_KEY = 'habit-rings-read-books-v1';
+        const MIGRATION_KEY = 'habit-rings-books-migrated-v5';
+        const DEFAULT_READ_BOOKS = [];
+        const TAB_INFO = {};
+
+        // ── Seed data (loaded once if nothing saved) ──────────────────────────
+        const SEED_DATA = [
+          { name: "Mindset & Self Growth", books: [
+            { title: "Mindset", read: true },
+            { title: "The Magic of Thinking Big", read: true },
+            { title: "Think and Grow Rich", read: true },
+            { title: "Who Moved My Cheese?", read: true },
+            { title: "The Art of Not Giving a F*ck", read: true },
+            { title: "The Power of Now", read: true },
+            { title: "You Can Heal Your Life", read: true },
+            { title: "The Alchemist", read: true },
+            { title: "Attitude is Everything", read: false },
+            { title: "Believe in Yourself", read: false },
+            { title: "Win Your Inner Battle", read: false },
+            { title: "The Psychology of Winning", read: false },
+            { title: "The Courage to Be Disliked", read: false },
+            { title: "Ikigai", read: false },
+            { title: "Man's Search for Meaning", read: false },
+            { title: "Do Epic Shit", read: false }
+          ]},
+          { name: "Psychology & Thinking", books: [
+            { title: "Thinking, Fast and Slow", read: false }, { title: "Think Again", read: false },
+            { title: "Clear Thinking", read: false }, { title: "The Intelligence Trap", read: false },
+            { title: "Chatter", read: false }, { title: "Wiser", read: false }, { title: "Outliers", read: false }
+          ]},
+          { name: "Money, Wealth & Finance", books: [
+            { title: "Rich Dad Poor Dad", read: false }, { title: "The Psychology of Money", read: false },
+            { title: "The Millionaire Fastlane", read: true }, { title: "The Richest Man in Babylon", read: false },
+            { title: "The Simple Path to Wealth", read: false }, { title: "Just Keep Buying", read: false },
+            { title: "Main Street Millionaire", read: false }, { title: "Secret of the Millionaire Mind", read: false },
+            { title: "The Algebra of Money", read: false }
+          ]},
+          { name: "Business & Strategy", books: [
+            { title: "Good to Great", read: false }, { title: "Zero to One", read: false },
+            { title: "$100 Startup", read: false }, { title: "Rework", read: false },
+            { title: "The Challenger Sale", read: false }, { title: "Build Don't Talk", read: false },
+            { title: "Trillion Dollar Coach", read: false }
+          ]},
+          { name: "Productivity & Discipline", books: [
+            { title: "Atomic Habits", read: false },
+            { title: "The Power of Discipline", read: true },
+            { title: "The 12 Week Year", read: true },
+            { title: "Getting Things Done", read: false }, { title: "Finish What You Start", read: false },
+            { title: "Do It Today", read: false }, { title: "Deep Work", read: false },
+            { title: "Hyperfocus", read: false }, { title: "The 5 AM Club", read: false },
+            { title: "The Miracle Morning", read: false }, { title: "The Compound Effect", read: false },
+            { title: "The Practicing Mind", read: false }
+          ]},
+          { name: "Communication & Social Skills", books: [
+            { title: "How to Win Friends and Influence People", read: true },
+            { title: "How to Talk to Anyone", read: true },
+            { title: "Read People Like a Book", read: true },
+            { title: "The Art of Public Speaking", read: true },
+            { title: "Talk Like TED", read: false }, { title: "Crucial Conversations", read: false },
+            { title: "You're Not Listening", read: false }, { title: "The Culture Map", read: false }
+          ]},
+          { name: "Sales & Marketing", books: [
+            { title: "To Sell Is Human", read: false }, { title: "Sell to Big Companies", read: false },
+            { title: "SPIN Selling", read: false }, { title: "Pitch Anything", read: false },
+            { title: "The Psychology of Selling", read: false }, { title: "Made to Stick", read: false },
+            { title: "The Sales Acceleration Formula", read: false },
+            { title: "Mastering the Complex Sale", read: false }, { title: "How to Sell Anything", read: false }
+          ]},
+          { name: "Trading & Investing", books: [
+            { title: "The Intelligent Investor", read: false }, { title: "Market Wizards", read: false },
+            { title: "The Disciplined Trader", read: false }, { title: "High Probability Trading", read: false },
+            { title: "The Art of Trading", read: false }
+          ]},
+          { name: "Philosophy & Deep Thinking", books: [
+            { title: "Being and Nothingness", read: false }, { title: "The Law of Human Nature", read: false },
+            { title: "Range", read: false }
+          ]},
+          { name: "Habits, Emotions & Inner Work", books: [
+            { title: "Emotional Intelligence", read: true },
+            { title: "The Power of Positive Thinking", read: true },
+            { title: "The Power of Subconscious Mind", read: true },
+            { title: "The Power of No", read: true },
+            { title: "Master Your Emotions", read: false },
+            { title: "Surrounded by Idiots", read: false }
+          ]}
+        ];
+
+        // ── One-time migration: wipe old hardcoded default categories ──────────
+        const OLD_DEFAULT_IDS = new Set([
+          'mindset_personal_development', 'self_learning_personal_growth',
+          'success_wealth_building', 'business_entrepreneurship',
+          'communication_influence', 'psychology_subconscious_mind',
+          'habits_productivity', 'trading_investing',
+          'economics_finance_theory', 'sales', 'human_behavior'
+        ]);
+
+        if (!localStorage.getItem(MIGRATION_KEY)) {
+          try {
+            // Clear old category/state keys from previous versions
+            localStorage.removeItem(CATEGORY_STORAGE_KEY);
+            localStorage.removeItem('habit-rings-books-tabs-v2');
+            // Also clear v4 data so seed re-runs with correct read values
+            localStorage.removeItem(STORAGE_KEY);
+          } catch (e) {}
+          localStorage.setItem(MIGRATION_KEY, '1');
+        }
+        // ──────────────────────────────────────────────────────────────────────
+
+        let data = loadData();
+        let categories = loadCategories(); // kept for read-books section compatibility
+        let activeTab = data[0]?.id || '';
+        let state = {};      // legacy stub
+        let readBooks = loadReadBooks();
+        let draggedCategoryId = null;
+        let draggedReadBookIndex = null;
+        let activeSection = 'all';
+        let selectedReadBookIndex = null;
+        let activeReadBookFilter = 'all';
+        let activeGoatBookFilter = 'all';
+        let isReadBookEditing = false;
+
+        const tabsEl = document.getElementById('quotes-tabs');
+        const categoryFormEl = document.getElementById('quotes-category-form');
+        const categoryInputEl = document.getElementById('quotes-category-input');
+        const editorEl = document.getElementById('quotes-editor');
+        const titleEl = document.getElementById('quotes-panel-title');
+        const metaEl = document.getElementById('quotes-meta');
+        const allBooksTabEl = document.getElementById('all-books-tab');
+        const allBooksCountEl = document.getElementById('all-books-count');
+        const readBooksTabEl = document.getElementById('read-books-tab');
+        const goatBooksTabEl = document.getElementById('goat-books-tab');
+        const goatBooksCountEl = document.getElementById('goat-books-count');
+        const allBooksSectionEl = document.getElementById('quotes-all-section');
+        const booksReadCountEl = document.getElementById('books-read-count');
+        const booksUnreadCountEl = document.getElementById('books-unread-count');
+        const booksReadSectionEl = document.getElementById('books-read-section');
+        const goatBooksSectionEl = document.getElementById('goat-books-section');
+        const goatBooksFiltersEl = document.getElementById('goat-books-filters');
+        const goatBooksListEl = document.getElementById('goat-books-list');
+        const goatBooksMetaEl = document.getElementById('goat-books-meta');
+        const booksReadFormEl = document.getElementById('books-read-form');
+        const booksReadInputEl = document.getElementById('books-read-input');
+        const booksReadCategoryInputEl = document.getElementById('books-read-category-input');
+        const booksReadFiltersEl = document.getElementById('books-read-filters');
+        const booksReadListEl = document.getElementById('books-read-list');
+        const readBookModalEl = document.getElementById('read-book-modal');
+        const readBookModalTitleEl = document.getElementById('read-book-modal-title');
+        const readBookModalBookEl = document.getElementById('read-book-modal-book');
+        const readBookModalCategoryEl = document.getElementById('read-book-modal-category');
+        const readBookModalMoralEl = document.getElementById('read-book-modal-moral');
+        const readBookModalTitleInputEl = document.getElementById('read-book-modal-title-input');
+        const readBookModalCategoryInputEl = document.getElementById('read-book-modal-category-input');
+        const readBookModalMoralInputEl = document.getElementById('read-book-modal-moral-input');
+        const readBookModalEditEl = document.getElementById('read-book-modal-edit');
+        const readBookModalCancelEl = document.getElementById('read-book-modal-cancel');
+        const readBookModalSaveEl = document.getElementById('read-book-modal-save');
+        const readBookModalCloseEl = document.getElementById('read-book-modal-close');
+
+        // ── New structured data model ─────────────────────────────────────────
+        // categories: [{ id, name, books: [{ id, title, read, goat }] }]
+        // Stored in STORAGE_KEY as JSON
+
+        function uid() {
+          return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+        }
+
+        function loadData() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length) return normalizeData(parsed);
+            }
+          } catch (e) {}
+          // First load — seed with provided data
+          return SEED_DATA.map(cat => ({
+            id: uid(),
+            name: cat.name,
+            books: cat.books.map(b => ({ id: uid(), title: b.title, read: !!b.read, goat: !!b.goat }))
+          }));
+        }
+
+        function normalizeData(raw) {
+          return raw.map(cat => ({
+            id: cat.id || uid(),
+            name: typeof cat.name === 'string' ? cat.name : 'Unnamed',
+            books: Array.isArray(cat.books) ? cat.books.map(b => ({
+              id: b.id || uid(),
+              title: typeof b.title === 'string' ? b.title : '',
+              read: !!b.read,
+              goat: !!b.goat,
+              moral: typeof b.moral === 'string' ? b.moral : ''
+            })).filter(b => b.title) : []
+          })).filter(cat => cat.name);
+        }
+
+        function saveData() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          // Update counts immediately
+          allBooksCountEl.textContent = String(getTotalBooks());
+          booksReadCountEl.textContent = String(getTotalReadBooks());
+          goatBooksCountEl.textContent = String(getTotalGoatBooks());
+          booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
+        }
+
+        function getTotalBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.length, 0);
+        }
+
+        function getTotalReadBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.filter(b => b.read).length, 0);
+        }
+
+        function getTotalUnreadBooks() {
+          return getTotalBooks() - getTotalReadBooks();
+        }
+
+        function getTotalGoatBooks() {
+          return data.reduce((sum, cat) => sum + cat.books.filter(b => b.goat).length, 0);
+        }
+
+        function getActiveCat() {
+          return data.find(c => c.id === activeTab) || null;
+        }
+
+        // ── Legacy stubs (used by read-books section) ─────────────────────────
+        function loadCategories() {
+          return data.map(c => ({ id: c.id, title: c.name }));
+        }
+
+        function loadReadBooks() {
+          try {
+            const raw = localStorage.getItem(READ_BOOKS_STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!Array.isArray(parsed)) return [];
+            return parsed.map(item => ({
+              title: typeof item?.title === 'string' ? item.title.trim() : '',
+              moral: typeof item?.moral === 'string' ? item.moral : '',
+              category: typeof item?.category === 'string' ? item.category.trim() : ''
+            })).filter(item => item.title);
+          } catch { return []; }
+        }
+
+        function saveReadBooks() {
+          localStorage.setItem(READ_BOOKS_STORAGE_KEY, JSON.stringify(readBooks));
+        }
+
+        function getCategoryTitle(id) {
+          return data.find(c => c.id === id)?.name || 'Category';
+        }
+
+        function getAllBooksCount() { return getTotalBooks(); }
+
+        function getBooksForCategory(catId) {
+          return data.find(c => c.id === catId)?.books.map(b => b.title) || [];
+        }
+
+        function getReadBookCategory(book) {
+          if (book?.category) return book.category;
+          const title = (book?.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+          for (const cat of data) {
+            if (cat.books.some(b => b.title.toLowerCase().replace(/[^a-z0-9]+/g, '') === title)) {
+              return cat.name;
+            }
+          }
+          return 'Uncategorized';
+        }
+
+        function getReadBookFilterOptions() {
+          const options = new Set(['All']);
+          readBooks.forEach(book => options.add(getReadBookCategory(book)));
+          return Array.from(options);
+        }
+
+        function getFilteredReadBooks() {
+          if (activeReadBookFilter === 'all') return readBooks;
+          return readBooks.filter(book => getReadBookCategory(book) === activeReadBookFilter);
+        }
+
+        function saveCategories() {} // no-op, data is in saveData()
+        function saveState() {}      // no-op
+
+        function renderReadBookCategoryInput() {
+          const options = data.map(cat => `
+            <option value="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</option>
+          `).join('');
+          booksReadCategoryInputEl.innerHTML = `
+            <option value="">Select category</option>
+            ${options}
+          `;
+          readBookModalCategoryInputEl.innerHTML = `
+            <option value="">Select category</option>
+            ${options}
+          `;
+        }
+
+        function renderReadBookFilters() {
+          const options = getReadBookFilterOptions();
+          const validFilter = activeReadBookFilter === 'all' || options.includes(activeReadBookFilter);
+          if (!validFilter) activeReadBookFilter = 'all';
+          booksReadFiltersEl.innerHTML = options.map(option => {
+            const filterValue = option === 'All' ? 'all' : option;
+            const isActive = activeReadBookFilter === filterValue;
+            const count = filterValue === 'all'
+              ? readBooks.length
+              : readBooks.filter(book => getReadBookCategory(book) === filterValue).length;
+            return `
+              <button
+                class="quotes-read-filter${isActive ? ' active' : ''}"
+                type="button"
+                data-filter="${escapeHtml(filterValue)}"
+              >
+                <span>${escapeHtml(option)}</span>
+                <span class="quotes-read-filter__count">${count}</span>
+              </button>
+            `;
+          }).join('');
+        }
+
+        function syncReadBookModalEditState() {
+          readBookModalBookEl.hidden = isReadBookEditing;
+          readBookModalTitleInputEl.hidden = !isReadBookEditing;
+          readBookModalMoralEl.hidden = isReadBookEditing;
+          readBookModalMoralInputEl.hidden = !isReadBookEditing;
+          readBookModalCategoryEl.hidden = isReadBookEditing;
+          readBookModalCategoryInputEl.hidden = !isReadBookEditing;
+          readBookModalEditEl.hidden = isReadBookEditing;
+          readBookModalCancelEl.hidden = !isReadBookEditing;
+          readBookModalSaveEl.hidden = !isReadBookEditing;
+        }
+
+        function enterReadBookEditMode() {
+          if (selectedReadBookIndex === null) return;
+          const book = readBooks[selectedReadBookIndex];
+          if (!book) return;
+          isReadBookEditing = true;
+          readBookModalTitleInputEl.value = book.title || '';
+          readBookModalCategoryInputEl.value = book.category || '';
+          readBookModalMoralInputEl.value = book.moral || '';
+          syncReadBookModalEditState();
+          readBookModalTitleInputEl.focus();
+        }
+
+        function exitReadBookEditMode() {
+          isReadBookEditing = false;
+          syncReadBookModalEditState();
+        }
+
+        function saveReadBookChanges() {
+          if (selectedReadBookIndex === null) return;
+          const book = readBooks[selectedReadBookIndex];
+          if (!book) return;
+          const nextTitle = readBookModalTitleInputEl.value.trim();
+          if (!nextTitle) return;
+          book.title = nextTitle;
+          book.category = readBookModalCategoryInputEl.value.trim();
+          book.moral = readBookModalMoralInputEl.value.trim();
+          saveReadBooks();
+          readBookModalTitleEl.textContent = book.title;
+          readBookModalBookEl.textContent = book.title;
+          readBookModalCategoryEl.textContent = getReadBookCategory(book);
+          readBookModalMoralEl.textContent = book.moral || 'No moral added yet.';
+          exitReadBookEditMode();
+          render();
+        }
+
+        function openReadBookModal(index) {
+          if (!Number.isInteger(index) || index < 0 || index >= readBooks.length) return;
+          const book = readBooks[index];
+          selectedReadBookIndex = index;
+          isReadBookEditing = false;
+          readBookModalTitleEl.textContent = book.title;
+          readBookModalBookEl.textContent = book.title;
+          readBookModalCategoryEl.textContent = getReadBookCategory(book);
+          readBookModalMoralEl.textContent = book.moral?.trim() ? book.moral : 'No moral added yet.';
+          readBookModalTitleInputEl.value = book.title || '';
+          readBookModalCategoryInputEl.value = book.category || '';
+          readBookModalMoralInputEl.value = book.moral || '';
+          syncReadBookModalEditState();
+          readBookModalEl.classList.add('open');
+        }
+
+        function closeReadBookModal() {
+          exitReadBookEditMode();
+          selectedReadBookIndex = null;
+          readBookModalEl.classList.remove('open');
+        }
+
+        function renderTabs() {
+          if (data.length === 0) {
+            tabsEl.innerHTML = `<div style="font-size:12px;color:var(--text-dim);padding:10px 4px;line-height:1.6;">No categories yet.<br>Add one above to get started.</div>`;
+            return;
+          }
+          tabsEl.innerHTML = data.map(cat => `
+            <div
+              class="quotes-tab-row${cat.id === activeTab ? ' active' : ''}"
+              data-tab="${cat.id}"
+              draggable="true"
+            >
+              <button class="quotes-tab-open" type="button" data-tab="${cat.id}">
+                <span class="quotes-tab__label">${escapeHtml(cat.name)}</span>
+                <span class="quotes-tab__meta">${cat.books.length}</span>
+              </button>
+              <span class="quotes-tab__drag">::</span>
+              <button class="quotes-tab-delete" type="button" data-delete="${cat.id}" aria-label="Delete ${escapeHtml(cat.name)}" title="Delete category">×</button>
+            </div>
+          `).join('');
+
+          tabsEl.querySelectorAll('.quotes-tab-row').forEach(row => {
+            row.addEventListener('dragstart', onDragStart);
+            row.addEventListener('dragover', onDragOver);
+            row.addEventListener('drop', onDrop);
+            row.addEventListener('dragend', onDragEnd);
+          });
+        }
+
+        function renderBookList() {
+          const listEl = document.getElementById('quotes-book-list');
+          const addFormEl = document.getElementById('quotes-add-book-form');
+          if (!listEl) return;
+
+          const cat = getActiveCat();
+          if (!cat) {
+            listEl.innerHTML = '';
+            if (addFormEl) addFormEl.style.display = 'none';
+            return;
+          }
+          if (addFormEl) addFormEl.style.display = '';
+
+          if (cat.books.length === 0) {
+            listEl.innerHTML = '';
+            return;
+          }
+
+          listEl.innerHTML = cat.books.map(book => `
+            <div class="quotes-book-item${book.read ? ' is-read' : ''}${book.goat ? ' is-goat' : ''}" data-book-id="${book.id}">
+              <input
+                type="checkbox"
+                class="quotes-book-check"
+                ${book.read ? 'checked' : ''}
+                data-book-id="${book.id}"
+                aria-label="Mark as read"
+                title="${book.read ? 'Mark as unread' : 'Mark as read'}"
+              />
+              <div class="quotes-book-body">
+                <span class="quotes-book-title">${escapeHtml(book.title)}</span>
+                ${book.moral ? `<span class="quotes-book-moral-preview">${escapeHtml(book.moral)}</span>` : ''}
+              </div>
+              ${book.read ? `
+                <button class="quotes-book-moral-btn${book.moral ? ' has-moral' : ''}" data-book-id="${book.id}" title="${book.moral ? 'Edit moral' : 'Add moral'}">
+                  ${book.moral ? '📝' : '+ Moral'}
+                </button>
+              ` : ''}
+              <button class="quotes-book-goat-btn${book.goat ? ' active' : ''}" data-book-id="${book.id}" title="${book.goat ? 'Remove from GOAT' : 'Add to GOAT'}" aria-label="${book.goat ? 'Remove from GOAT' : 'Add to GOAT'}">
+                ${book.goat ? '★' : '☆'}
+              </button>
+              <button class="quotes-book-delete" data-book-id="${book.id}" title="Remove book" aria-label="Remove ${escapeHtml(book.title)}">×</button>
+            </div>
+          `).join('');
+
+          // Checkbox toggle
+          listEl.querySelectorAll('.quotes-book-check').forEach(cb => {
+            cb.addEventListener('change', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === cb.dataset.bookId);
+              if (!book) return;
+              book.read = cb.checked;
+              saveData();
+              renderBookList();
+              renderTabs();
+              renderGoatBooksSection();
+            });
+          });
+
+          listEl.querySelectorAll('.quotes-book-goat-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.goat = !book.goat;
+              saveData();
+              renderBookList();
+              renderGoatBooksSection();
+            });
+          });
+
+          // Moral button — open inline moral editor
+          listEl.querySelectorAll('.quotes-book-moral-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              openMoralEditor(book, cat);
+            });
+          });
+
+          // Delete book
+          listEl.querySelectorAll('.quotes-book-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = getActiveCat();
+              if (!cat) return;
+              cat.books = cat.books.filter(b => b.id !== btn.dataset.bookId);
+              saveData();
+              renderBookList();
+              renderTabs();
+              renderGoatBooksSection();
+            });
+          });
+        }
+
+        // ── Moral editor modal ────────────────────────────────────────────────
+        let _moralEditorBook = null;
+        let _moralEditorCat = null;
+
+        function openMoralEditor(book, cat) {
+          _moralEditorBook = book;
+          _moralEditorCat = cat;
+          const overlay = document.getElementById('moral-editor-overlay');
+          const titleEl2 = document.getElementById('moral-editor-title');
+          const textarea = document.getElementById('moral-editor-textarea');
+          if (!overlay) return;
+          titleEl2.textContent = book.title;
+          textarea.value = book.moral || '';
+          overlay.classList.add('open');
+          setTimeout(() => textarea.focus(), 120);
+        }
+
+        function closeMoralEditor() {
+          const overlay = document.getElementById('moral-editor-overlay');
+          if (overlay) overlay.classList.remove('open');
+          _moralEditorBook = null;
+          _moralEditorCat = null;
+        }
+
+        function saveMoral() {
+          if (!_moralEditorBook) return;
+          const textarea = document.getElementById('moral-editor-textarea');
+          _moralEditorBook.moral = textarea.value.trim();
+          saveData();
+          closeMoralEditor();
+          renderBookList();
+        }
+
+        function escapeHtml(value) {
+          const div = document.createElement('div');
+          div.textContent = value;
+          return div.innerHTML;
+        }
+
+        function slugify(value) {
+          return value
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '_')
+            .replace(/^_+|_+$/g, '')
+            .slice(0, 50);
+        }
+
+        function ensureUniqueId(baseId) {
+          let id = baseId || `category_${Date.now().toString(36)}`;
+          let counter = 2;
+          while (categories.some(category => category.id === id)) {
+            id = `${baseId}_${counter}`;
+            counter += 1;
+          }
+          return id;
+        }
+
+        function onDragStart(event) {
+          draggedCategoryId = event.currentTarget.dataset.tab;
+          event.currentTarget.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', draggedCategoryId);
+        }
+
+        function onDragOver(event) {
+          if (!draggedCategoryId) return;
+          event.preventDefault();
+        }
+
+        function onDrop(event) {
+          event.preventDefault();
+          const targetId = event.currentTarget.dataset.tab;
+          if (!draggedCategoryId || draggedCategoryId === targetId) return;
+
+          const fromIndex = data.findIndex(c => c.id === draggedCategoryId);
+          const toIndex = data.findIndex(c => c.id === targetId);
+          if (fromIndex < 0 || toIndex < 0) return;
+
+          const [moved] = data.splice(fromIndex, 1);
+          data.splice(toIndex, 0, moved);
+          saveData();
+          render();
+        }
+
+        function onDragEnd(event) {
+          event.currentTarget.classList.remove('dragging');
+          draggedCategoryId = null;
+        }
+
+        function onReadBookDragStart(event) {
+          const index = Number(event.currentTarget.dataset.index);
+          if (!Number.isInteger(index)) return;
+          draggedReadBookIndex = index;
+          event.currentTarget.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', String(index));
+        }
+
+        function onReadBookDragOver(event) {
+          if (!Number.isInteger(draggedReadBookIndex)) return;
+          event.preventDefault();
+          event.currentTarget.classList.add('drag-over');
+        }
+
+        function onReadBookDrop(event) {
+          event.preventDefault();
+          const targetIndex = Number(event.currentTarget.dataset.index);
+          event.currentTarget.classList.remove('drag-over');
+          if (!Number.isInteger(draggedReadBookIndex) || !Number.isInteger(targetIndex) || draggedReadBookIndex === targetIndex) return;
+
+          const fromIndex = draggedReadBookIndex;
+          const [moved] = readBooks.splice(fromIndex, 1);
+          readBooks.splice(targetIndex, 0, moved);
+
+          if (selectedReadBookIndex === fromIndex) {
+            selectedReadBookIndex = targetIndex;
+          } else if (selectedReadBookIndex !== null) {
+            if (fromIndex < selectedReadBookIndex && selectedReadBookIndex <= targetIndex) {
+              selectedReadBookIndex -= 1;
+            } else if (targetIndex <= selectedReadBookIndex && selectedReadBookIndex < fromIndex) {
+              selectedReadBookIndex += 1;
+            }
+          }
+
+          saveReadBooks();
+          render();
+        }
+
+        function onReadBookDragLeave(event) {
+          event.currentTarget.classList.remove('drag-over');
+        }
+
+        function onReadBookDragEnd(event) {
+          event.currentTarget.classList.remove('dragging');
+          event.currentTarget.classList.remove('drag-over');
+          draggedReadBookIndex = null;
+          booksReadListEl.querySelectorAll('.quotes-read-item').forEach(item => {
+            item.classList.remove('drag-over');
+          });
+        }
+
+        function renderReadBooksSection() {
+          const filtersEl = document.getElementById('books-read-filters');
+          const listEl = document.getElementById('books-read-list');
+          const metaEl2 = document.getElementById('read-books-meta');
+          if (!listEl) return;
+
+          // Collect all read books from data, grouped by category
+          const allRead = [];
+          data.forEach(cat => {
+            cat.books.forEach(book => {
+              if (book.read) allRead.push({ title: book.title, category: cat.name, catId: cat.id, bookId: book.id });
+            });
+          });
+
+          // Update count badge
+          booksReadCountEl.textContent = String(allRead.length);
+          if (metaEl2) metaEl2.textContent = `${allRead.length} book${allRead.length !== 1 ? 's' : ''} read`;
+
+          // Build filter chips from categories that have read books
+          const catsWithRead = [...new Set(allRead.map(b => b.category))];
+          if (filtersEl) {
+            filtersEl.innerHTML = [
+              `<button class="quotes-read-filter${activeReadBookFilter === 'all' ? ' active' : ''}" data-filter="all">
+                <span>All</span>
+                <span class="quotes-read-filter__count">${allRead.length}</span>
+              </button>`,
+              ...catsWithRead.map(cat => {
+                const count = allRead.filter(b => b.category === cat).length;
+                const isActive = activeReadBookFilter === cat;
+                return `<button class="quotes-read-filter${isActive ? ' active' : ''}" data-filter="${escapeHtml(cat)}">
+                  <span>${escapeHtml(cat)}</span>
+                  <span class="quotes-read-filter__count">${count}</span>
+                </button>`;
+              })
+            ].join('');
+
+            filtersEl.querySelectorAll('.quotes-read-filter').forEach(btn => {
+              btn.addEventListener('click', () => {
+                activeReadBookFilter = btn.dataset.filter;
+                renderReadBooksSection();
+              });
+            });
+          }
+
+          // Filter list
+          const filtered = activeReadBookFilter === 'all'
+            ? allRead
+            : allRead.filter(b => b.category === activeReadBookFilter);
+
+          if (filtered.length === 0) {
+            listEl.innerHTML = `<div class="quotes-read-empty">${
+              activeReadBookFilter === 'all'
+                ? 'No books marked as read yet. Check the checkbox next to a book in the All Books tab.'
+                : `No read books in "${escapeHtml(activeReadBookFilter)}".`
+            }</div>`;
+            return;
+          }
+
+          listEl.innerHTML = filtered.map(book => `
+            <div class="quotes-read-item" data-book-id="${book.bookId}" data-cat-id="${book.catId}">
+              <div class="quotes-read-item__top">
+                <div class="quotes-read-item__info">
+                  <span class="quotes-read-item__title">${escapeHtml(book.title)}</span>
+                  <span class="quotes-read-item__cat">${escapeHtml(book.category)}</span>
+                </div>
+                <button class="quotes-read-unmark" type="button" data-book-id="${book.bookId}" data-cat-id="${book.catId}" title="Mark as unread">↩ Unread</button>
+              </div>
+            </div>
+          `).join('');
+
+          // Unmark as read
+          listEl.querySelectorAll('.quotes-read-unmark').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = data.find(c => c.id === btn.dataset.catId);
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.read = false;
+              saveData();
+              renderReadBooksSection();
+              renderGoatBooksSection();
+              // Also refresh book list if that category is active
+              if (activeTab === cat.id) renderBookList();
+              renderTabs();
+            });
+          });
+        }
+
+        function collectGoatBooks() {
+          const allGoat = [];
+          data.forEach(cat => {
+            cat.books.forEach(book => {
+              if (book.goat) {
+                allGoat.push({
+                  title: book.title,
+                  category: cat.name,
+                  catId: cat.id,
+                  bookId: book.id,
+                  read: !!book.read,
+                  moral: book.moral || ''
+                });
+              }
+            });
+          });
+          return allGoat;
+        }
+
+        function renderGoatBooksSection() {
+          const allGoat = collectGoatBooks();
+          if (goatBooksCountEl) goatBooksCountEl.textContent = String(allGoat.length);
+          if (goatBooksMetaEl) goatBooksMetaEl.textContent = `${allGoat.length} GOAT book${allGoat.length !== 1 ? 's' : ''}`;
+          if (!goatBooksListEl) return;
+
+          const catsWithGoat = [...new Set(allGoat.map(b => b.category))];
+          if (goatBooksFiltersEl) {
+            goatBooksFiltersEl.innerHTML = [
+              `<button class="quotes-read-filter${activeGoatBookFilter === 'all' ? ' active' : ''}" data-filter="all">
+                <span>All</span>
+                <span class="quotes-read-filter__count">${allGoat.length}</span>
+              </button>`,
+              ...catsWithGoat.map(cat => {
+                const count = allGoat.filter(b => b.category === cat).length;
+                const isActive = activeGoatBookFilter === cat;
+                return `<button class="quotes-read-filter${isActive ? ' active' : ''}" data-filter="${escapeHtml(cat)}">
+                  <span>${escapeHtml(cat)}</span>
+                  <span class="quotes-read-filter__count">${count}</span>
+                </button>`;
+              })
+            ].join('');
+
+            goatBooksFiltersEl.querySelectorAll('.quotes-read-filter').forEach(btn => {
+              btn.addEventListener('click', () => {
+                activeGoatBookFilter = btn.dataset.filter;
+                renderGoatBooksSection();
+              });
+            });
+          }
+
+          const filtered = activeGoatBookFilter === 'all'
+            ? allGoat
+            : allGoat.filter(b => b.category === activeGoatBookFilter);
+
+          if (filtered.length === 0) {
+            goatBooksListEl.innerHTML = `<div class="quotes-goat-empty">${
+              activeGoatBookFilter === 'all'
+                ? 'No GOAT books yet. Tap the ☆ button beside any book to add it here.'
+                : `No GOAT books in "${escapeHtml(activeGoatBookFilter)}".`
+            }</div>`;
+            return;
+          }
+
+          goatBooksListEl.innerHTML = filtered.map(book => `
+            <div class="quotes-read-item clickable-goat" data-book-id="${book.bookId}" data-cat-id="${book.catId}">
+              <div class="quotes-read-item__top">
+                <div class="quotes-read-item__info">
+                  <span class="quotes-read-item__title">★ ${escapeHtml(book.title)}</span>
+                  <span class="quotes-read-item__cat">${escapeHtml(book.category)}${book.read ? ' · Read' : ''}</span>
+                </div>
+                <button class="quotes-read-unmark" type="button" data-book-id="${book.bookId}" data-cat-id="${book.catId}" title="Remove from GOAT">Remove</button>
+              </div>
+            </div>
+          `).join('');
+
+          goatBooksListEl.querySelectorAll('.quotes-read-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+              if (e.target.closest('.quotes-read-unmark')) return;
+              const cat = data.find(c => c.id === item.dataset.catId);
+              const book = cat.books.find(b => b.id === item.dataset.bookId);
+              openMoralEditor(book, cat);
+            });
+          });
+
+          goatBooksListEl.querySelectorAll('.quotes-read-unmark').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const cat = data.find(c => c.id === btn.dataset.catId);
+              if (!cat) return;
+              const book = cat.books.find(b => b.id === btn.dataset.bookId);
+              if (!book) return;
+              book.goat = false;
+              saveData();
+              renderGoatBooksSection();
+              if (activeTab === cat.id) renderBookList();
+            });
+          });
+        }
+
+        function render() {
+          if (!data.some(c => c.id === activeTab)) {
+            activeTab = data[0]?.id || '';
+          }
+          categories = loadCategories(); // keep in sync for read-books section
+          renderTabs();
+          renderBookList();
+          allBooksTabEl.classList.toggle('active', activeSection === 'all');
+          readBooksTabEl.classList.toggle('active', activeSection === 'read');
+          goatBooksTabEl.classList.toggle('active', activeSection === 'goat');
+          allBooksSectionEl.hidden = activeSection !== 'all';
+          booksReadSectionEl.hidden = activeSection !== 'read';
+          goatBooksSectionEl.hidden = activeSection !== 'goat';
+          allBooksCountEl.textContent = String(getTotalBooks());
+          booksReadCountEl.textContent = String(getTotalReadBooks());
+          goatBooksCountEl.textContent = String(getTotalGoatBooks());
+          booksUnreadCountEl.textContent = String(getTotalUnreadBooks());
+
+          // ── Read Books tab: pull all read:true books from data ──────────────
+          renderReadBooksSection();
+          renderGoatBooksSection();
+
+          const cat = getActiveCat();
+          titleEl.textContent = cat ? cat.name : 'Select a category';
+          metaEl.textContent = cat ? `${cat.books.length} book${cat.books.length !== 1 ? 's' : ''} · ${cat.books.filter(b => b.read).length} read` : '';
+        }
+
+        // ── Tab click: select or delete ───────────────────────────────────────
+        tabsEl.addEventListener('click', event => {
+          const deleteBtn = event.target.closest('.quotes-tab-delete');
+          if (deleteBtn) {
+            const id = deleteBtn.dataset.delete;
+            if (!id) return;
+            const cat = data.find(c => c.id === id);
+            if (!cat) return;
+            const msg = cat.books.length > 0
+              ? `Delete "${cat.name}"? It has ${cat.books.length} book${cat.books.length > 1 ? 's' : ''}. This cannot be undone.`
+              : `Delete "${cat.name}"? This cannot be undone.`;
+            if (!confirm(msg)) return;
+            data = data.filter(c => c.id !== id);
+            if (activeTab === id) activeTab = data[0]?.id || '';
+            saveData();
+            render();
+            return;
+          }
+          const openBtn = event.target.closest('.quotes-tab-open');
+          if (!openBtn) return;
+          activeTab = openBtn.dataset.tab;
+          render();
+        });
+
+        allBooksTabEl.addEventListener('click', () => { activeSection = 'all'; render(); });
+        readBooksTabEl.addEventListener('click', () => { activeSection = 'read'; render(); });
+        goatBooksTabEl.addEventListener('click', () => { activeSection = 'goat'; render(); });
+
+        // ── Add category ──────────────────────────────────────────────────────
+        categoryFormEl.addEventListener('submit', event => {
+          event.preventDefault();
+          const name = categoryInputEl.value.trim();
+          if (!name) return;
+          const newCat = { id: uid(), name, books: [] };
+          data.push(newCat);
+          activeTab = newCat.id;
+          saveData();
+          categoryFormEl.reset();
+          render();
+          categoryInputEl.focus();
+        });
+
+        // ── Add book to active category ───────────────────────────────────────
+        const addBookFormEl = document.getElementById('quotes-add-book-form');
+        const addBookInputEl = document.getElementById('quotes-add-book-input');
+        if (addBookFormEl) {
+          addBookFormEl.addEventListener('submit', event => {
+            event.preventDefault();
+            const cat = getActiveCat();
+            if (!cat) return;
+            const title = addBookInputEl.value.trim();
+            if (!title) return;
+            cat.books.push({ id: uid(), title, read: false, goat: false });
+            saveData();
+            addBookFormEl.reset();
+            renderBookList();
+            renderTabs();
+            metaEl.textContent = `${cat.books.length} book${cat.books.length !== 1 ? 's' : ''} · ${cat.books.filter(b => b.read).length} read`;
+            addBookInputEl.focus();
+          });
+        }
+
+        // ── Read books section (now driven by data, no manual add form) ────────
+
+        booksReadFiltersEl.addEventListener('click', event => {
+          const button = event.target.closest('.quotes-read-filter');
+          if (!button) return;
+          activeReadBookFilter = button.dataset.filter || 'all';
+          render();
+        });
+
+        // ── Moral editor listeners ────────────────────────────────────────────
+        document.getElementById('moral-editor-save').addEventListener('click', saveMoral);
+        document.getElementById('moral-editor-cancel').addEventListener('click', closeMoralEditor);
+        document.getElementById('moral-editor-close').addEventListener('click', closeMoralEditor);
+        document.getElementById('moral-editor-overlay').addEventListener('click', e => {
+          if (e.target === e.currentTarget) closeMoralEditor();
+        });
+        document.getElementById('moral-editor-textarea').addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); saveMoral(); }
+          if (e.key === 'Escape') closeMoralEditor();
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
