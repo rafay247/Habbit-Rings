@@ -679,6 +679,14 @@
         transition: border-color 0.15s, background 0.15s;
       }
       .quotes-book-item:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+      .quotes-book-item.dragging {
+        opacity: 0.58;
+        cursor: grabbing;
+      }
+      .quotes-book-item.drag-over {
+        border-color: var(--books-accent-border);
+        background: var(--books-accent-soft);
+      }
       .quotes-book-item.is-read { opacity: 0.75; }
       .quotes-book-item.is-read .quotes-book-title { text-decoration: line-through; color: var(--text-muted); }
       .quotes-book-item.is-goat {
@@ -1550,6 +1558,7 @@
         let state = {};      // legacy stub
         let readBooks = loadReadBooks();
         let draggedCategoryId = null;
+        let draggedBookId = null;
         let draggedReadBookIndex = null;
         let activeSection = 'all';
         let selectedReadBookIndex = null;
@@ -1871,7 +1880,11 @@
           }
 
           listEl.innerHTML = cat.books.map(book => `
-            <div class="quotes-book-item${book.read ? ' is-read' : ''}${book.goat ? ' is-goat' : ''}" data-book-id="${book.id}">
+            <div
+              class="quotes-book-item${book.read ? ' is-read' : ''}${book.goat ? ' is-goat' : ''}"
+              data-book-id="${book.id}"
+              draggable="true"
+            >
               <input
                 type="checkbox"
                 class="quotes-book-check"
@@ -1895,6 +1908,14 @@
               <button class="quotes-book-delete" data-book-id="${book.id}" title="Remove book" aria-label="Remove ${escapeHtml(book.title)}">×</button>
             </div>
           `).join('');
+
+          listEl.querySelectorAll('.quotes-book-item').forEach(item => {
+            item.addEventListener('dragstart', onBookDragStart);
+            item.addEventListener('dragover', onBookDragOver);
+            item.addEventListener('dragleave', onBookDragLeave);
+            item.addEventListener('drop', onBookDrop);
+            item.addEventListener('dragend', onBookDragEnd);
+          });
 
           // Checkbox toggle
           listEl.querySelectorAll('.quotes-book-check').forEach(cb => {
@@ -2036,6 +2057,63 @@
         function onDragEnd(event) {
           event.currentTarget.classList.remove('dragging');
           draggedCategoryId = null;
+        }
+
+        function clearBookDragOverState() {
+          const listEl = document.getElementById('quotes-book-list');
+          if (!listEl) return;
+          listEl.querySelectorAll('.quotes-book-item.drag-over').forEach(item => {
+            item.classList.remove('drag-over');
+          });
+        }
+
+        function onBookDragStart(event) {
+          draggedBookId = event.currentTarget.dataset.bookId;
+          event.currentTarget.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', draggedBookId);
+        }
+
+        function onBookDragOver(event) {
+          if (!draggedBookId) return;
+          event.preventDefault();
+          const targetBookId = event.currentTarget.dataset.bookId;
+          if (targetBookId !== draggedBookId) {
+            clearBookDragOverState();
+            event.currentTarget.classList.add('drag-over');
+          }
+        }
+
+        function onBookDragLeave(event) {
+          event.currentTarget.classList.remove('drag-over');
+        }
+
+        function onBookDrop(event) {
+          event.preventDefault();
+          const targetBookId = event.currentTarget.dataset.bookId;
+          event.currentTarget.classList.remove('drag-over');
+          if (!draggedBookId || draggedBookId === targetBookId) return;
+
+          const cat = getActiveCat();
+          if (!cat) return;
+
+          const fromIndex = cat.books.findIndex(book => book.id === draggedBookId);
+          const toIndex = cat.books.findIndex(book => book.id === targetBookId);
+          if (fromIndex < 0 || toIndex < 0) return;
+
+          const [moved] = cat.books.splice(fromIndex, 1);
+          cat.books.splice(toIndex, 0, moved);
+          saveData();
+          renderBookList();
+          renderTabs();
+          renderReadBooksSection();
+          renderGoatBooksSection();
+        }
+
+        function onBookDragEnd(event) {
+          event.currentTarget.classList.remove('dragging');
+          clearBookDragOverState();
+          draggedBookId = null;
         }
 
         function onReadBookDragStart(event) {
