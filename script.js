@@ -142,7 +142,8 @@ async function startFirebaseListener() {
 }
 
 // ── All-pages data helpers ───────────────────────────────────────────────────
-const ALL_PAGE_KEYS = [
+const APP_STORAGE_PREFIX = "habit-rings-";
+const LEGACY_PAGE_KEYS = [
   "habit-rings-vibe-notes",
   "habit-rings-calendar-selection-v1",
   "habit-rings-calendar-x-marks-v1",
@@ -200,21 +201,47 @@ function buildBooksBackupMeta() {
   }
 }
 
+function safeParseLocalStorageValue(value) {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function getAppLocalStorageKeys() {
+  const keys = new Set(LEGACY_PAGE_KEYS);
+  for (let i = 0; i < localStorage.length; i += 1) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(APP_STORAGE_PREFIX)) keys.add(key);
+  }
+  return Array.from(keys).sort();
+}
+
 function collectAllPagesData() {
   const out = {};
-  ALL_PAGE_KEYS.forEach(k => {
+  getAppLocalStorageKeys().forEach(k => {
     const v = localStorage.getItem(k);
     if (v !== null) out[k] = v;
   });
   return out;
 }
 
+function collectDecodedAllPagesData(raw = collectAllPagesData()) {
+  return Object.fromEntries(
+    Object.entries(raw).map(([key, value]) => [key, safeParseLocalStorageValue(value)])
+  );
+}
+
 function applyAllPagesData(pagesObj) {
   if (!pagesObj || typeof pagesObj !== "object") return;
-  ALL_PAGE_KEYS.forEach(k => {
-    if (pagesObj[k] !== undefined) {
-      localStorage.setItem(k, pagesObj[k]);
-    }
+  Object.entries(pagesObj).forEach(([key, value]) => {
+    if (!key || !key.startsWith(APP_STORAGE_PREFIX) || value === undefined) return;
+    localStorage.setItem(
+      key,
+      typeof value === "string" ? value : JSON.stringify(value)
+    );
   });
 }
 
@@ -1568,15 +1595,19 @@ function initTheme() {
 }
 
 function buildFullBackup() {
+  const allPages = collectAllPagesData();
   return {
     // Core habit state
     ...state,
-    // All other pages data
-    _allPages: collectAllPagesData(),
+    // Raw localStorage snapshot used for exact restore.
+    _allPages: allPages,
+    _localStorage: allPages,
+    // Readable copy so backup files show arrays/objects like custom quotes clearly.
+    _decodedLocalStorage: collectDecodedAllPagesData(allPages),
     _backupMeta: {
       books: buildBooksBackupMeta()
     },
-    _backupVersion: 3,
+    _backupVersion: 4,
     _exportedAt: new Date().toISOString()
   };
 }
@@ -1801,11 +1832,17 @@ function initEvents() {
           const parsed = JSON.parse(reader.result);
           if (!parsed || typeof parsed !== "object") throw new Error("bad");
 
-          // Restore all other pages data if present (v2 backup)
+          // Restore all other pages data if present.
           if (parsed._allPages) {
             applyAllPagesData(parsed._allPages);
             delete parsed._allPages;
+          } else if (parsed._localStorage) {
+            applyAllPagesData(parsed._localStorage);
+          } else if (parsed._decodedLocalStorage) {
+            applyAllPagesData(parsed._decodedLocalStorage);
           }
+          delete parsed._localStorage;
+          delete parsed._decodedLocalStorage;
           delete parsed._backupMeta;
           delete parsed._backupVersion;
           delete parsed._exportedAt;
