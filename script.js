@@ -152,6 +152,7 @@ const LEGACY_PAGE_KEYS = [
   "habit-rings-books-tabs-v2",
   "habit-rings-books-categories-v1",
   "habit-rings-read-books-v1",
+  "habit-rings-goals-v1",
   "habit-rings-tech-categories-v1",
   "habit-rings-tech-docs-v1"
 ];
@@ -1632,7 +1633,7 @@ function maybeAutoBackupDownload() {
   const last = localStorage.getItem(AUTO_BACKUP_LAST_DATE_KEY);
   if (last === today) return;
 
-  downloadBackupFile("habit-rings-backup-latest.json");
+  downloadBackupFile("backup.json");
   localStorage.setItem(AUTO_BACKUP_LAST_DATE_KEY, today);
   if (els.autoBackupStatus) {
     els.autoBackupStatus.textContent = `Auto backup downloaded (${today}).`;
@@ -1813,8 +1814,7 @@ function initEvents() {
 
   if (els.backupDownload) {
     els.backupDownload.addEventListener("click", () => {
-      const stamp = todayISO().replace(/-/g, "");
-      downloadBackupFile(`habit-rings-backup-${stamp}.json`);
+      downloadBackupFile("backup.json");
     });
   }
 

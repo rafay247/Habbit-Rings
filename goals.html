@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Habit Rings - Goals</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .goals-shell {
+        max-width: 1080px;
+      }
+
+      .goals-main {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .goals-top {
+        padding: 18px;
+      }
+
+      .goals-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .goals-title {
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .goal-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .goal-tab {
+        min-width: 96px;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      .goal-form {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) 130px 130px auto;
+        gap: 10px;
+        align-items: end;
+      }
+
+      .goal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      .goal-input {
+        width: 100%;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+        color: var(--text);
+        padding: 9px 11px;
+        font-size: 13px;
+      }
+
+      .goal-board {
+        padding: 16px;
+      }
+
+      .goal-board-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .goal-board-title {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .goal-count {
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      .goal-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .goal-item {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 11px 12px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--bg-raised);
+      }
+
+      .goal-item.done {
+        border-color: var(--accent-border);
+      }
+
+      .goal-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+
+      .goal-info {
+        min-width: 0;
+      }
+
+      .goal-name {
+        font-size: 14px;
+        font-weight: 650;
+        color: var(--text);
+        overflow-wrap: anywhere;
+      }
+
+      .goal-item.done .goal-name {
+        color: var(--text-muted);
+        text-decoration: line-through;
+      }
+
+      .goal-meta {
+        margin-top: 4px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        color: var(--text-muted);
+        font-size: 11px;
+      }
+
+      .goal-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .goals-empty {
+        padding: 24px;
+        border-radius: var(--radius-md);
+        border: 1px dashed var(--border-strong);
+        color: var(--text-muted);
+        text-align: center;
+        background: var(--bg-raised);
+      }
+
+      @media (max-width: 760px) {
+        .goals-shell {
+          padding-inline: 12px;
+        }
+
+        .goal-form {
+          grid-template-columns: 1fr;
+        }
+
+        .goal-form .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .goal-item {
+          grid-template-columns: auto minmax(0, 1fr);
+        }
+
+        .goal-actions {
+          grid-column: 1 / -1;
+          justify-content: flex-start;
+          padding-left: 34px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell goals-shell">
+      <header class="app-header glass">
+        <div class="header-primary">
+          <div class="brand">
+            <span class="brand-dot"></span>
+            <span class="brand-name">Habit Rings</span>
+          </div>
+          <nav class="header-nav">
+            <a href="index.html" class="chip chip-outline">Dashboard</a>
+            <a href="goals.html" class="chip chip-outline chip-active">Goals</a>
+            <a href="notes.html" class="chip chip-outline">Notes</a>
+            <a href="calendar.html" class="chip chip-outline">Calendar</a>
+            <a href="books.html" class="chip chip-outline">Books</a>
+            <a href="english.html" class="chip chip-outline">English</a>
+            <a href="technology.html" class="chip chip-outline">Knowledge base</a>
+            <a href="quotes.html" class="chip chip-outline">Quotes</a>
+          </nav>
+          <div class="header-meta">
+            <span id="today-label" class="today-label"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="goals-main">
+        <section class="goals-top glass">
+          <div class="goals-title-row">
+            <h1 class="goals-title">Goals</h1>
+            <div id="goal-tabs" class="goal-tabs" role="tablist" aria-label="Goal periods">
+              <button class="chip chip-outline chip-active goal-tab" type="button" data-period="weekly">Weekly</button>
+              <button class="chip chip-outline goal-tab" type="button" data-period="monthly">Monthly</button>
+              <button class="chip chip-outline goal-tab" type="button" data-period="yearly">Yearly</button>
+            </div>
+          </div>
+
+          <form id="goal-form" class="goal-form">
+            <input id="goal-id" type="hidden" />
+            <label class="goal-field">
+              Goal
+              <input id="goal-title" class="goal-input" type="text" required placeholder="Add a goal" />
+            </label>
+            <label class="goal-field">
+              Due date
+              <input id="goal-due" class="goal-input" type="date" />
+            </label>
+            <label class="goal-field">
+              Status
+              <select id="goal-status" class="goal-input">
+                <option value="active">Active</option>
+                <option value="done">Done</option>
+              </select>
+            </label>
+            <button id="save-goal" class="btn btn-primary" type="submit">Add goal</button>
+          </form>
+        </section>
+
+        <section class="goal-board card glass">
+          <header class="goal-board-header">
+            <h2 id="board-title" class="goal-board-title">Weekly Goals</h2>
+            <span id="goal-count" class="goal-count">0 goals</span>
+          </header>
+          <div id="goal-list" class="goal-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      (() => {
+        const STORAGE_KEY = "habit-rings-goals-v1";
+        const periods = ["weekly", "monthly", "yearly"];
+        const state = {
+          activePeriod: "weekly",
+          goals: loadGoals()
+        };
+
+        const els = {
+          today: document.getElementById("today-label"),
+          tabs: document.getElementById("goal-tabs"),
+          form: document.getElementById("goal-form"),
+          id: document.getElementById("goal-id"),
+          title: document.getElementById("goal-title"),
+          due: document.getElementById("goal-due"),
+          status: document.getElementById("goal-status"),
+          save: document.getElementById("save-goal"),
+          boardTitle: document.getElementById("board-title"),
+          count: document.getElementById("goal-count"),
+          list: document.getElementById("goal-list")
+        };
+
+        function uid() {
+          return "goal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        function loadGoals() {
+          try {
+            const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+            return Array.isArray(parsed) ? parsed.map(normalizeGoal) : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function normalizeGoal(goal) {
+          const target = Math.max(1, Number(goal.target || 1));
+          const current = Math.max(0, Math.min(target, Number(goal.current || 0)));
+          return {
+            id: goal.id || uid(),
+            title: String(goal.title || "Untitled goal"),
+            period: periods.includes(goal.period) ? goal.period : "weekly",
+            dueDate: String(goal.dueDate || ""),
+            current,
+            target,
+            archived: Boolean(goal.archived),
+            createdAt: goal.createdAt || new Date().toISOString(),
+            updatedAt: goal.updatedAt || new Date().toISOString()
+          };
+        }
+
+        function saveGoals() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.goals));
+        }
+
+        function isDone(goal) {
+          return goal.current >= goal.target;
+        }
+
+        function visibleGoals() {
+          return state.goals
+            .filter(goal => goal.period === state.activePeriod)
+            .filter(goal => !goal.archived)
+            .sort((a, b) => Number(isDone(a)) - Number(isDone(b)) || b.updatedAt.localeCompare(a.updatedAt));
+        }
+
+        function renderTabs() {
+          els.tabs.querySelectorAll("[data-period]").forEach(tab => {
+            const active = tab.dataset.period === state.activePeriod;
+            tab.classList.toggle("chip-active", active);
+            tab.dataset.active = active ? "true" : "false";
+          });
+        }
+
+        function renderList() {
+          const goals = visibleGoals();
+          const title = state.activePeriod.charAt(0).toUpperCase() + state.activePeriod.slice(1);
+          els.boardTitle.textContent = title + " Goals";
+          els.count.textContent = goals.length + " goal" + (goals.length === 1 ? "" : "s");
+
+          if (!goals.length) {
+            els.list.innerHTML = '<div class="goals-empty">No goals yet.</div>';
+            return;
+          }
+
+          els.list.innerHTML = goals.map(goal => `
+            <article class="goal-item ${isDone(goal) ? "done" : ""}" data-id="${goal.id}">
+              <input class="goal-check" type="checkbox" ${isDone(goal) ? "checked" : ""} data-action="toggle" aria-label="Mark goal done" />
+              <div class="goal-info">
+                <div class="goal-name">${escapeHtml(goal.title)}</div>
+                <div class="goal-meta">
+                  <span>${goal.dueDate ? "Due " + formatDate(goal.dueDate) : "No due date"}</span>
+                </div>
+              </div>
+              <div class="goal-actions">
+                <button class="btn btn-ghost btn-small" type="button" data-action="edit">Edit</button>
+                <button class="btn btn-small danger" type="button" data-action="delete">Delete</button>
+              </div>
+            </article>
+          `).join("");
+        }
+
+        function render() {
+          renderTabs();
+          renderList();
+        }
+
+        function resetForm() {
+          els.id.value = "";
+          els.title.value = "";
+          els.due.value = "";
+          els.status.value = "active";
+          els.save.textContent = "Add goal";
+          els.title.focus();
+        }
+
+        function editGoal(goal) {
+          els.id.value = goal.id;
+          els.title.value = goal.title;
+          els.due.value = goal.dueDate;
+          els.status.value = isDone(goal) ? "done" : "active";
+          els.save.textContent = "Save";
+          els.title.focus();
+        }
+
+        function handleSubmit(event) {
+          event.preventDefault();
+          const title = els.title.value.trim();
+          if (!title) return;
+
+          const existing = state.goals.find(goal => goal.id === els.id.value);
+          const now = new Date().toISOString();
+          if (existing) {
+            existing.title = title;
+            existing.dueDate = els.due.value;
+            existing.current = els.status.value === "done" ? existing.target : 0;
+            existing.updatedAt = now;
+          } else {
+            state.goals.unshift({
+              id: uid(),
+              title,
+              period: state.activePeriod,
+              dueDate: els.due.value,
+              current: els.status.value === "done" ? 1 : 0,
+              target: 1,
+              archived: false,
+              createdAt: now,
+              updatedAt: now
+            });
+          }
+
+          saveGoals();
+          render();
+          resetForm();
+        }
+
+        function handleListClick(event) {
+          const item = event.target.closest("[data-id]");
+          const action = event.target.dataset.action;
+          if (!item || !action) return;
+
+          const goal = state.goals.find(entry => entry.id === item.dataset.id);
+          if (!goal) return;
+
+          if (action === "toggle") {
+            goal.current = event.target.checked ? goal.target : 0;
+            goal.updatedAt = new Date().toISOString();
+          }
+
+          if (action === "edit") {
+            editGoal(goal);
+            return;
+          }
+
+          if (action === "delete") {
+            state.goals = state.goals.filter(entry => entry.id !== goal.id);
+            if (els.id.value === goal.id) resetForm();
+          }
+
+          saveGoals();
+          render();
+        }
+
+        function formatDate(iso) {
+          const date = new Date(iso + "T00:00:00");
+          return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        }
+
+        function escapeHtml(value) {
+          const div = document.createElement("div");
+          div.textContent = value;
+          return div.innerHTML;
+        }
+
+        els.today.textContent = new Date().toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric"
+        });
+
+        els.tabs.addEventListener("click", event => {
+          const tab = event.target.closest("[data-period]");
+          if (!tab) return;
+          state.activePeriod = tab.dataset.period;
+          resetForm();
+          render();
+        });
+
+        els.form.addEventListener("submit", handleSubmit);
+        els.list.addEventListener("click", handleListClick);
+
+        render();
+      })();
+    </script>
+  </body>
+</html>

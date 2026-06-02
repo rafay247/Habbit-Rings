@@ -31,5 +31,4 @@ Single‑page habit tracker built with **HTML, CSS, and vanilla JavaScript**.
 
 ## Manual backup
 
-Use **Download backup** / **Restore from file** anytime — works even without any cloud setup.
-
+Use **Download backup** / **Restore from file** anytime — works even without any cloud setup. Backup downloads are saved as `backup.json`.
