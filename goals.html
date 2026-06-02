@@ -149,6 +149,11 @@
         font-size: 11px;
       }
 
+      .goal-deadline {
+        color: var(--red);
+        font-weight: 700;
+      }
+
       .goal-actions {
         display: flex;
         gap: 6px;
@@ -349,7 +354,7 @@
               <div class="goal-info">
                 <div class="goal-name">${escapeHtml(goal.title)}</div>
                 <div class="goal-meta">
-                  <span>${goal.dueDate ? "Due " + formatDate(goal.dueDate) : "No due date"}</span>
+                  <span>${goal.dueDate ? "Due " + formatDate(goal.dueDate) + ' - <span class="goal-deadline">' + deadlineText(goal.dueDate) + "</span>" : "No due date"}</span>
                 </div>
               </div>
               <div class="goal-actions">
@@ -444,6 +449,18 @@
         function formatDate(iso) {
           const date = new Date(iso + "T00:00:00");
           return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        }
+
+        function deadlineText(iso) {
+          const today = new Date();
+          const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const dueDate = new Date(iso + "T00:00:00");
+          const days = Math.round((dueDate - startToday) / 86400000);
+          if (days === 0) return "due today";
+          if (days === 1) return "1 day left";
+          if (days > 1) return days + " days left";
+          if (days === -1) return "1 day overdue";
+          return Math.abs(days) + " days overdue";
         }
 
         function escapeHtml(value) {
