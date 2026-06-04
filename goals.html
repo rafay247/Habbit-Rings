@@ -103,13 +103,44 @@
 
       .goal-item {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
         gap: 12px;
         align-items: center;
         padding: 11px 12px;
         border-radius: var(--radius-md);
         border: 1px solid var(--border);
         background: var(--bg-raised);
+        transition: border-color 0.18s, opacity 0.18s, transform 0.18s;
+      }
+
+      .goal-item.dragging {
+        opacity: 0.5;
+        transform: scale(0.98);
+      }
+
+      .goal-item.drag-over {
+        border-color: var(--accent);
+        background: var(--accent-soft, rgba(63, 185, 80, 0.06));
+      }
+
+      .goal-drag-handle {
+        cursor: grab;
+        color: var(--text-muted);
+        font-size: 14px;
+        letter-spacing: 0.08em;
+        padding: 2px 0;
+        user-select: none;
+        opacity: 0.5;
+        transition: opacity 0.15s, color 0.15s;
+      }
+
+      .goal-item:hover .goal-drag-handle {
+        opacity: 1;
+        color: var(--text);
+      }
+
+      .goal-drag-handle:active {
+        cursor: grabbing;
       }
 
       .goal-item.done {
@@ -185,13 +216,13 @@
         }
 
         .goal-item {
-          grid-template-columns: auto minmax(0, 1fr);
+          grid-template-columns: auto auto minmax(0, 1fr);
         }
 
         .goal-actions {
           grid-column: 1 / -1;
           justify-content: flex-start;
-          padding-left: 34px;
+          padding-left: 56px;
         }
       }
     </style>
@@ -325,8 +356,7 @@
         function visibleGoals() {
           return state.goals
             .filter(goal => goal.period === state.activePeriod)
-            .filter(goal => !goal.archived)
-            .sort((a, b) => Number(isDone(a)) - Number(isDone(b)) || b.updatedAt.localeCompare(a.updatedAt));
+            .filter(goal => !goal.archived);
         }
 
         function renderTabs() {
@@ -349,7 +379,8 @@
           }
 
           els.list.innerHTML = goals.map(goal => `
-            <article class="goal-item ${isDone(goal) ? "done" : ""}" data-id="${goal.id}">
+            <article class="goal-item ${isDone(goal) ? "done" : ""}" data-id="${goal.id}" draggable="true">
+              <span class="goal-drag-handle" title="Drag to reorder">::</span>
               <input class="goal-check" type="checkbox" ${isDone(goal) ? "checked" : ""} data-action="toggle" aria-label="Mark goal done" />
               <div class="goal-info">
                 <div class="goal-name">${escapeHtml(goal.title)}</div>
@@ -363,6 +394,15 @@
               </div>
             </article>
           `).join("");
+
+          // Attach drag events to goal items
+          els.list.querySelectorAll(".goal-item").forEach(item => {
+            item.addEventListener("dragstart", onGoalDragStart);
+            item.addEventListener("dragover", onGoalDragOver);
+            item.addEventListener("dragleave", onGoalDragLeave);
+            item.addEventListener("drop", onGoalDrop);
+            item.addEventListener("dragend", onGoalDragEnd);
+          });
         }
 
         function render() {
@@ -461,6 +501,65 @@
           if (days > 1) return days + " days left";
           if (days === -1) return "1 day overdue";
           return Math.abs(days) + " days overdue";
+        }
+
+        // ── Drag & Drop for Goals ──────────────────────────────────────────
+        let draggedGoalId = null;
+
+        function onGoalDragStart(event) {
+          const item = event.currentTarget;
+          draggedGoalId = item.dataset.id;
+          item.classList.add("dragging");
+          event.dataTransfer.effectAllowed = "move";
+          event.dataTransfer.setData("text/plain", draggedGoalId);
+        }
+
+        function onGoalDragOver(event) {
+          if (!draggedGoalId) return;
+          event.preventDefault();
+          const item = event.currentTarget;
+          if (item.dataset.id !== draggedGoalId) {
+            clearGoalDragOver();
+            item.classList.add("drag-over");
+          }
+        }
+
+        function onGoalDragLeave(event) {
+          event.currentTarget.classList.remove("drag-over");
+        }
+
+        function onGoalDrop(event) {
+          event.preventDefault();
+          const targetId = event.currentTarget.dataset.id;
+          event.currentTarget.classList.remove("drag-over");
+          if (!draggedGoalId || draggedGoalId === targetId) return;
+
+          // Get visible goal IDs in current order to find indices in the master array
+          const periodGoals = state.goals.filter(g => g.period === state.activePeriod && !g.archived);
+          const fromIdx = periodGoals.findIndex(g => g.id === draggedGoalId);
+          const toIdx = periodGoals.findIndex(g => g.id === targetId);
+          if (fromIdx < 0 || toIdx < 0) return;
+
+          // Find actual indices in state.goals
+          const fromMasterIdx = state.goals.findIndex(g => g.id === draggedGoalId);
+          const toMasterIdx = state.goals.findIndex(g => g.id === targetId);
+          if (fromMasterIdx < 0 || toMasterIdx < 0) return;
+
+          const [moved] = state.goals.splice(fromMasterIdx, 1);
+          state.goals.splice(state.goals.findIndex(g => g.id === targetId) >= 0 ? state.goals.findIndex(g => g.id === targetId) + (fromMasterIdx < toMasterIdx ? 1 : 0) : toMasterIdx, 0, moved);
+
+          saveGoals();
+          render();
+        }
+
+        function onGoalDragEnd(event) {
+          event.currentTarget.classList.remove("dragging");
+          clearGoalDragOver();
+          draggedGoalId = null;
+        }
+
+        function clearGoalDragOver() {
+          els.list.querySelectorAll(".goal-item.drag-over").forEach(el => el.classList.remove("drag-over"));
         }
 
         function escapeHtml(value) {
