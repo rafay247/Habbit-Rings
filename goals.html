@@ -389,6 +389,7 @@
                 </div>
               </div>
               <div class="goal-actions">
+                ${isDone(goal) ? '<button class="btn btn-small btn-accent" type="button" data-action="reset" title="Reset goal and extend due date">↻ Reset</button>' : ''}
                 <button class="btn btn-ghost btn-small" type="button" data-action="edit">Edit</button>
                 <button class="btn btn-small danger" type="button" data-action="delete">Delete</button>
               </div>
@@ -470,6 +471,34 @@
           if (action === "toggle") {
             goal.current = event.target.checked ? goal.target : 0;
             goal.updatedAt = new Date().toISOString();
+          }
+
+          if (action === "reset") {
+            goal.current = 0;
+            goal.updatedAt = new Date().toISOString();
+            // Extend due date based on period
+            if (goal.dueDate) {
+              const due = new Date(goal.dueDate + "T00:00:00");
+              if (goal.period === "weekly") {
+                due.setDate(due.getDate() + 7);
+              } else if (goal.period === "monthly") {
+                due.setMonth(due.getMonth() + 1);
+              } else if (goal.period === "yearly") {
+                due.setFullYear(due.getFullYear() + 1);
+              }
+              goal.dueDate = due.toISOString().split("T")[0];
+            } else {
+              // If no due date exists, set one from today
+              const today = new Date();
+              if (goal.period === "weekly") {
+                today.setDate(today.getDate() + 7);
+              } else if (goal.period === "monthly") {
+                today.setMonth(today.getMonth() + 1);
+              } else if (goal.period === "yearly") {
+                today.setFullYear(today.getFullYear() + 1);
+              }
+              goal.dueDate = today.toISOString().split("T")[0];
+            }
           }
 
           if (action === "edit") {
