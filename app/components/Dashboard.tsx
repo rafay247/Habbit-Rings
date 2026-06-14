@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useHabits } from "../lib/HabitContext";
 import { todayISO, formatHumanDate } from "../lib/dateUtils";
 import { computeAnalytics, computePeriodCompletion, isChecked } from "../lib/analytics";
@@ -23,6 +24,37 @@ function ringColor(pct: number) {
 }
 
 export default function Dashboard() {
+  const prefersReducedMotion = useReducedMotion();
+  const shellVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: prefersReducedMotion
+        ? { duration: 0.01 }
+        : { staggerChildren: 0.07, delayChildren: 0.08 },
+    },
+  };
+  const cardVariants: Variants = {
+    hidden: prefersReducedMotion
+      ? { opacity: 0 }
+      : { opacity: 0, y: 24, rotateX: -8, scale: 0.985 },
+    show: {
+      opacity: 1,
+      y: 0,
+      rotateX: 0,
+      scale: 1,
+      transition: { type: "spring", stiffness: 120, damping: 18, mass: 0.8 },
+    },
+  };
+  const riseVariants: Variants = {
+    hidden: prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 14 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 150, damping: 18 },
+    },
+  };
+
   const {
     state,
     ready,
@@ -104,67 +136,116 @@ export default function Dashboard() {
   return (
     <>
       <AmbientBackground />
-      <div className="app-shell" style={{ position: "relative", zIndex: 1 }}>
-        <header className="app-header glass">
-          <div className="header-primary">
+      <motion.div
+        className="app-shell cinematic-shell"
+        style={{ position: "relative", zIndex: 1 }}
+        variants={shellVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.header
+          className="app-header glass cinematic-panel"
+          variants={cardVariants}
+          whileHover={prefersReducedMotion ? undefined : { y: -2 }}
+        >
+          <motion.div className="header-primary" variants={riseVariants}>
             <div className="brand">
-              <span className="brand-dot"></span>
+              <motion.span
+                className="brand-dot"
+                animate={
+                  prefersReducedMotion
+                    ? undefined
+                    : { scale: [1, 1.45, 1], boxShadow: ["0 0 0 rgba(63,185,80,0)", "0 0 28px rgba(63,185,80,0.55)", "0 0 0 rgba(63,185,80,0)"] }
+                }
+                transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+              />
               <span className="brand-name">Habit Rings</span>
             </div>
             <NavChips />
             <div className="header-meta">
               <span className="today-label">{todayLabel}</span>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="header-quote-row">
-            <blockquote className="header-quote" aria-live="polite">
+          <motion.div className="header-quote-row" variants={shellVariants}>
+            <motion.blockquote
+              className="header-quote kinetic-tile"
+              aria-live="polite"
+              variants={riseVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 3, rotateY: -2 }}
+            >
               <p className="header-quote__text">{quote.text}</p>
               <cite className="header-quote__cite">{quote.author}</cite>
-            </blockquote>
+            </motion.blockquote>
 
-            <section className="header-word" aria-live="polite">
+            <motion.section
+              className="header-word kinetic-tile"
+              aria-live="polite"
+              variants={riseVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 3, rotateY: 2 }}
+            >
               <div className="header-word__label">Word of the day</div>
               <div className="header-word__term">Open English</div>
               <div className="header-word__meaning">
                 Add words in the English section to revise them here.
               </div>
               <ol className="header-word__sentences"></ol>
-            </section>
+            </motion.section>
 
-            <FocusTimer />
-          </div>
+            <motion.div variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -4 }}>
+              <FocusTimer />
+            </motion.div>
+          </motion.div>
 
-          <div className="header-secondary">
+          <motion.div className="header-secondary" variants={riseVariants}>
             <div className="rings">
-              <div className="ring" data-ring="consistency">
+              <motion.div
+                className="ring kinetic-ring"
+                data-ring="consistency"
+                whileHover={prefersReducedMotion ? undefined : { y: -5, rotateX: 7, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Ring3D value={consistency} color={ringColor(consistency)} />
                 <div className="ring-label">
                   <span className="ring-title">Consistency</span>
                   <span className="ring-value">{consistency}%</span>
                 </div>
-              </div>
-              <div className="ring" data-ring="streak">
+              </motion.div>
+              <motion.div
+                className="ring kinetic-ring"
+                data-ring="streak"
+                whileHover={prefersReducedMotion ? undefined : { y: -5, rotateX: 7, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Ring3D value={streakPct} color="#56d364" />
                 <div className="ring-label">
                   <span className="ring-title">Longest Streak</span>
                   <span className="ring-value">{analytics.longestEver} days</span>
                 </div>
-              </div>
-              <div className="ring" data-ring="year">
+              </motion.div>
+              <motion.div
+                className="ring kinetic-ring"
+                data-ring="year"
+                whileHover={prefersReducedMotion ? undefined : { y: -5, rotateX: 7, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Ring3D value={consistency} color="#56d364" />
                 <div className="ring-label">
                   <span className="ring-title">365d Completion</span>
                   <span className="ring-value">{consistency}%</span>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
-        </header>
+          </motion.div>
+        </motion.header>
 
-        <main className="app-main">
-          <section className="grid-lhs">
-            <section className="card glass card-today">
+        <motion.main className="app-main" variants={shellVariants}>
+          <motion.section className="grid-lhs" variants={shellVariants}>
+            <motion.section
+              className="card glass card-today cinematic-panel"
+              variants={cardVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 1.5 }}
+            >
               <header className="card-header">
                 <div>
                   <h2>Today&rsquo;s Habits</h2>
@@ -186,22 +267,32 @@ export default function Dashboard() {
                   </p>
                 ) : (
                   state.habits.map((habit) => (
-                    <HabitRow key={habit.id} habit={habit} onEdit={openDialog} />
+                    <motion.div
+                      key={habit.id}
+                      variants={riseVariants}
+                      whileHover={prefersReducedMotion ? undefined : { x: 4, scale: 1.005 }}
+                    >
+                      <HabitRow habit={habit} onEdit={openDialog} />
+                    </motion.div>
                   ))
                 )}
               </div>
 
               <footer className="card-footer">
-                <button className="btn btn-ghost" onClick={() => openDialog(null)}>
+                <motion.button className="btn btn-ghost" onClick={() => openDialog(null)} whileTap={{ scale: 0.96 }}>
                   + New Habit
-                </button>
-                <button className="btn btn-soft" onClick={() => resetDay(selectedDate)}>
+                </motion.button>
+                <motion.button className="btn btn-soft" onClick={() => resetDay(selectedDate)} whileTap={{ scale: 0.96 }}>
                   Clear today
-                </button>
+                </motion.button>
               </footer>
-            </section>
+            </motion.section>
 
-            <section className="card glass card-utilities">
+            <motion.section
+              className="card glass card-utilities cinematic-panel"
+              variants={cardVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 1.5 }}
+            >
               <header className="card-header">
                 <div>
                   <h2>Reminders &amp; Backup</h2>
@@ -289,15 +380,16 @@ export default function Dashboard() {
                         autoComplete="off"
                         spellCheck={false}
                       />
-                      <button
+                      <motion.button
                         className="btn btn-ghost btn-small"
                         disabled={!userId}
                         onClick={() => {
                           if (userId) navigator.clipboard?.writeText(userId);
                         }}
+                        whileTap={{ scale: 0.96 }}
                       >
                         Copy ID
-                      </button>
+                      </motion.button>
                     </div>
                     <div
                       style={{
@@ -307,16 +399,17 @@ export default function Dashboard() {
                         marginTop: 2,
                       }}
                     >
-                      <button
+                      <motion.button
                         className="btn btn-soft btn-small"
                         disabled={!syncEnabled}
                         onClick={() => {
                           if (idInput.trim()) setUserId(idInput.trim());
                           syncNow();
                         }}
+                        whileTap={{ scale: 0.96 }}
                       >
                         ⟳ Sync Now
-                      </button>
+                      </motion.button>
                       <span className={`firebase-sync-status ${syncStatus.type}`}>
                         {syncStatus.msg}
                       </span>
@@ -334,18 +427,20 @@ export default function Dashboard() {
                     You can also download a backup file and restore it later.
                   </p>
                   <div className="utilities-actions">
-                    <button
+                    <motion.button
                       className="btn btn-soft"
                       onClick={() => downloadBackup("backup.json")}
+                      whileTap={{ scale: 0.96 }}
                     >
                       Download backup
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       className="btn btn-ghost"
                       onClick={() => fileInputRef.current?.click()}
+                      whileTap={{ scale: 0.96 }}
                     >
                       Restore from file
-                    </button>
+                    </motion.button>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -361,11 +456,15 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
-            </section>
-          </section>
+            </motion.section>
+          </motion.section>
 
-          <section className="grid-rhs">
-            <section className="card glass card-heatmap">
+          <motion.section className="grid-rhs" variants={shellVariants}>
+            <motion.section
+              className="card glass card-heatmap cinematic-panel"
+              variants={cardVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 1.5 }}
+            >
               <header className="card-header">
                 <div className="card-header-main">
                   <h2>Heatmap</h2>
@@ -390,22 +489,26 @@ export default function Dashboard() {
                 </div>
               </header>
               <Heatmap />
-            </section>
+            </motion.section>
 
-            <section className="card glass card-kpi">
+            <motion.section
+              className="card glass card-kpi cinematic-panel"
+              variants={cardVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 1.5 }}
+            >
               <header className="card-header">
                 <h2>Key Metrics</h2>
               </header>
               <div className="kpi-grid">
-                <div className="kpi">
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">Best Habit</span>
                   <span className="kpi-value">{bestHabit ? bestHabit.name : "–"}</span>
                   <span className="kpi-sub">
                     {analytics.best ? analytics.best.consistency.toFixed(0) : 0}%
                     consistency
                   </span>
-                </div>
-                <div className="kpi">
+                </motion.div>
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">Worst Habit</span>
                   <span className="kpi-value">
                     {worstHabit ? worstHabit.name : "–"}
@@ -414,40 +517,44 @@ export default function Dashboard() {
                     {analytics.worst ? analytics.worst.consistency.toFixed(0) : 0}%
                     consistency
                   </span>
-                </div>
-                <div className="kpi">
+                </motion.div>
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">Active Habits</span>
                   <span className="kpi-value">{analytics.activeHabits}</span>
                   <span className="kpi-sub">Tracked this year</span>
-                </div>
-                <div className="kpi">
+                </motion.div>
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">Total Check‑ins</span>
                   <span className="kpi-value">{analytics.totalCheckins}</span>
                   <span className="kpi-sub">Last 365 days</span>
-                </div>
-                <div className="kpi">
+                </motion.div>
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">This Week</span>
                   <span className="kpi-value">{weekPct}%</span>
                   <span className="kpi-sub">Last 7 days</span>
-                </div>
-                <div className="kpi">
+                </motion.div>
+                <motion.div className="kpi kinetic-tile" variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -5, scale: 1.02 }}>
                   <span className="kpi-label">This Month</span>
                   <span className="kpi-value">{monthPct}%</span>
                   <span className="kpi-sub">Last 30 days</span>
-                </div>
+                </motion.div>
               </div>
-            </section>
+            </motion.section>
 
-            <section className="card glass card-categories">
+            <motion.section
+              className="card glass card-categories cinematic-panel"
+              variants={cardVariants}
+              whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 1.5 }}
+            >
               <header className="card-header">
                 <h2>Category Performance</h2>
                 <span className="pill small">📊 Last 365 days</span>
               </header>
               <CategoryChart state={state} perHabitStats={analytics.perHabitStats} />
-            </section>
-          </section>
-        </main>
-      </div>
+            </motion.section>
+          </motion.section>
+        </motion.main>
+      </motion.div>
 
       <HabitDialog
         editingId={editingId}
