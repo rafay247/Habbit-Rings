@@ -1,34 +1,64 @@
-# Habit Rings – Premium Habit Tracker
+# Habit Rings — Next.js + 3D
 
-Single‑page habit tracker built with **HTML, CSS, and vanilla JavaScript**.
+Personal productivity suite — a **Next.js (App Router, TypeScript)** app with
+**three.js** 3D animated rings. Migrated from the original vanilla HTML/CSS/JS
+multi-page app (now removed; recoverable from git history). The app lives at the
+repository root.
 
-## Features
+## Run
 
-- **Real daily checkboxes**: Tap to log each habit per day (no dropdowns).
-- **Local 365‑day history**: All check‑ins are stored in `localStorage`.
-- **Reliability mirror**: Data is also mirrored to **IndexedDB** and recovered on startup if needed.
-- **GitHub‑style heatmap**: Visual calendar with intensity based on how many habits you complete.
-- **Streak analytics**: Per‑habit streaks plus **longest streak ever**.
-- **Consistency scores**: Overall and per‑habit consistency over the last 365 days.
-- **Category charts**: Lightweight category performance bars (Health / Mind / Work / Learning / Custom).
-- **Best vs worst habit KPIs**: Quick view of your top and weakest habits.
-- **Daily reminder banner**: Choose a time; after that, unchecked habits trigger an in‑app reminder.
-- **Apple‑style premium UI**: Glassmorphism, soft shadows, SF‑style typography, dark appearance.
-- **Mobile‑friendly layout**: Responsive cards and compressed heatmap on small screens.
+```bash
+npm install        # first time
+npm run dev        # http://localhost:3000
+npm run build      # production build (runs the full TypeScript check)
+```
 
-## Getting started
+## Pages
 
-1. Open `index.html` in your browser (no build step or backend needed).
-2. Use the default habits or add your own with **+ New Habit**.
-3. Change the **date picker** to review or edit past days.
-4. Use the **Daily Reminders** card to set your preferred reminder time.
+| Route          | Description                                                      |
+| -------------- | ---------------------------------------------------------------- |
+| `/`            | Dashboard — habit tracker, 3D animated rings, heatmap, KPIs      |
+| `/goals`       | Weekly / monthly / yearly goals with drag-reorder               |
+| `/notes`       | Rich-text + checklist notes, colors, pin, beast mode            |
+| `/calendar`    | Year calendar with events and X-marks                           |
+| `/books`       | Books library: categories, read/GOAT tracking, morals, search   |
+| `/english`     | Revision bank: words, scenarios, modal verbs, grammar rules     |
+| `/technology`  | Knowledge base — rich-text docs with categories/subcategories   |
+| `/quotes`      | Custom quotes library                                            |
 
-## Data & persistence (local-only)
+## Data & persistence
 
-- **Same browser, same device:** Your habits live in `localStorage` and survive normal restarts.
-- **Phone + computer:** Data is **not shared automatically** (no cloud/backend in this version).
-- Use the built-in **Download backup** / **Restore from file** to move your data manually between devices.
+All data is stored client-side under `habit-rings-*` `localStorage` keys. The
+dashboard additionally mirrors its state to **IndexedDB** (startup recovery) and
+offers optional **Firebase Realtime Database** cross-device sync (echo-loop guard
++ `_version`/`syncedAt` last-write-wins). Because every page's keys share the
+`habit-rings-` prefix, the dashboard's **Download / Restore backup** captures all
+pages in a single `backup.json` (`_backupVersion: 4`, with an `_allPages`
+snapshot).
 
-## Manual backup
+## 3D (three.js via @react-three/fiber)
 
-Use **Download backup** / **Restore from file** anytime — works even without any cloud setup. Backup downloads are saved as `backup.json`.
+- `app/components/Ring3D.tsx` — each progress ring is a 3D torus whose glowing arc
+  animates to its percentage and gently rotates.
+- `app/components/AmbientBackground.tsx` — fixed full-screen particle field +
+  wireframe blobs behind the UI.
+
+Both are lazy-loaded (`next/dynamic`, `ssr: false`) so they never block first
+paint and degrade gracefully where WebGL is unavailable.
+
+## Structure
+
+```
+app/
+  lib/         constants, types, dateUtils, storage, analytics, firebase,
+               quotes, HabitContext (dashboard state + persistence)
+  components/  Dashboard, HabitRow, HabitDialog, Heatmap, FocusTimer,
+               CategoryChart, NavChips, Ring3D, AmbientBackground
+  <route>/     goals, notes, calendar, books, english, technology, quotes
+               (each: page.tsx + colocated <route>.css)
+  page.tsx     HabitProvider + loading gate + Dashboard
+  globals.css  the original style.css, reused verbatim for visual parity
+```
+
+`backup-keeper.sh` at the repo root is an unrelated host-side helper that keeps the
+latest `backup*.json` from your Downloads folder.
