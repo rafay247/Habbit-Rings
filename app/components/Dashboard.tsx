@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useHabits } from "../lib/HabitContext";
@@ -83,6 +83,29 @@ export default function Dashboard() {
   const weekPct = useMemo(() => computePeriodCompletion(state, 7), [state]);
   const monthPct = useMemo(() => computePeriodCompletion(state, 30), [state]);
   const quote = useMemo(() => (ready ? getDailyQuote() : { text: "", author: "" }), [ready]);
+
+  const [dailyWord, setDailyWord] = useState<{ word: string; meaning: string; sentences: string[] } | null>(null);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      const raw = localStorage.getItem("habit-rings-english-revision-v1");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const words: Array<Record<string, string>> = Array.isArray(parsed?.words) ? parsed.words : [];
+      if (words.length === 0) return;
+      const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const idx = parseInt(dateKey, 10) % words.length;
+      const w = words[idx];
+      setDailyWord({
+        word: w.word || "",
+        meaning: w.meaning || "",
+        sentences: [w.sentence1, w.sentence2, w.sentence3].filter(Boolean) as string[],
+      });
+    } catch {
+      // silently ignore parse errors
+    }
+  }, [ready]);
 
   const today = todayISO();
   const consistency = analytics.overallConsistency;
@@ -185,11 +208,13 @@ export default function Dashboard() {
               whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 3, rotateY: 2 }}
             >
               <div className="header-word__label">Word of the day</div>
-              <div className="header-word__term">Open English</div>
+              <div className="header-word__term">{dailyWord ? dailyWord.word : "Open English"}</div>
               <div className="header-word__meaning">
-                Add words in the English section to revise them here.
+                {dailyWord ? dailyWord.meaning : "Add words in the English section to revise them here."}
               </div>
-              <ol className="header-word__sentences"></ol>
+              <ol className="header-word__sentences">
+                {dailyWord?.sentences.map((s, i) => <li key={i}>{s}</li>)}
+              </ol>
             </motion.section>
 
             <motion.div variants={riseVariants} whileHover={prefersReducedMotion ? undefined : { y: -4 }}>
