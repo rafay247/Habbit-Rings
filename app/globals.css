@@ -285,11 +285,35 @@ blockquote.header-quote {
 }
 
 .header-word__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   color: var(--accent-muted);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.wotd-next-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  text-transform: none;
+}
+
+.wotd-next-btn:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: rgba(63, 185, 80, 0.08);
 }
 
 .header-word__term {

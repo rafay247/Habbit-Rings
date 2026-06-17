@@ -103,6 +103,8 @@ export default function Dashboard() {
   const quote = useMemo(() => (ready ? getDailyQuote() : { text: "", author: "" }), [ready]);
 
   const [dailyWord, setDailyWord] = useState<{ word: string; meaning: string; sentences: string[] } | null>(null);
+  const allWords = useRef<Array<Record<string, string>>>([]);
+  const [wordIdx, setWordIdx] = useState(0);
 
   useEffect(() => {
     if (!ready) return;
@@ -112,8 +114,10 @@ export default function Dashboard() {
       const parsed = JSON.parse(raw);
       const words: Array<Record<string, string>> = Array.isArray(parsed?.words) ? parsed.words : [];
       if (words.length === 0) return;
+      allWords.current = words;
       const dateKey = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       const idx = parseInt(dateKey, 10) % words.length;
+      setWordIdx(idx);
       const w = words[idx];
       setDailyWord({
         word: w.word || "",
@@ -124,6 +128,19 @@ export default function Dashboard() {
       // silently ignore parse errors
     }
   }, [ready]);
+
+  const nextWord = () => {
+    const words = allWords.current;
+    if (words.length === 0) return;
+    const next = (wordIdx + 1) % words.length;
+    setWordIdx(next);
+    const w = words[next];
+    setDailyWord({
+      word: w.word || "",
+      meaning: w.meaning || "",
+      sentences: [w.sentence1, w.sentence2, w.sentence3].filter(Boolean) as string[],
+    });
+  };
 
   useEffect(() => {
     if (!ready) return;
@@ -264,7 +281,14 @@ export default function Dashboard() {
               variants={riseVariants}
               whileHover={prefersReducedMotion ? undefined : { y: -4, rotateX: 3, rotateY: 2 }}
             >
-              <div className="header-word__label">Word of the day</div>
+              <div className="header-word__label">
+                Word of the day
+                {dailyWord && (
+                  <button className="wotd-next-btn" type="button" onClick={nextWord} title="Next word">
+                    Next →
+                  </button>
+                )}
+              </div>
               <div className="header-word__term">{dailyWord ? dailyWord.word : "Open English"}</div>
               <div className="header-word__meaning">
                 {dailyWord ? dailyWord.meaning : "Add words in the English section to revise them here."}
