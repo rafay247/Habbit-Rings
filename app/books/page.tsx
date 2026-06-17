@@ -124,6 +124,7 @@ export default function BooksPage() {
   const [catInput, setCatInput] = useState("");
   const [bookInput, setBookInput] = useState("");
   const [search, setSearch] = useState("");
+  const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
 
   const [moral, setMoral] = useState<{ catId: string; bookId: string; title: string; text: string } | null>(null);
 
@@ -198,6 +199,24 @@ export default function BooksPage() {
       const remaining = data.filter((c) => c.id !== id);
       setActiveTab(remaining[0]?.id || "");
     }
+  };
+
+  const startEditCategory = (cat: Category) => {
+    setEditingCategory({ id: cat.id, name: cat.name });
+  };
+
+  const cancelEditCategory = () => {
+    setEditingCategory(null);
+  };
+
+  const saveCategoryName = () => {
+    if (!editingCategory) return;
+    const name = editingCategory.name.trim();
+    if (!name) return;
+    setData((prev) =>
+      prev.map((cat) => (cat.id === editingCategory.id ? { ...cat, name } : cat))
+    );
+    setEditingCategory(null);
   };
 
   const addBook = (e: React.FormEvent) => {
@@ -430,29 +449,82 @@ export default function BooksPage() {
                 data.map((cat) => (
                   <div
                     key={cat.id}
-                    className={`bklib-tab-row${cat.id === activeTab ? " active" : ""}`}
-                    draggable
-                    onDragStart={() => (dragCat.current = cat.id)}
+                    className={`bklib-tab-row${cat.id === activeTab ? " active" : ""}${
+                      editingCategory?.id === cat.id ? " is-editing" : ""
+                    }`}
+                    draggable={!editingCategory}
+                    onDragStart={() => {
+                      if (!editingCategory) dragCat.current = cat.id;
+                    }}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
                       onDropCategory(cat.id);
                     }}
                   >
-                    <button className="bklib-tab-open" type="button" onClick={() => setActiveTab(cat.id)}>
-                      <span className="bklib-tab__label">{cat.name}</span>
-                      <span className="bklib-tab__meta">{cat.books.length}</span>
-                    </button>
-                    <span className="bklib-tab__drag">::</span>
-                    <button
-                      className="bklib-tab-delete"
-                      type="button"
-                      aria-label={`Delete ${cat.name}`}
-                      title="Delete category"
-                      onClick={() => deleteCategory(cat.id)}
-                    >
-                      ×
-                    </button>
+                    {editingCategory?.id === cat.id ? (
+                      <form
+                        className="bklib-tab-edit-form"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          saveCategoryName();
+                        }}
+                      >
+                        <input
+                          className="bklib-tab-edit-input"
+                          type="text"
+                          maxLength={80}
+                          autoComplete="off"
+                          value={editingCategory.name}
+                          autoFocus
+                          onChange={(e) =>
+                            setEditingCategory((current) =>
+                              current ? { ...current, name: e.target.value } : current
+                            )
+                          }
+                          onKeyDown={(e) => {
+                            if (e.key === "Escape") {
+                              e.preventDefault();
+                              cancelEditCategory();
+                            }
+                          }}
+                        />
+                        <button className="bklib-tab-save" type="submit" title="Save category">
+                          Save
+                        </button>
+                        <button
+                          className="bklib-tab-cancel"
+                          type="button"
+                          title="Cancel edit"
+                          onClick={cancelEditCategory}
+                        >
+                          ×
+                        </button>
+                      </form>
+                    ) : (
+                      <>
+                        <button
+                          className="bklib-tab-open"
+                          type="button"
+                          title="Double-click to rename"
+                          onClick={() => setActiveTab(cat.id)}
+                          onDoubleClick={() => startEditCategory(cat)}
+                        >
+                          <span className="bklib-tab__label">{cat.name}</span>
+                          <span className="bklib-tab__meta">{cat.books.length}</span>
+                        </button>
+                        <span className="bklib-tab__drag">::</span>
+                        <button
+                          className="bklib-tab-delete"
+                          type="button"
+                          aria-label={`Delete ${cat.name}`}
+                          title="Delete category"
+                          onClick={() => deleteCategory(cat.id)}
+                        >
+                          ×
+                        </button>
+                      </>
+                    )}
                   </div>
                 ))
               )}

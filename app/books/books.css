@@ -522,6 +522,12 @@ html, body { height: 100%; }
 
       .bklib-tab-row.dragging { opacity: 0.6; }
 
+      .bklib-tab-row.is-editing {
+        padding: 6px;
+        border-color: var(--books-accent-border);
+        background: rgba(20, 26, 20, 0.98);
+      }
+
       /* Open/select button inside row */
       .bklib-tab-open {
         flex: 1;
@@ -568,6 +574,64 @@ html, body { height: 100%; }
         color: #ff7b72;
         background: rgba(255, 123, 114, 0.08);
         opacity: 1;
+      }
+
+.bklib-tab-edit-form {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .bklib-tab-edit-input {
+        width: 100%;
+        min-width: 0;
+        border-radius: 9px;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(8, 12, 8, 0.96);
+        color: var(--text);
+        padding: 7px 9px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+      }
+
+      .bklib-tab-edit-input:focus {
+        outline: none;
+        border-color: var(--books-accent-border);
+        box-shadow: 0 0 0 3px var(--books-accent-ring);
+      }
+
+      .bklib-tab-save,
+      .bklib-tab-cancel {
+        height: 31px;
+        border-radius: 9px;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .bklib-tab-save {
+        border: 1px solid var(--books-accent-border);
+        background: var(--books-accent-soft);
+        color: var(--gold);
+        padding: 0 10px;
+      }
+
+      .bklib-tab-cancel {
+        width: 31px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+        color: var(--text-dim);
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      .bklib-tab-cancel:hover {
+        border-color: rgba(255, 123, 114, 0.35);
+        color: #ff7b72;
+        background: rgba(255, 123, 114, 0.08);
       }
 
       .bklib-tab__drag {
@@ -649,7 +713,24 @@ html, body { height: 100%; }
         margin: 10px 0 14px;
         max-height: 420px;
         overflow-y: auto;
-        padding-right: 2px;
+        padding-right: 8px;
+        scrollbar-color: rgba(63, 185, 80, 0.52) rgba(255,255,255,0.04);
+        scrollbar-width: thin;
+      }
+      .bklib-book-list::-webkit-scrollbar {
+        width: 10px;
+      }
+      .bklib-book-list::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.035);
+        border-radius: 999px;
+      }
+      .bklib-book-list::-webkit-scrollbar-thumb {
+        border: 2px solid rgba(12, 16, 12, 0.88);
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(63,185,80,0.72), rgba(63,185,80,0.34));
+      }
+      .bklib-book-list::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, rgba(86,211,100,0.86), rgba(63,185,80,0.46));
       }
       .bklib-book-list:empty::after {
         content: 'No books yet. Add one below.';
@@ -729,7 +810,12 @@ html, body { height: 100%; }
       }
       .bklib-book-item:hover .bklib-book-delete { opacity: 1; }
       .bklib-book-delete:hover { color: var(--red); border-color: rgba(255,123,114,0.3); }
-      @media (pointer: coarse) { .bklib-book-delete { opacity: 1; } }
+      @media (pointer: coarse) {
+        .bklib-tab-delete,
+        .bklib-book-delete {
+          opacity: 1;
+        }
+      }
 
       .bklib-add-book-form {
         display: grid;
@@ -1231,7 +1317,7 @@ html, body { height: 100%; }
         .bklib-read-item__title { font-size: 13px; }
         .bklib-tabs { padding: 8px; gap: 4px; }
         .bklib-tab, .bklib-tab-row { padding: 6px 8px; font-size: 11px; min-height: 38px; }
-        .bklib-tab-delete { opacity: 1; } /* always show delete on mobile */
+        .bklib-tab-delete { opacity: 1; }
         .bklib-category-form { gap: 6px; }
         .bklib-category-input { padding: 8px 10px; font-size: 12px; }
         .bklib-category-add { padding: 8px 10px; font-size: 12px; }

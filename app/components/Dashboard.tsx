@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useHabits } from "../lib/HabitContext";
 import { todayISO, formatHumanDate } from "../lib/dateUtils";
+import {
+  AUTO_BACKUP_ENABLED_KEY,
+  AUTO_BACKUP_LAST_DATE_KEY,
+} from "../lib/constants";
 import { computeAnalytics, computePeriodCompletion, isChecked } from "../lib/analytics";
 import { getDailyQuote } from "../lib/quotes";
 import HabitRow from "./HabitRow";
@@ -21,6 +25,17 @@ const AmbientBackground = dynamic(() => import("./AmbientBackground"), {
 
 function ringColor(pct: number) {
   return pct >= 80 ? "#3fb950" : pct >= 40 ? "#e3b341" : "#56d364";
+}
+
+function backupFilenameForToday(): string {
+  return `${todayISO()}.json`;
+}
+
+function msUntilNextMidnight(): number {
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 0, 0);
+  return Math.max(1000, nextMidnight.getTime() - now.getTime());
 }
 
 export default function Dashboard() {
@@ -77,7 +92,10 @@ export default function Dashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoBackupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [idInput, setIdInput] = useState("");
+  const [autoBackupEnabled, setAutoBackupEnabled] = useState(false);
+  const [autoBackupLastDate, setAutoBackupLastDate] = useState<string | null>(null);
 
   const analytics = useMemo(() => computeAnalytics(state), [state]);
   const weekPct = useMemo(() => computePeriodCompletion(state, 7), [state]);
@@ -106,6 +124,45 @@ export default function Dashboard() {
       // silently ignore parse errors
     }
   }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const enabled = localStorage.getItem(AUTO_BACKUP_ENABLED_KEY) === "1";
+    setAutoBackupEnabled(enabled);
+    setAutoBackupLastDate(localStorage.getItem(AUTO_BACKUP_LAST_DATE_KEY));
+  }, [ready]);
+
+  const runAutoBackup = useCallback(() => {
+    const backupDate = todayISO();
+    if (localStorage.getItem(AUTO_BACKUP_LAST_DATE_KEY) === backupDate) return;
+    downloadBackup(`${backupDate}.json`);
+    localStorage.setItem(AUTO_BACKUP_LAST_DATE_KEY, backupDate);
+    setAutoBackupLastDate(backupDate);
+  }, [downloadBackup]);
+
+  useEffect(() => {
+    if (!ready || !autoBackupEnabled) return;
+
+    const scheduleNextBackup = () => {
+      autoBackupTimerRef.current = setTimeout(() => {
+        runAutoBackup();
+        scheduleNextBackup();
+      }, msUntilNextMidnight());
+    };
+
+    scheduleNextBackup();
+    return () => {
+      if (autoBackupTimerRef.current) {
+        clearTimeout(autoBackupTimerRef.current);
+        autoBackupTimerRef.current = null;
+      }
+    };
+  }, [autoBackupEnabled, ready, runAutoBackup]);
+
+  const handleAutoBackupChange = (enabled: boolean) => {
+    localStorage.setItem(AUTO_BACKUP_ENABLED_KEY, enabled ? "1" : "0");
+    setAutoBackupEnabled(enabled);
+  };
 
   const today = todayISO();
   const consistency = analytics.overallConsistency;
@@ -454,7 +511,7 @@ export default function Dashboard() {
                   <div className="utilities-actions">
                     <motion.button
                       className="btn btn-soft"
-                      onClick={() => downloadBackup("backup.json")}
+                      onClick={() => downloadBackup(backupFilenameForToday())}
                       whileTap={{ scale: 0.96 }}
                     >
                       Download backup
@@ -475,8 +532,23 @@ export default function Dashboard() {
                     />
                   </div>
                   <div className="auto-backup">
+                    <label className="auto-backup-toggle">
+                      <input
+                        type="checkbox"
+                        checked={autoBackupEnabled}
+                        onChange={(e) => handleAutoBackupChange(e.target.checked)}
+                      />
+                      <span>Auto backup every day at 12:00 AM</span>
+                    </label>
                     <div className="auto-backup-note">
-                      File name: <code>backup.json</code>
+                      File name: <code>{backupFilenameForToday()}</code>
+                    </div>
+                    <div className="auto-backup-status" aria-live="polite">
+                      {autoBackupEnabled
+                        ? `Next download is scheduled for 12:00 AM. Last backup: ${
+                            autoBackupLastDate || "not yet"
+                          }.`
+                        : "Auto backup is off."}
                     </div>
                   </div>
                 </div>
