@@ -31,13 +31,6 @@ function backupFilenameForToday(): string {
   return `${todayISO()}.json`;
 }
 
-function msUntilNextMidnight(): number {
-  const now = new Date();
-  const nextMidnight = new Date(now);
-  nextMidnight.setHours(24, 0, 0, 0);
-  return Math.max(1000, nextMidnight.getTime() - now.getTime());
-}
-
 export default function Dashboard() {
   const prefersReducedMotion = useReducedMotion();
   const shellVariants: Variants = {
@@ -92,7 +85,7 @@ export default function Dashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const autoBackupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoBackupTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [idInput, setIdInput] = useState("");
   const [autoBackupEnabled, setAutoBackupEnabled] = useState(false);
   const [autoBackupLastDate, setAutoBackupLastDate] = useState<string | null>(null);
@@ -160,17 +153,21 @@ export default function Dashboard() {
   useEffect(() => {
     if (!ready || !autoBackupEnabled) return;
 
-    const scheduleNextBackup = () => {
-      autoBackupTimerRef.current = setTimeout(() => {
-        runAutoBackup();
-        scheduleNextBackup();
-      }, msUntilNextMidnight());
-    };
+    // Catch up on any backup missed while the app was closed/asleep
+    // (e.g. the tab wasn't open at midnight). runAutoBackup is guarded
+    // to download at most once per calendar day.
+    runAutoBackup();
 
-    scheduleNextBackup();
+    // A single long setTimeout to midnight is unreliable: it never fires
+    // if the machine sleeps or the tab is discarded. Poll once a minute
+    // instead so the day-rollover (and any missed days) is picked up.
+    autoBackupTimerRef.current = setInterval(() => {
+      runAutoBackup();
+    }, 60 * 1000);
+
     return () => {
       if (autoBackupTimerRef.current) {
-        clearTimeout(autoBackupTimerRef.current);
+        clearInterval(autoBackupTimerRef.current);
         autoBackupTimerRef.current = null;
       }
     };
