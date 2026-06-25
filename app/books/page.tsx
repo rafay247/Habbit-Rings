@@ -100,8 +100,12 @@ function loadData(): Category[] {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
         const storedData = normalizeData(parsed);
+        // Apply the bundled backup only once — the first time we encounter
+        // stored data that predates this backup. After that, the user's saved
+        // data is authoritative; never clobber their edits/deletions just
+        // because their library has fewer books than the static seed.
         const applied = localStorage.getItem(BOOKS_BACKUP_APPLIED_KEY) === BOOKS_BACKUP_SIGNATURE;
-        if (backupTotal > 0 && (!applied || totalBooks(storedData) < backupTotal)) {
+        if (backupTotal > 0 && !applied) {
           return backupData;
         }
         return storedData;

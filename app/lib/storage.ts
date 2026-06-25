@@ -210,26 +210,35 @@ export function applyDefaultBackupData(overwrite = false): boolean {
   if (typeof window === "undefined") return false;
   const backupPages = getBackupPagesData(DEFAULT_BACKUP);
   const primaryMissing = localStorage.getItem(STORAGE_KEY) === null;
-  const shouldOverwrite =
-    overwrite ||
-    primaryMissing ||
+  const signatureChanged =
     localStorage.getItem(DEFAULT_BACKUP_APPLIED_KEY) !== DEFAULT_BACKUP_SIGNATURE;
 
+  // The automatic startup call (overwrite=false) must NEVER clobber data the
+  // user already has. It only *fills in* keys that are entirely missing — a
+  // fresh install, or a page added in a newer backup snapshot. Only an explicit
+  // restore (overwrite=true) is allowed to overwrite existing keys. Without this,
+  // regenerating the committed defaultBackup.json (which changes the signature)
+  // or a missing dashboard key would silently wipe edits across every page.
+  let changed = false;
   Object.entries(backupPages).forEach(([key, value]) => {
     if (!key || !key.startsWith(APP_STORAGE_PREFIX) || value === undefined) return;
-    if (!shouldOverwrite && localStorage.getItem(key) !== null) return;
+    if (localStorage.getItem(key) !== null && !overwrite) return;
     localStorage.setItem(
       key,
       typeof value === "string" ? value : JSON.stringify(value)
     );
+    changed = true;
   });
-  if (shouldOverwrite && backupPages[STORAGE_KEY] === undefined) {
+  if ((primaryMissing || overwrite) && backupPages[STORAGE_KEY] === undefined) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(buildStateFromBackup(DEFAULT_BACKUP)));
+    changed = true;
   }
-  if (shouldOverwrite) {
+  // Record the applied signature so we don't reconsider every load. This is now
+  // just bookkeeping — it no longer gates destructive overwrites.
+  if (signatureChanged || changed) {
     localStorage.setItem(DEFAULT_BACKUP_APPLIED_KEY, DEFAULT_BACKUP_SIGNATURE);
   }
-  return shouldOverwrite;
+  return changed;
 }
 
 export function applyBackupPagesData(parsed: unknown): void {
