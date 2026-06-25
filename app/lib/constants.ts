@@ -1,3 +1,6 @@
+// Bumped on every GitHub push (v1 → v2 → …). Shown next to the logo.
+export const APP_VERSION = "v1";
+
 export const STORAGE_KEY = "habit-rings-data-v1";
 export const DATA_VERSION_KEY = "habit-rings-data-version";
 export const DEFAULT_REMINDER_TIME = "20:00";

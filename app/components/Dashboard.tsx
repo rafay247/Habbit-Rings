@@ -6,6 +6,7 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useHabits } from "../lib/HabitContext";
 import { todayISO, formatHumanDate } from "../lib/dateUtils";
 import {
+  APP_VERSION,
   AUTO_BACKUP_ENABLED_KEY,
   AUTO_BACKUP_LAST_DATE_KEY,
 } from "../lib/constants";
@@ -254,6 +255,7 @@ export default function Dashboard() {
                 transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
               />
               <span className="brand-name">Habit Rings</span>
+              <span className="brand-version">{APP_VERSION}</span>
             </div>
             <NavChips />
             <div className="header-meta">

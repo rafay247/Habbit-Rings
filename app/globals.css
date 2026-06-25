@@ -188,6 +188,117 @@ body::before {
   color: var(--text-muted);
 }
 
+.brand-version {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: rgba(63, 185, 80, 0.12);
+  border: 1px solid rgba(63, 185, 80, 0.35);
+  border-radius: 999px;
+  padding: 1px 6px;
+  line-height: 1.4;
+}
+
+/* ===== Tab shell (browser-like tabs for each page) ===== */
+.tab-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.tab-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 8px 14px 0;
+  background: rgba(13, 17, 23, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow-x: auto;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  max-width: 220px;
+  padding: 8px 12px;
+  border-radius: 10px 10px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.tab-active {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.tab-pinned {
+  color: var(--accent);
+}
+
+.tab-home-icon {
+  flex: 0 0 auto;
+}
+
+.tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.tab-close:hover {
+  opacity: 1;
+  background: rgba(248, 81, 73, 0.18);
+  color: #ff7b72;
+}
+
+.tab-bodies {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.tab-loading {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+}
+
 .header-meta {
   display: flex;
   align-items: center;
