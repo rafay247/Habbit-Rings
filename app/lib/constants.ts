@@ -1,5 +1,5 @@
 // Bumped on every GitHub push (v1 → v2 → …). Shown next to the logo.
-export const APP_VERSION = "v1";
+export const APP_VERSION = "v2";
 
 export const STORAGE_KEY = "habit-rings-data-v1";
 export const DATA_VERSION_KEY = "habit-rings-data-version";
