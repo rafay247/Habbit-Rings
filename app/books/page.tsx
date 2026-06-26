@@ -9,7 +9,6 @@ import "./books.css";
 const STORAGE_KEY = "habit-rings-books-v4";
 const CATEGORY_STORAGE_KEY = "habit-rings-books-categories-v1";
 const MIGRATION_KEY = "habit-rings-books-migrated-v5";
-const BOOKS_BACKUP_APPLIED_KEY = "habit-rings-books-v4-backup-applied";
 
 interface Book {
   id: string;
@@ -32,11 +31,6 @@ type BackupPayload = {
 };
 
 const BOOKS_BACKUP = defaultBackup as BackupPayload;
-const BOOKS_BACKUP_SIGNATURE = [
-  BOOKS_BACKUP._version || "",
-  BOOKS_BACKUP._exportedAt || "",
-  String(BOOKS_BACKUP._allPages?.[STORAGE_KEY] || BOOKS_BACKUP._localStorage?.[STORAGE_KEY] || "").length,
-].join(":");
 
 const uid = () =>
   Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
@@ -76,10 +70,6 @@ function seededData(): Category[] {
   }));
 }
 
-function totalBooks(categories: Category[]): number {
-  return categories.reduce((s, c) => s + c.books.length, 0);
-}
-
 function backupBooksData(): Category[] {
   const raw = BOOKS_BACKUP._allPages?.[STORAGE_KEY] || BOOKS_BACKUP._localStorage?.[STORAGE_KEY];
   if (!raw) return [];
@@ -92,28 +82,24 @@ function backupBooksData(): Category[] {
 }
 
 function loadData(): Category[] {
-  const backupData = backupBooksData();
-  const backupTotal = totalBooks(backupData);
+  // The user's saved data is always authoritative — never clobber their
+  // edits/deletions with the bundled backup. The backup (and seed) only fill
+  // in a fresh install where no stored library exists yet. (Previously this
+  // returned the bundled backup whenever its signature changed, e.g. after the
+  // committed defaultBackup.json was regenerated, which silently wiped recent
+  // edits on the next refresh.)
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
-        const storedData = normalizeData(parsed);
-        // Apply the bundled backup only once — the first time we encounter
-        // stored data that predates this backup. After that, the user's saved
-        // data is authoritative; never clobber their edits/deletions just
-        // because their library has fewer books than the static seed.
-        const applied = localStorage.getItem(BOOKS_BACKUP_APPLIED_KEY) === BOOKS_BACKUP_SIGNATURE;
-        if (backupTotal > 0 && !applied) {
-          return backupData;
-        }
-        return storedData;
+        return normalizeData(parsed);
       }
     }
   } catch {
     /* fall through to backup/seed */
   }
+  const backupData = backupBooksData();
   if (backupData.length) return backupData;
   return seededData();
 }
@@ -155,7 +141,6 @@ export default function BooksPage() {
   useEffect(() => {
     if (!ready) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    localStorage.setItem(BOOKS_BACKUP_APPLIED_KEY, BOOKS_BACKUP_SIGNATURE);
   }, [data, ready]);
 
   const todayLabel = useMemo(

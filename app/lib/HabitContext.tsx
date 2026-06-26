@@ -169,6 +169,37 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Day rollover ────────────────────────────────────────────────────────────
+  // `selectedDate` is seeded with today's date at mount. If the app stays open
+  // (or the tab is backgrounded) past midnight, nothing recomputes "today", so
+  // the dashboard keeps showing the previous day until a hard refresh. Watch for
+  // the date changing and, if the user is still viewing what *was* today, follow
+  // them into the new day (which starts blank, as expected).
+  useEffect(() => {
+    let lastToday = todayISO();
+    const checkRollover = () => {
+      const now = todayISO();
+      if (now === lastToday) return;
+      const prev = lastToday;
+      lastToday = now;
+      setSelectedDate((cur) => (cur === prev ? now : cur));
+      const nextYear = new Date().getFullYear();
+      setHeatmapYear((y) => (y === Number(prev.slice(0, 4)) && y !== nextYear ? nextYear : y));
+    };
+    const interval = setInterval(checkRollover, 60 * 1000);
+    const onFocus = () => checkRollover();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") checkRollover();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
   // ── Live listener while sync is on ──────────────────────────────────────────
   useEffect(() => {
     if (!ready || !syncEnabled || !userId) return;
