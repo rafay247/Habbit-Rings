@@ -18,6 +18,7 @@ import {
   normalizeParsedState,
   downloadBackupFile,
   applyDefaultBackupData,
+  applyAllPagesData,
   restoreFullBackup,
 } from "./storage";
 import {
@@ -147,14 +148,28 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         setUserIdState(uid);
       }
 
-      // Startup pull: remote wins if newer.
+      // Startup pull: a remote snapshot may overwrite local data (including the
+      // cross-page localStorage keys) ONLY when it is strictly newer. On a tie
+      // or when local is newer we keep local and push it up to heal the stale
+      // remote. This is what stops a refresh from wiping Books/Quotes edits —
+      // those pages write localStorage directly and never bump the sync version,
+      // so the remote `_allPages` snapshot is almost always stale for them.
       if (enabled && uid) {
         const remote = await pullStateFromFirebase(uid);
         if (remote && !cancelled) {
-          const remoteV = remote._version || 0;
-          const localV = initial._version || 0;
-          if (remoteV >= localV) initial = remote;
-          persistLocal(initial);
+          const localV = Number(
+            localStorage.getItem(DATA_VERSION_KEY) || initial._version || 0
+          );
+          if (remote.syncedAt > localV) {
+            if (remote.allPages) applyAllPagesData(remote.allPages);
+            initial = remote.state;
+            persistLocal(initial);
+          } else {
+            // Local is newer/equal: heal the stale remote so other devices get
+            // the latest (incl. Books/Quotes). The live listener is not attached
+            // yet, and its first fire is skipped, so no echo guard is needed.
+            pushStateToFirebase(uid, initial);
+          }
         }
       }
 
@@ -393,12 +408,14 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     setSyncStatus({ msg: "Syncing…", type: "pending" });
     const remote = await pullStateFromFirebase(userId);
     if (remote) {
-      const remoteV = remote._version || 0;
-      const localV = stateRef.current._version || 0;
-      if (remoteV > localV) {
-        setStateRaw(remote);
-        persistLocal(remote);
-        saveStateToIndexedDb(remote);
+      const localV = Number(
+        localStorage.getItem(DATA_VERSION_KEY) || stateRef.current._version || 0
+      );
+      if (remote.syncedAt > localV) {
+        if (remote.allPages) applyAllPagesData(remote.allPages);
+        setStateRaw(remote.state);
+        persistLocal(remote.state);
+        saveStateToIndexedDb(remote.state);
         setSyncStatus({ msg: "✓ Pulled latest", type: "ok" });
         return;
       }

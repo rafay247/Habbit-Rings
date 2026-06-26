@@ -51,9 +51,23 @@ export async function pushStateToFirebase(
   }
 }
 
+export interface RemoteState {
+  state: AppState;
+  syncedAt: number;
+  /** Cross-page localStorage snapshot. Caller decides whether to apply it. */
+  allPages: Record<string, unknown> | null;
+}
+
+/**
+ * Fetch the remote snapshot WITHOUT touching local storage. The caller compares
+ * `syncedAt` against the local data version and only applies `allPages` (via
+ * applyAllPagesData) when the remote is strictly newer. Applying an older/equal
+ * snapshot here would silently revert local edits — most painfully Books/Quotes
+ * changes, which write localStorage directly and never bump the sync version.
+ */
 export async function pullStateFromFirebase(
   userId: string
-): Promise<AppState | null> {
+): Promise<RemoteState | null> {
   try {
     const db = await getFirebaseDb();
     if (!db) return null;
@@ -61,12 +75,11 @@ export async function pullStateFromFirebase(
     const snap = await get(ref(db, userPath(userId)));
     if (!snap.exists()) return null;
     const data = snap.val();
-    if (data._allPages) {
-      applyAllPagesData(data._allPages);
-      delete data._allPages;
-    }
+    const allPages = (data._allPages as Record<string, unknown>) || null;
+    const syncedAt = Number(data._syncedAt || 0);
+    delete data._allPages;
     delete data._syncedAt;
-    return normalizeParsedState(data);
+    return { state: normalizeParsedState(data), syncedAt, allPages };
   } catch (e) {
     console.error("Firebase pull failed", e);
     return null;
@@ -99,14 +112,15 @@ export async function startFirebaseListener(
       return;
     }
     const remote = snap.val();
-    if (remote._allPages) {
-      applyAllPagesData(remote._allPages);
-      delete remote._allPages;
-    }
+    const allPages = (remote._allPages as Record<string, unknown>) || null;
     const remoteSyncedAt = Number(remote._syncedAt || 0);
+    delete remote._allPages;
     delete remote._syncedAt;
     const localSyncedAt = Number(localStorage.getItem(DATA_VERSION_KEY) || 0);
+    // Only let a remote write touch local data when it is strictly newer.
+    // Otherwise an echo/stale snapshot would clobber edits made here.
     if (remoteSyncedAt > localSyncedAt) {
+      if (allPages) applyAllPagesData(allPages);
       onRemote({ state: normalizeParsedState(remote), syncedAt: remoteSyncedAt });
     }
   });
