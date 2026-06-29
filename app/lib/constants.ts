@@ -16,6 +16,7 @@ export const DEFAULT_BACKUP_APPLIED_KEY = "habit-rings-default-backup-applied";
 export const APP_STORAGE_PREFIX = "habit-rings-";
 export const LEGACY_PAGE_KEYS = [
   "habit-rings-vibe-notes",
+  "habit-rings-wall-notes-v1",
   "habit-rings-calendar-selection-v1",
   "habit-rings-calendar-x-marks-v1",
   "habit-rings-calendar-events-v1",

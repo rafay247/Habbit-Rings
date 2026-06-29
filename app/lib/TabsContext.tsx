@@ -13,7 +13,7 @@ export type TabKey =
   | "dashboard"
   | "goals"
   | "notes"
-  | "calendar"
+  | "wall"
   | "books"
   | "english"
   | "technology"

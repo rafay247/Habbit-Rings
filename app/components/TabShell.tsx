@@ -5,7 +5,7 @@ import { TabsProvider, useTabs, PINNED_TAB, type TabKey } from "../lib/TabsConte
 import Dashboard from "./Dashboard";
 import GoalsPage from "../goals/page";
 import NotesPage from "../notes/page";
-import CalendarPage from "../calendar/page";
+import WallPage from "../wall/page";
 import BooksPage from "../books/page";
 import EnglishPage from "../english/page";
 import TechnologyPage from "../technology/page";
@@ -34,7 +34,7 @@ const TAB_DEFS: Record<TabKey, TabDef> = {
   dashboard: { label: "Dashboard", render: () => <DashboardTab /> },
   goals: { label: "Goals", render: () => <GoalsPage /> },
   notes: { label: "Notes", render: () => <NotesPage /> },
-  calendar: { label: "Calendar", render: () => <CalendarPage /> },
+  wall: { label: "Wall", render: () => <WallPage /> },
   books: { label: "Books", render: () => <BooksPage /> },
   english: { label: "English", render: () => <EnglishPage /> },
   technology: { label: "Knowledge base", render: () => <TechnologyPage /> },

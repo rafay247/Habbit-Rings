@@ -2,6 +2,29 @@
   max-width: 1200px;
 }
 
+.year-countdown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+}
+
+.year-countdown-num {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.year-countdown-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .goals-main {
   display: flex;
   flex-direction: column;
@@ -24,6 +47,20 @@
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 0;
+}
+
+.goals-title-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.goals-countdowns {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .goals-legend {

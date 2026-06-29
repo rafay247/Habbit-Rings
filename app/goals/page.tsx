@@ -65,6 +65,20 @@ function formatDateTime(iso: string) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+function daysLeftInYear(): number {
+  const today = new Date();
+  const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const yearEnd = new Date(today.getFullYear(), 11, 31);
+  return Math.round((yearEnd.getTime() - startToday.getTime()) / 86400000);
+}
+
+function daysLeftInMonth(): number {
+  const today = new Date();
+  const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return Math.round((monthEnd.getTime() - startToday.getTime()) / 86400000);
+}
+
 function daysRemaining(iso: string): number {
   const today = new Date();
   const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -161,6 +175,13 @@ export default function GoalsPage() {
         month: "short",
         day: "numeric",
       }),
+    []
+  );
+
+  const yearDaysLeft = useMemo(() => daysLeftInYear(), []);
+  const monthDaysLeft = useMemo(() => daysLeftInMonth(), []);
+  const monthName = useMemo(
+    () => new Date().toLocaleDateString("en-US", { month: "long" }),
     []
   );
 
@@ -287,9 +308,27 @@ export default function GoalsPage() {
         <section className="goals-top glass">
           <div className="goals-title-row">
             <h1 className="goals-title">Goals</h1>
-            <button className="btn btn-primary" type="button" onClick={openAdd}>
-              + Add Goal
-            </button>
+            <div className="goals-title-actions">
+              <span className="goals-countdowns">
+                <span
+                  className="year-countdown"
+                  title={`${monthDaysLeft} days left until the end of ${monthName}`}
+                >
+                  <span className="year-countdown-num">{monthDaysLeft}</span>
+                  <span className="year-countdown-label">days left in {monthName}</span>
+                </span>
+                <span
+                  className="year-countdown"
+                  title={`${yearDaysLeft} days left until the end of ${new Date().getFullYear()}`}
+                >
+                  <span className="year-countdown-num">{yearDaysLeft}</span>
+                  <span className="year-countdown-label">days left in {new Date().getFullYear()}</span>
+                </span>
+              </span>
+              <button className="btn btn-primary" type="button" onClick={openAdd}>
+                + Add Goal
+              </button>
+            </div>
           </div>
           <div className="goals-legend">
             <span className="legend-item"><span className="legend-dot period-weekly-dot"></span>Weekly</span>

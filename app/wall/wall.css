@@ -1,0 +1,266 @@
+.wall-shell {
+  max-width: 1280px;
+}
+
+.wall-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Toolbar ── */
+.wall-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 20px;
+  flex-wrap: wrap;
+}
+
+.wall-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wall-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.wall-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wall-palette-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wall-palette {
+  display: flex;
+  gap: 8px;
+}
+
+.wall-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.wall-swatch:hover {
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Corkboard ── */
+.wall-board {
+  position: relative;
+  min-height: 70vh;
+  max-height: 78vh;
+  overflow: auto;
+  border-radius: 18px;
+  padding: 10px;
+  /* cork texture: layered radial speckle over a warm tan base */
+  background-color: #c79a5b;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(120, 80, 30, 0.28) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 60%, rgba(90, 60, 20, 0.22) 0 2px, transparent 3px),
+    radial-gradient(circle at 40% 80%, rgba(140, 100, 50, 0.25) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 85% 15%, rgba(90, 60, 20, 0.22) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 10% 70%, rgba(140, 100, 50, 0.25) 0 1.5px, transparent 3px);
+  background-size: 90px 90px, 70px 70px, 110px 110px, 60px 60px, 80px 80px;
+  box-shadow:
+    inset 0 0 0 10px rgba(110, 72, 30, 0.55),
+    inset 0 0 60px rgba(60, 38, 12, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(60, 38, 12, 0.6);
+  touch-action: none;
+}
+
+/* ── Sticky note ── */
+.wall-note {
+  position: absolute;
+  width: 190px;
+  min-height: 160px;
+  padding: 26px 14px 14px;
+  color: #2a2410;
+  font-family: var(--font-lexend, "Lexend"), "Inter", sans-serif;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.28);
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+  cursor: grab;
+  user-select: none;
+  /* subtle paper feel + folded bottom corner */
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(0, 0, 0, 0.04)
+  );
+}
+
+.wall-note::after {
+  /* peeling/folded bottom-right corner */
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.16) 50%);
+}
+
+.wall-note:active {
+  cursor: grabbing;
+}
+
+.wall-note.is-active {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 14px 28px rgba(0, 0, 0, 0.4);
+  filter: brightness(1.02);
+}
+
+/* pushpin */
+.wall-note__pin {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow:
+    inset -2px -2px 3px rgba(0, 0, 0, 0.35),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.55),
+    0 3px 5px rgba(0, 0, 0, 0.4);
+}
+
+.wall-note__pin::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* tape */
+.wall-note__tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  width: 76px;
+  height: 22px;
+  background: rgba(225, 225, 210, 0.45);
+  border-left: 1px dashed rgba(255, 255, 255, 0.5);
+  border-right: 1px dashed rgba(255, 255, 255, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(1px);
+}
+
+.wall-note__delete {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(42, 36, 16, 0.45);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.wall-note:hover .wall-note__delete,
+.wall-note.is-active .wall-note__delete {
+  opacity: 1;
+}
+
+.wall-note__delete:hover {
+  background: rgba(0, 0, 0, 0.12);
+  color: #2a2410;
+}
+
+.wall-note__body {
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  resize: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: text;
+}
+
+.wall-note__body::placeholder {
+  color: rgba(42, 36, 16, 0.4);
+}
+
+/* ── Empty state ── */
+.wall-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: rgba(40, 26, 8, 0.7);
+  pointer-events: none;
+}
+
+.wall-empty p {
+  margin: 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wall-empty__hint {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  opacity: 0.8;
+}
+
+.wall-empty__pin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  background: #e5484d;
+  box-shadow:
+    inset -2px -2px 3px rgba(0, 0, 0, 0.35),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.55),
+    0 3px 5px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  .wall-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .wall-note {
+    width: 160px;
+  }
+}
